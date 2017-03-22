@@ -64,9 +64,9 @@ the bcache-tools repository to be rewritten and expanded.
 ## Status
 
 Bcachefs can currently be considered beta quality. It has a small pool of
-outside users and has been quite stable and reliable so far; there's no reason
+outside users and has been stable for quite some time now; there's no reason
 to expect issues as long as you stick to the currently supported feature set.
-Being a new filesystem, backups are still recommended though.
+However, given that it's still under active development backups are a good idea.
 
 Performance is generally quite good - generally faster than btrfs, and not far
 behind xfs/ext4. There are still performance bugs to be found and optimizations
@@ -105,26 +105,27 @@ possible.
    compressed size: right now, enabling compression won't actually let you store
    any more data in your filesystem than if the data was uncompressed
 
- - Tiering
+ - Tiering/writeback caching:
 
-   Works (there are users using it), but recent testing and development has not
-   focused enough on multiple devices to call it supported. In particular, the
-   device add/remove functionality is known to be currently buggy.
+   Bcachefs allows you to assign devices to different tiers - the faster tier
+   will effectively be used as a writeback cache for the slower tier, and
+   metadata will be pinned in the faster tier.
 
- - Multiple devices, replication
+   Basic tiering functionality works, but it's not (yet) as configurable as
+   bcache's caching (e.g. you can't specify writethrough caching).
 
-   Roughly 80% or 90% implemented, but it's been on the back burner for quite
-   awhile in favor of making the core functionality production quality -
-   replication is not currently suitable for outside testing.
+ - Replication
+
+   All the core functionality is complete, and it's getting close to usable: you
+   can create a multi device filesystem with replication, and then while the
+   filesystem is in use take one device offline without any loss of
+   availability.
 
  - [[Encryption]]
 
-   Implementation is finished, and passes all the tests. The blocker on rolling
-   it out is finishing the design doc and getting outside review (as feedback
-   any changes based on outside review will almost definitely require on disk
-   format changes), as well as finishing up some unrelated on disk format
-   changes (particularly for replication) that I'm batching up with the on disk
-   format changes for encryption.
+   Whole filesystem AEAD style encryption (with ChaCha20 and Poly1305) is done
+   and merged. I would suggest not relying on it for anything critical until the
+   code has seen more outside review, though.
 
  - Snapshots
 

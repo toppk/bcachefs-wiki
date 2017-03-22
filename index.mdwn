@@ -1,5 +1,5 @@
 
-# Bcachefs
+# "The COW filesystem for Linux that won't eat your data".
 
 Bcachefs is an advanced new filesystem for Linux, with an emphasis on
 reliability and robustness. It has a long list of features, completed or in
@@ -23,8 +23,6 @@ man/years). Starting from there, bcachefs development has prioritized
 incremental development, and keeping things stable, and aggressively fixing
 design issues as they are found; the bcachefs codebase is considerably more
 robust and mature than upstream bcache.
-
-"The COW filesystem for Linux that won't eat your data".
 
 Developing a filesystem is also not cheap or quick or easy; we need funding!
 Please chip in on [[Patreon|https://www.patreon.com/bcachefs]] - the Patreon

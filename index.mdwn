@@ -2,10 +2,11 @@
 # Bcachefs
 
 Bcachefs is an advanced new filesystem for Linux, with an emphasis on
-reliability and robustness:
+reliability and robustness: it's the COW filesystem that won't lose your data.
+
+It has a long list of features, completed or in progress:
 
 * Copy on write (COW) - like zfs or btrfs
-
 * Good performance - significantly better than existing copy on write filesystems, comparable to ext4/xfs
 * Metadata and data checksumming
 * Multiple devices, including replication and other types of RAID
@@ -15,6 +16,27 @@ reliability and robustness:
 * Snapshots
 * Scalable - has been tested to 50+ TB, will eventually scale far higher
 * Already working and stable, with a small community of users
+
+We prioritize robustness and reliability over features and hype: we make every
+effort to ensure you won't lose data. It's building on top of a codebase with a
+pedigree - bcache already has a reasonably good track record for reliability
+(particularly considering how young upstream bcache is, in terms of engineer
+man/years). Starting from there, bcachefs development has prioritized
+incremental development, and keeping things stable, and aggressively fixing
+design issues as they are found; the bcachefs codebase is considerably more
+robust and mature than upstream bcache.
+
+Developing a filesystem is also not cheap or quick or easy; we need funding!
+Please chip in on [[Patreon|https://www.patreon.com/bcachefs]] - the Patreon
+page also has more information on the motivation for bcachefs and the state of
+Linux filesystems, as well as some bcachefs status updates and information on
+development.
+
+If you don't want to use Patreon, I'm also happy to take donations via paypal:
+kent.overstreet@gmail.com.
+
+Join us in the bcache IRC channel, we have a small group of bcachefs users and
+testers there: #bcache on OFTC (irc.oftc.net).
 
 ## Getting started
 
@@ -32,3 +54,136 @@ format and mount a single device with the default options, run:
     mount -t bcachefs /dev/sda1 /mnt
 
 See `bcachefs format --help` for more options.
+
+## Documentation
+
+End user documentation is currently fairly minimal; this would be a very helpful
+area for anyone who wishes to contribute - I would like the bcache man page in
+the bcache-tools repository to be rewritten and expanded.
+
+## Status
+
+Bcachefs can currently be considered beta quality. It has a small pool of
+outside users and has been quite stable and reliable so far; there's no reason
+to expect issues as long as you stick to the currently supported feature set.
+Being a new filesystem, backups are still recommended though.
+
+Performance is generally quite good - generally faster than btrfs, and not far
+behind xfs/ext4. There are still performance bugs to be found and optimizations
+we'd like to do, but performance isn't currently the primary focus - the main
+focus is on making sure it's production quality and finishing the core feature
+set.
+
+Normal posix filesystem functionality is all finished - if you're using bcachefs
+as a replacement for ext4 on a desktop, you shouldn't find anything missing. For
+servers, NFS export support is still missing (but coming soon) and we don't yet
+support quotas (probably further off).
+
+Pretty much all the normal posix filesystem stuff is supported (things like
+xattrs, acls, etc. - no quotas yet, though).
+
+The on disk format is not yet set in stone - there will be future breaking
+changes to the on disk format, but we will make every effort make transitioning
+easy for users (e.g. when there are breaking changes there will be kernel
+branches maintained in parallel that support old and new formats to give users
+time to transition, users won't be left stranded with data they can't access).
+We'll need at least one more breaking change for encryption and possibly
+snapshots, but I'm trying to batch up all the breaking changes as much as
+possible.
+
+### Feature status
+
+ - Full data checksumming
+
+   Fully supported and enabled by default. We do need to implement scrubbing,
+   once we've got replication and can take advantage of it.
+
+ - Compression
+
+   Not _quite_ finished - it's safe to enable, but there's some work left
+   related to copy GC before we can enable free space accounting based on
+   compressed size: right now, enabling compression won't actually let you store
+   any more data in your filesystem than if the data was uncompressed
+
+ - Tiering
+
+   Works (there are users using it), but recent testing and development has not
+   focused enough on multiple devices to call it supported. In particular, the
+   device add/remove functionality is known to be currently buggy.
+
+ - Multiple devices, replication
+
+   Roughly 80% or 90% implemented, but it's been on the back burner for quite
+   awhile in favor of making the core functionality production quality -
+   replication is not currently suitable for outside testing.
+
+ - [[Encryption]]
+
+   Implementation is finished, and passes all the tests. The blocker on rolling
+   it out is finishing the design doc and getting outside review (as feedback
+   any changes based on outside review will almost definitely require on disk
+   format changes), as well as finishing up some unrelated on disk format
+   changes (particularly for replication) that I'm batching up with the on disk
+   format changes for encryption.
+
+ - Snapshots
+
+   Snapshot implementation has been started, but snapshots are by far the most
+   complex of the remaining features to implement - it's going to be quite
+   awhile before I can dedicate enough time to finishing them, but I'm very much
+   looking forward to showing off what it'll be able to do.
+
+### Known issues/caveats
+
+ - Mount time
+
+   We currently walk all metadata at mount time (multiple times, in fact) - on
+   flash this shouldn't even be noticeable unless your filesystem is very large,
+   but on rotating disk expect mount times to be slow.
+
+   This will be addressed in the future - mount times will likely be the next
+   big push after the next big batch of on disk format changes.
+
+## Todo list
+
+### Current priorities:
+
+ * Replication 
+
+ * Compression is almost done: it's quite thoroughly tested, the only remaining
+   issue is a problem with copygc fragmenting existing compressed extents that
+   only breaks accounting.
+
+ * NFS export support is almost done: implementing i_generation correctly
+   required some new transaction machinery, but that's mostly done. What's left
+   is implementing a new kind of reservation of journal space for the new, long
+   running transactions.
+
+### Other wishlist items:
+
+ * When we're using compression, we end up wasting a fair amount of space on
+   internal fragmentation because compressed extents get rounded up to the
+   filesystem block size when they're written - usually 4k. It'd be really nice
+   if we could pack them in more efficiently - probably 512 byte sector
+   granularity.
+
+   On the read side this is no big deal to support - we have to bounce
+   compressed extents anyways. The write side is the annoying part. The options
+   are:
+    * Buffer up writes when we don't have full blocks to write? Highly
+      problematic, not going to do this.
+    * Read modify write? Not an option for raw flash, would prefer it to not be
+      our only option
+    * Do data journalling when we don't have a full block to write? Possible
+      solution, we want data journalling anyways
+
+ * Inline extents - good for space efficiency for both small files, and
+   compression when extents happen to compress particularly well.
+
+ * Full data journalling - we're definitely going to want this for when the
+   journal is on an NVRAM device (also need to implement external journalling
+   (easy), and direct journal on NVRAM support (what's involved here?)).
+
+   Would be good to get a simple implementation done and tested so we know what
+   the on disk format is going to be.
+

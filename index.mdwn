@@ -45,11 +45,16 @@ First, check out the bcache kernel and tools repositories:
     git clone https://evilpiepirate.org/git/bcachefs.git
     git clone https://evilpiepirate.org/git/bcachefs-tools.git
 
-Build and install as usual - make sure you enable `CONFIG_BCACHE_FS` Then, to
+Build and install as usual - make sure you enable `CONFIG_BCACHE_FS`. Then, to
 format and mount a single device with the default options, run:
 
     bcachefs format /dev/sda1
     mount -t bcachefs /dev/sda1 /mnt
+
+For a multi device filesystem, with sda1 caching sdb1:
+
+    bcachefs format /dev/sda1 --tier=1 /dev/sdb1
+    mount -t bcachefs /dev/sda1:/dev/sdb1 /mnt
 
 See `bcachefs format --help` for more options.
 
@@ -57,15 +62,16 @@ See `bcachefs format --help` for more options.
 
 End user documentation is currently fairly minimal; this would be a very helpful
 area for anyone who wishes to contribute - I would like the bcache man page in
-the bcache-tools repository to be rewritten and expanded.
+the bcachefs-tools repository to be rewritten and expanded.
 
 ## Status
 
 Bcachefs can currently be considered beta quality. It has a small pool of
 outside users and has been stable for quite some time now; there's no reason
 to expect issues as long as you stick to the currently supported feature set.
-However, given that it's still under active development backups are a good idea.
-It's been passing all xfstests for well over a year.
+It's been passing all xfstests for well over a year, and serious bugs are rare
+at this point. However, given that it's still under active development backups
+are a good idea.
 
 Performance is generally quite good - generally faster than btrfs, and not far
 behind xfs/ext4. On metadata intensive benchmarks, it's often considerably
@@ -76,8 +82,8 @@ as a replacement for ext4 on a desktop, you shouldn't find anything missing. For
 servers, NFS export support is still missing (but coming soon) and we don't yet
 support quotas (probably further off).
 
-Up until bcachefs goes upstream I reserve the right to change the on disk format
-if necessary, but I'm not expecting any more incompatible disk format changes.
+Until bcachefs goes upstream I reserve the right to change the on disk format if
+necessary, but I'm not expecting any more incompatible disk format changes.
 
 ### Feature status
 

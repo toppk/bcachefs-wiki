@@ -7,8 +7,7 @@ reliability and robustness: it's the COW filesystem that won't lose your data.
 It has a long list of features, completed or in progress:
 
 * Copy on write (COW) - like zfs or btrfs
-* Good performance - significantly better than existing copy on write filesystems, comparable to ext4/xfs
-* Metadata and data checksumming
+* Full data and metadata checksumming
 * Multiple devices, including replication and other types of RAID
 * Caching
 * Compression
@@ -67,29 +66,19 @@ Bcachefs can currently be considered beta quality. It has a small pool of
 outside users and has been stable for quite some time now; there's no reason
 to expect issues as long as you stick to the currently supported feature set.
 However, given that it's still under active development backups are a good idea.
+It's been passing all xfstests for well over a year.
 
 Performance is generally quite good - generally faster than btrfs, and not far
-behind xfs/ext4. There are still performance bugs to be found and optimizations
-we'd like to do, but performance isn't currently the primary focus - the main
-focus is on making sure it's production quality and finishing the core feature
-set.
+behind xfs/ext4. On metadata intensive benchmarks, it's often considerably
+faster than xfs/ext4/btrfs.
 
 Normal posix filesystem functionality is all finished - if you're using bcachefs
 as a replacement for ext4 on a desktop, you shouldn't find anything missing. For
 servers, NFS export support is still missing (but coming soon) and we don't yet
 support quotas (probably further off).
 
-Pretty much all the normal posix filesystem stuff is supported (things like
-xattrs, acls, etc. - no quotas yet, though).
-
-The on disk format is not yet set in stone - there will be future breaking
-changes to the on disk format, but we will make every effort make transitioning
-easy for users (e.g. when there are breaking changes there will be kernel
-branches maintained in parallel that support old and new formats to give users
-time to transition, users won't be left stranded with data they can't access).
-We'll need at least one more breaking change for encryption and possibly
-snapshots, but I'm trying to batch up all the breaking changes as much as
-possible.
+Up until bcachefs goes upstream I reserve the right to change the on disk format
+if necessary, but I'm not expecting any more incompatible disk format changes.
 
 ### Feature status
 

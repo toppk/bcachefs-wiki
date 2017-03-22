@@ -1,5 +1,3 @@
-[[!meta stylesheet=BcacheGuide rel="stylesheet" title="doc"]]
-
 # The Programmer's Guide to bcache:
 
 This document is intended to cover the design and core concepts of bcache, and

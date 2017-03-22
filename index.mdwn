@@ -1,8 +1,11 @@
 
+# Bcachefs
+
 Bcachefs is an advanced new filesystem for Linux, with an emphasis on
 reliability and robustness:
 
 * Copy on write (COW) - like zfs or btrfs
+
 * Good performance - significantly better than existing copy on write filesystems, comparable to ext4/xfs
 * Metadata and data checksumming
 * Multiple devices, including replication and other types of RAID
@@ -12,3 +15,20 @@ reliability and robustness:
 * Snapshots
 * Scalable - has been tested to 50+ TB, will eventually scale far higher
 * Already working and stable, with a small community of users
+
+## Getting started
+
+Bcachefs is not yet upstream - you'll have to build a kernel to use it. 
+
+First, check out the bcache kernel and tools repositories:
+
+    git clone https://evilpiepirate.org/git/bcachefs.git
+    git clone https://evilpiepirate.org/git/bcachefs-tools.git
+
+Build and install as usual - make sure you enable `CONFIG_BCACHE_FS` Then, to
+format and mount a single device with the default options, run:
+
+    bcachefs format /dev/sda1
+    mount -t bcachefs /dev/sda1 /mnt
+
+See `bcachefs format --help` for more options.

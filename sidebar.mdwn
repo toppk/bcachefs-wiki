@@ -2,3 +2,5 @@
 * [[About]]
 * [[FAQ]]
 * [[Architecture]]
+ * [[Encryption]]
+ * [[Transactions]]

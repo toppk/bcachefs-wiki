@@ -1,0 +1,16 @@
+Frequently Asked Questions
+
+## Do I have to reformat my bcache drive to use the new bcachefs ?
+
+To use the caching device (cdev) with the new bcachefs, you will need to reformat it.
+In principle this should not be a problem, as they can be removed from a backing device (bdev/bcache).
+
+If you wish to reuse the backing device (bdev/bcache), you can't this is nolonger an option.
+
+If you wish to use bcachefs as a filesystem you will have to format the backing device (bdev/bcache) with
+the new filesystem.
+
+## Does bcachefs still have the bcache caching functionality of block devices ?
+
+No.
+

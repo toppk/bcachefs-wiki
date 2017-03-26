@@ -1,0 +1,14 @@
+---
+layout: page
+title: Contact
+permalink: /contact/
+---
+
+#Mailing list
+You can find the official bcache(fs) mailing list on
+[vger.kernel.org](http://vger.kernel.org/vger-lists.html#linux-bcache)
+
+#IRC
+\#bcache on oftc.net
+<iframe src="https://webchat.oftc.net/?randomnick=1&channels=bcache&prompt=1" width="647" height="400"></iframe>
+

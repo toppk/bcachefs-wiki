@@ -4,3 +4,4 @@
 * [[Architecture]]
  * [[Encryption]]
  * [[Transactions]]
+* [[Contact]]

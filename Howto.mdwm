@@ -1,0 +1,28 @@
+#Build the bcachefs-tools
+
+Firt run the following command to download the bcachefs-tools.
+
+	git clone https://evilpiepirate.org/git/bcachefs-tools.git
+
+This will create a direcorty `bcachefs-tools`.
+In this direcorty you will find a file named INSTALL.
+This file contains the depencies and some instructions.
+
+To instal run as root:
+
+	make && make install
+
+#Build the bcachefs-kernel branch.
+Firt run the following command to download a kernel branch with the bcachefs patches.
+
+	git clone https://evilpiepirate.org/git/bcachefs.git
+
+
+This is slighly more complicated to explain.
+It's best you look up a tutorial for your specific distribution.
+
+During the configuration make sure you enable `CONFIG_BCACHE_FS`.
+To check run `grep CONFIG_BCACHE_FS .config` in in the kernel source.
+
+Tip if your distro kernel supports it you can extract the `.config` used by your distribution,
+by running `cat /proc/config.gz | gunzip > /tmp/distro.config`.

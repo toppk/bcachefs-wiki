@@ -1,5 +1,10 @@
 Frequently Asked Questions
 
+
+## Does bcachefs support ACL/xattrs ?
+Yes it supports both ACL and xattrs.
+
+
 ## Do I have to reformat my bcache drive to use the new bcachefs ?
 
 To use the caching device (cdev) with the new bcachefs, you will need to reformat it.
@@ -13,4 +18,3 @@ the new filesystem.
 ## Does bcachefs still have the bcache caching functionality of block devices ?
 
 No.
-

@@ -1,7 +1,10 @@
 
 * [[About]]
 * [[FAQ]]
+* [[Performance]]
+* [[Howto]]
+* [[Stability]]
 * [[Architecture]]
- * [[Encryption]]
- * [[Transactions]]
+* [[Encryption]]
+* [[Transactions]]
 * [[Contact]]

@@ -18,7 +18,7 @@ NOTE: Does not appear to work yet.
 Follow the steps above.
 But run the following command instead.
 
-	EXTRA_CFLAGS="-static" make
+	CFLAGS="-static "LDFLAGS="-static" make
 
 Please take note that you also need a static version installed of all required libraries.
 

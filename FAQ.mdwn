@@ -29,5 +29,14 @@ Statically linked programs have all the required dependencies compiled in.
 As such, they require no external libraries at runtime.
 This does however increase the size of the binary.
 
+##What is liburcu ?
+userspace RCU (read-copy-update) library
+[[http://lttng.org/urcu]]
+
+##I get the error "tools-util.c:16:19: fatal error: blkid.h: No such file or directory":
+You might need to add
+	EXTRA_CFLAGS="-l/usr/include/blkid/"
+or where-ever your OS stores the blkid.h file.
+
 
 

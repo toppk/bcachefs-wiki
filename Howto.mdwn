@@ -13,6 +13,8 @@ To instal run as root:
 	make && make install
 
 #Build the bcachefs-tools statically linked.
+NOTE: Does not appear to work yet.
+
 Follow the steps above.
 But run the following command instead.
 

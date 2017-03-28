@@ -12,6 +12,14 @@ To instal run as root:
 
 	make && make install
 
+#Build the bcachefs-tools statically linked.
+Follow the steps above.
+But run the following command instead.
+
+	EXTRA_CFLAGS="-static" make && make install
+
+Please take note that you also need a static version installed of all required libraries.
+
 #Build the bcachefs-kernel branch.
 Firt run the following command to download a kernel branch with the bcachefs patches.
 

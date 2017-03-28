@@ -18,3 +18,16 @@ the new filesystem.
 ## Does bcachefs still have the bcache caching functionality of block devices ?
 
 No.
+
+## Where do I obtain statically linked bcachefs-tool (for use in initramfs) ?
+
+You can either compile them yourself from source,
+or refer to your distribution on how to obtain a statically linked set.
+
+About:
+Statically linked programs have all the required dependencies compiled in.
+As such, they require no external libraries at runtime.
+This does however increase the size of the binary.
+
+
+

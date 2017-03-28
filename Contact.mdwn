@@ -1,9 +1,3 @@
----
-layout: page
-title: Contact
-permalink: /contact/
----
-
 #Mailing list
 You can find the official bcache(fs) mailing list on
 [vger.kernel.org](http://vger.kernel.org/vger-lists.html#linux-bcache)

@@ -16,7 +16,7 @@ To instal run as root:
 Follow the steps above.
 But run the following command instead.
 
-	EXTRA_CFLAGS="-static" make && make install
+	EXTRA_CFLAGS="-static" make
 
 Please take note that you also need a static version installed of all required libraries.
 

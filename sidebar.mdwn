@@ -1,10 +1,13 @@
-
 * [[About]]
-* [[FAQ]]
-* [[Performance]]
-* [[Howto]]
-* [[Stability]]
-* [[Architecture]]
-* [[Encryption]]
-* [[Transactions]]
-* [[Contact]]
+  * [[Stability]]
+  * [[Performance]]
+* Support
+  * [[FAQ]]
+  * [[Howto]]
+  * [[Contact]]
+* Development
+  * [[Todo]]
+* Technical
+  * [[Architecture]]
+  * [[Encryption]]
+  * [[Transactions]]

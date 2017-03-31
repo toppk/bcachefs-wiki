@@ -15,6 +15,18 @@
    is implementing a new kind of reservation of journal space for the new, long
    running transactions.
 
+ * Allocation information (currently just bucket generation numbers & priority
+   numbers, for LRU caching) needs to be moved into a btree, and we need to
+   start persisting actual allocation information so we don't have to walk all
+   extents at mount time.
+
+   Just moving the existing prios/gens to a btree will be a significant
+   improvement - besides getting us incrementally closer to persisting full
+   allocation information, the existing code is a rather hacky mechanism dating
+   from the early days of bcache and has recently been the source of an annoying
+   bug due to the design being a bit fragile, and it'll be a performance
+   improvement since it'll get rid of the last source of forced journal flushes.
+
 ### Other
 
  * When we're using compression, we end up wasting a fair amount of space on
@@ -55,6 +67,8 @@
    However using it as a filesystem should still be better.
 
 ## Developers
+
+ * End user documentation needs a lot of work - complete man pages, etc.
 
  * bcachefs-tools needs some fleshing out in the --help department
 

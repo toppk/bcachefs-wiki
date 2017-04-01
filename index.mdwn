@@ -24,6 +24,9 @@ incremental development, and keeping things stable, and aggressively fixing
 design issues as they are found; the bcachefs codebase is considerably more
 robust and mature than upstream bcache.
 
+Fixing bugs always take priority over features! This means getting features out
+takes longer, but for a filesystem not losing your data is the biggest feature.
+
 Developing a filesystem is also not cheap or quick or easy; we need funding!
 Please chip in on [[Patreon|https://www.patreon.com/bcachefs]] - the Patreon
 page also has more information on the motivation for bcachefs and the state of
@@ -138,6 +141,3 @@ necessary, but I'm not expecting any more incompatible disk format changes.
 
    This will be addressed in the future - mount times will likely be the next
    big push after the next big batch of on disk format changes.
-
-## [[Todo]] list
-

@@ -57,6 +57,7 @@
 ## Developers
 
  * bcachefs-tools needs some fleshing out in the --help department
+ * Write a tool to benchmark tail-latency.
 
 ## Users
 

@@ -7,7 +7,9 @@
   * [[Contact]]
 * Development
   * [[Todo]]
-* Technical
+* Bcachefs developer documentation
   * [[Architecture]]
   * [[Encryption]]
   * [[Transactions]]
+* Other technical docs
+  * [[StablePages]]

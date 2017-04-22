@@ -84,4 +84,38 @@
  * Update the website / Documentation
  * Ask questions (so and we can update the documentation / website).
 
+## Wishlist
+
+ * "Seed devices", hard-readonly devices that are CoWed from on write (btrfs
+   has this; useful for base devices for virtualization, among other things).
+ * Nonce-misuse-resistant authenticated encryption, such as AES-SIV or HS1-SIV
+   (Closes potential hole regarding nonce reuse and "external" snapshots, as
+   might happen to VMs or systems with externally-managed storage like iSCSI).
+ * Some form of "secure delete" functionality.
+ * A simplified userspace API with no hierarchy, only blobs identified by
+   unique integer keys (eternaleye thinks this might be useful for
+   object-capability systems, such as Robigalia).
+ * An API like the above, but supporting multiple streams per blob, possibly
+   with string identifiers (needs further examination, intent is to match the
+   needs of CephFS for storage backends).
+ * More advanced caching algorithms; one potentially-relevant paper is
+   [Pannier: A Container-based Flash Cache for Compound Objects][pannier].
+ * "Asymmetrical" compression algorithms, that support only decompression (XZ
+   is a nice candidate here, and would be a very good match for some seed
+   device use cases).
+ * RAID-6 with parity 3 or greater - could potentially use Andrea Mazzoleni's
+   [technique][triple-parity] for generating Cauchy matrices compatible with
+   Linux' current RAID-5 and RAID-6 formats, providing a clean upgrade path.
+ * "Inline" forward error correction, possibly using a fountain code like
+   [RaptorQ][RFC6330].
+ * Support Trusted/Encrypted kernel keyring keys, in order to take advantage
+   of TPMs.
+ * Support for multiple key slots.
+ * Ponder the ramifications of (and safe defaults for) compression in the
+   presence of encryption.
+ * Swap file support.
+
+[pannier]: https://pdfs.semanticscholar.org/fa5f/3aa6de62e126e6fe2986c70a34e4d678860b.pdf
+[triple-parity]: https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg28964.html
+[RFC6330]: https://tools.ietf.org/html/rfc6330
 

@@ -116,6 +116,15 @@
  * Ponder the ramifications of (and safe defaults for) compression in the
    presence of encryption.
  * Swap file support.
+ * Support (a subset of?) the Ext[234] attributes denoting special behaviors:
+   * `+c` for compressed files
+   * `+C` for disabling copy-on-write
+   * `+e` for extent-based storage (always set? btrfs doesn't set it...)
+   * `+E` for _displaying_ that a file is encrypted
+   * `+N` for _displaying_ that a file's contents are inlined into the inode
+   * `+s` for files that should be securely erased on delete
+   * `+u` for files that should permit being "undeleted"
+   * Others seem less relevant, but may be worth investigating.
 
 [AESSIV]: https://tools.ietf.org/html/rfc5297
 [secdel]: https://lwn.net/Articles/462437/

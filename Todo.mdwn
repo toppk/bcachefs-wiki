@@ -88,16 +88,18 @@
 
  * "Seed devices", hard-readonly devices that are CoWed from on write (btrfs
    has this; useful for base devices for virtualization, among other things).
- * Nonce-misuse-resistant authenticated encryption, such as AES-SIV or HS1-SIV
-   (Closes potential hole regarding nonce reuse and "external" snapshots, as
-   might happen to VMs or systems with externally-managed storage like iSCSI).
- * Some form of "secure delete" functionality.
+ * Nonce-misuse-resistant authenticated encryption, such as [AES-SIV][AESSIV]
+   or HS1-SIV (Closes potential hole regarding nonce reuse and "external"
+   snapshots, as might happen to VMs or systems with externally-managed storage
+   like iSCSI).
+ * Some form of "secure delete" functionality. (However, see [this LWN article][secdel]
+   regarding implementation strategies and pitfalls).
  * A simplified userspace API with no hierarchy, only blobs identified by
    unique integer keys (eternaleye thinks this might be useful for
-   object-capability systems, such as Robigalia).
+   object-capability systems, such as [Robigalia][robigalia]).
  * An API like the above, but supporting multiple streams per blob, possibly
    with string identifiers (needs further examination, intent is to match the
-   needs of CephFS for storage backends).
+   [needs of CephFS for OSD backends][cephback]).
  * More advanced caching algorithms; one potentially-relevant paper is
    [Pannier: A Container-based Flash Cache for Compound Objects][pannier].
  * "Asymmetrical" compression algorithms, that support only decompression (XZ
@@ -115,6 +117,10 @@
    presence of encryption.
  * Swap file support.
 
+[AESSIV]: https://tools.ietf.org/html/rfc5297
+[secdel]: https://lwn.net/Articles/462437/
+[robigalia]: https://robigalia.org
+[cephback]: http://bryanapperson.com/blog/ceph-osd-performance/
 [pannier]: https://pdfs.semanticscholar.org/fa5f/3aa6de62e126e6fe2986c70a34e4d678860b.pdf
 [triple-parity]: https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg28964.html
 [RFC6330]: https://tools.ietf.org/html/rfc6330

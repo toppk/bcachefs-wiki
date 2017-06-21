@@ -125,6 +125,21 @@
    * `+s` for files that should be securely erased on delete
    * `+u` for files that should permit being "undeleted"
    * Others seem less relevant, but may be worth investigating.
+ * "Remote Subvolumes", subvolumes that reside on a subset of the filesystem's
+   physical devices and can be deactivated so that the physical devices can be
+   detached (if all subvolumes on them are remote and deactivated) without
+   unmounting the entire filesystem.
+ * Per-file allocation policies - highly useful for VM disks, potential zvol
+   killer.
+ * Conversion of multi-device filesystems (potentially relevant for btrfs)
+   * May be possible to use the new `getfsmap` ioctl; it seems to provide
+     device information, and it looks like it iterates the whole FS (perfect
+     for doing a whole-FS conversion, so it may even simplify single-device
+     cases).
+ * A fully-explicit mount syntax that does no scanning at all, possibly with
+   a purely-userspace mount.bcachefs helper for scanning that then invokes
+   the explicit form. Allows eliminating scanning/registration from the kernel.
+   * Strawman: mount -t bcachefs bcachefs -o dev=...,dev=... /mount/point
 
 [AESSIV]: https://tools.ietf.org/html/rfc5297
 [secdel]: https://lwn.net/Articles/462437/

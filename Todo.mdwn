@@ -140,6 +140,9 @@
    a purely-userspace mount.bcachefs helper for scanning that then invokes
    the explicit form. Allows eliminating scanning/registration from the kernel.
    * Strawman: mount -t bcachefs bcachefs -o dev=...,dev=... /mount/point
+ * Support the [`i_version` inode attribute][iversion], useful for NFSv4,
+   backup tools, indexers, and other things that want to have a counter
+   that updates whenever something changes about a file.
 
 [AESSIV]: https://tools.ietf.org/html/rfc5297
 [secdel]: https://lwn.net/Articles/462437/
@@ -148,4 +151,4 @@
 [pannier]: https://pdfs.semanticscholar.org/fa5f/3aa6de62e126e6fe2986c70a34e4d678860b.pdf
 [triple-parity]: https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg28964.html
 [RFC6330]: https://tools.ietf.org/html/rfc6330
-
+[iversion]: https://jtlayton.wordpress.com/2016/12/16/the-inode-i_version-counter-in-linux/

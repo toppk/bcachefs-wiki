@@ -113,6 +113,8 @@
  * Support Trusted/Encrypted kernel keyring keys, in order to take advantage
    of TPMs.
  * Support for multiple key slots.
+   * LUKS2 has a new [keyslot system][LUKS2-keyslots] that better supports
+     two-factor auth and other external keying mechanisms.
  * Ponder the ramifications of (and safe defaults for) compression in the
    presence of encryption.
  * Swap file support.
@@ -151,4 +153,5 @@
 [pannier]: https://pdfs.semanticscholar.org/fa5f/3aa6de62e126e6fe2986c70a34e4d678860b.pdf
 [triple-parity]: https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg28964.html
 [RFC6330]: https://tools.ietf.org/html/rfc6330
+[LUKS2-keyslots]: https://fosdem.org/2018/schedule/event/cryptsetup/attachments/slides/2506/export/events/attachments/cryptsetup/slides/2506/fosdem18_cryptsetup_aead.pdf#page=24
 [iversion]: https://jtlayton.wordpress.com/2016/12/16/the-inode-i_version-counter-in-linux/

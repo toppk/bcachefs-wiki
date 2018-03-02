@@ -145,6 +145,10 @@
  * Support the [`i_version` inode attribute][iversion], useful for NFSv4,
    backup tools, indexers, and other things that want to have a counter
    that updates whenever something changes about a file.
+ * Support DAX, to allow using NVM devices directly and reduce page-cache
+   pressure
+   * Caveat: May need careful thinking if the kernel assumes it can write
+     directly if DAX is supported; getting checksums invalidated would suck.
 
 [AESSIV]: https://tools.ietf.org/html/rfc5297
 [secdel]: https://lwn.net/Articles/462437/

@@ -91,3 +91,9 @@ extended attributes; the xattr name will be listed in such cases.
       recover from if those are insufficient.
     - Can be implemented with P <= 2 for now, possibly extended later using
       Andrea Mazzoleni's compatible approach (see [[Todo]], wishlist section)
+
+- Writethrough caching
+    - Does this basically obviate 'foreground' as a category, and instead
+      write directly into background and promote?
+    - What constraints does this place on (say) parity, given the plan for
+      it seems to be to restripe and pack as a migration action?

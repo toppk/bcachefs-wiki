@@ -1,0 +1,91 @@
+IO Tunables, Options, and Knobs
+
+## What there is
+
+These IO tunables can be set on a per-filesystem basis in
+`/sys/fs/bcache/<FSUUID>`. Some can be overridden on a per-inode basis via
+extended attributes; the xattr name will be listed in such cases.
+
+### Metadata tunables
+
+- `metadata_checksum`
+    - What checksum algorithm to use for metadata
+    - Default: `crc32c`
+    - Valid values: `none`, `crc32c`, `crc64`
+- `metadata_replicas`
+    - The number of replicas to keep for metadata
+    - Default: `1`
+- `metadata_replicas_required`
+    - The minimum number of replicas to tolerate for metadata
+    - Default: `1`
+- `str_hash`
+    - The hash algorithm to use for dentries and xattrs
+    - Default: `siphash`
+    - Valid values: `crc32c`, `crc64`, `siphash`
+
+### Data tunables
+
+- `data_checksum`
+    - What checksum algorithm to use for data
+    - Extended attribute: `bcachefs.data_checksum`
+    - Default: `crc32c`
+    - Valid values: `none`, `crc32c`, `crc64`
+- `data_replicas`
+    - The number of replicas to keep for data
+    - Extended attribute: `bcachefs.data_replicas`
+    - Default: `1`
+- `data_replicas_required`
+    - The minimum number of replicas to tolerate for data
+    - Default: `1`
+
+### Foreground tunables
+
+- `compression`
+    - What compression algorithm to use for foreground writes
+    - Extended attribute: `bcachefs.compression`
+    - Default: `none`
+    - Valid values: `none`, `lz4`, `gzip`, `zstd`
+- `foreground_target`
+    - Extended attribute: `bcachefs.foreground_target`
+    - What disk group foreground writes should prefer (may use other disks if
+      sufficient replicas are not available in-group)
+
+### Background tunables
+
+- `background_compression`
+    - What compression algorithm to recompress to in the background
+    - Extended attribute: `bcachefs.background_compression`
+    - Default: `none`
+    - Valid values: `none`, `lz4`, `gzip`, `zstd`
+- `background_target`
+    - Extended attribute: `bcachefs.background_target`
+    - What disk group data should be written back to in the background (may
+      use other disks if sufficient replicas are not available in-group)
+
+### Promote (cache) tunables
+
+- `promote_target`
+    - What disk group data should be copied to when frequently accessed
+    - Extended attribute: `bcachefs.promote_target`
+
+## What would be nice
+
+- Different replication(/raid) settings between FG, BG, and promote
+    - For example, replicated foreground across all SSDs (durability with low
+      latency), RAID-6 background (sufficient durability, optimal space
+      overhead per durability), and RAID-0/single promote (maximum performance,
+      minimum cache footprint)
+
+- Different compression for promote
+    - For example, uncompressed foreground (minimize latency), zstd background
+      (minimize size), and lz4 promote (save cache space, but prioritize speed)
+
+- Fine-grained tuning of stripes vs. replicas vs. parity?
+    - Would allow configuring N stripes + M parity, so trading off throughput
+      (more stripes) vs. durability (more parity or replicas) vs. space
+      efficiency (fewer replicas, higher stripes/parity ratio)
+    - Well defined: (N stripes, R replicas, P parity) = (N * R + P) total
+      chunks, with each stripe replicated R times, and P parity chunks to
+      recover from if those are insufficient.
+    - Can be implemented with P <= 2 for now, possibly extended later using
+      Andrea Mazzoleni's compatible approach (see [[Todo]], wishlist section)

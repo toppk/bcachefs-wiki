@@ -17,6 +17,7 @@ extended attributes; the xattr name will be listed in such cases.
     - Default: `1`
 - `metadata_replicas_required`
     - The minimum number of replicas to tolerate for metadata
+    - Mount-only (not in sysfs)
     - Default: `1`
 - `str_hash`
     - The hash algorithm to use for dentries and xattrs
@@ -36,6 +37,7 @@ extended attributes; the xattr name will be listed in such cases.
     - Default: `1`
 - `data_replicas_required`
     - The minimum number of replicas to tolerate for data
+    - Mount-only (not in sysfs)
     - Default: `1`
 
 ### Foreground tunables

@@ -56,8 +56,15 @@ format and mount a single device with the default options, run:
 
 For a multi device filesystem, with sda1 caching sdb1:
 
-    bcachefs format /dev/sda1 --tier=1 /dev/sdb1
+    bcachefs format /dev/sd[ab]1 \
+        --foreground_target /dev/sda1 \
+        --promote-target /dev/sda1 \
+        --background_target /dev/sdb1
     mount -t bcachefs /dev/sda1:/dev/sdb1 /mnt
+
+This will configure the filesystem so that writes will be buffered to /dev/sda1
+before being written back to /dev/sdb1 in the background, and that hot data
+will be promoted to /dev/sda1 for faster access.
 
 See `bcachefs format --help` for more options.
 
@@ -104,11 +111,13 @@ necessary, but I'm not expecting any more incompatible disk format changes.
 
  - Tiering/writeback caching:
 
-   Bcachefs allows you to assign devices to different tiers - the faster tier
-   will effectively be used as a writeback cache for the slower tier, and
-   metadata will be pinned in the faster tier.
+   Bcachefs allows you to specify disks (or groups thereof) to be used for
+   three categories of I/O: foreground, background, and promote. Foreground
+   devices accept writes, whose data is copied to background devices
+   asynchronously, and the hot subset of which is copied to the promote devices
+   for performance.
 
-   Basic tiering functionality works, but it's not (yet) as configurable as
+   Basic caching functionality works, but it's not (yet) as configurable as
    bcache's caching (e.g. you can't specify writethrough caching).
 
  - Replication

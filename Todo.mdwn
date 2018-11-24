@@ -149,6 +149,14 @@
    pressure
    * Caveat: May need careful thinking if the kernel assumes it can write
      directly if DAX is supported; getting checksums invalidated would suck.
+ * Support converting filesystems not just to bcachefs volumes, but to image
+   files _on_ bcachefs volumes (and once reflinks are in, to both at once)
+ * Support "adopting" devices, by importing their content _into_ an existing
+   filesystem using the existing extents on the old device. In theory, could
+   supplant "adding a cache" in a minimally-invasive way.
+ * Add a bcachefs command to export a path as a block device (satisfy some
+   bcache use cases that bcachefs is clumsy for today, and in combination
+   with the above two items may make migration from other filesystems easier)
 
 [AESSIV]: https://tools.ietf.org/html/rfc5297
 [secdel]: https://lwn.net/Articles/462437/

@@ -99,15 +99,18 @@ necessary, but I'm not expecting any more incompatible disk format changes.
 
  - Full data checksumming
 
-   Fully supported and enabled by default. We do need to implement scrubbing,
-   once we've got replication and can take advantage of it.
+   Fully supported and enabled by default; checksum errors will cause IOs to be
+   retried if there's another replica available.
 
  - Compression
 
-   Not _quite_ finished - it's safe to enable, but there's some work left
-   related to copy GC before we can enable free space accounting based on
-   compressed size: right now, enabling compression won't actually let you store
-   any more data in your filesystem than if the data was uncompressed
+   Done - LZ4, gzip and ZSTD are currently supported. ZSTD support unfortunately
+   still seems to be slightly buggy, but LZ4 is stable and well tested.
+
+ - Multiple device support
+
+   Done - you can add and remove devices at runtime while the filesystem is in
+   use, migrating data off the device if necessary.
 
  - Tiering/writeback caching:
 
@@ -120,12 +123,16 @@ necessary, but I'm not expecting any more incompatible disk format changes.
    Basic caching functionality works, but it's not (yet) as configurable as
    bcache's caching (e.g. you can't specify writethrough caching).
 
- - Replication
+ - Replication (i.e. RAID1/10)
 
-   All the core functionality is complete, and it's getting close to usable: you
-   can create a multi device filesystem with replication, and then while the
-   filesystem is in use take one device offline without any loss of
-   availability.
+   Done - you can yank out a disk while a filesystem is in use and it'll keep
+   working, transparently handling IO errors. You can then use the rereplicate
+   command to write out another copy of all the degraded data to another device.
+
+ - Erasure coding
+
+   Mostly done, but not quite usable yet. We still need a stripe level
+   compaction path.
 
  - [[Encryption]]
 

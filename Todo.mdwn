@@ -151,6 +151,12 @@
      directly if DAX is supported; getting checksums invalidated would suck.
  * Support converting filesystems not just to bcachefs volumes, but to image
    files _on_ bcachefs volumes (and once reflinks are in, to both at once)
+   * Notably, if conversion made an image as the first step, this could allow
+     the subsequent extraction of files to bcachefs files a _completely
+     userspace process_, which merely reflinks ranges of content out. This
+     would also avoid the risks facing the current system, where the converter
+     notes where the data lives in the "inner" bcachefs image, and then the
+     content is moved out from under it (such as by GC, or btrfs rebalancing)
  * Support "adopting" devices, by importing their content _into_ an existing
    filesystem using the existing extents on the old device. In theory, could
    supplant "adding a cache" in a minimally-invasive way.

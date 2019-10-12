@@ -10,6 +10,7 @@
   * [[IoTunables]]
 * Bcachefs developer documentation
   * [[Architecture]]
+  * [[BtreeNodes]]
   * [[Encryption]]
   * [[Transactions]]
 * Other technical docs

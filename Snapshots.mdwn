@@ -124,7 +124,7 @@ start position, we can scan forwards until we find an extent that overwrites 1
 (is in a newer snapshot than 1 and a descendant of the snapshot we're reading),
 or until we see an extent that starts after the position where extent 1 ends.
 
-* Example 2:
+Example 2:
 
     2:      |----|
     1: |--------------|
@@ -135,7 +135,7 @@ extent lookup return starts after the lookup position - so then iterate
 backwards, ordered by extent start position, until we find an extent that starts
 at or before our search position.
 
-* Example 3:
+Example 3:
 
     1:      |----|
     2: |--------------|
@@ -143,7 +143,7 @@ at or before our search position.
 Reading from snapshot 2, at the position where extent 1 starts. Lookup returns
 extent 1, but we actually want extent 2.
 
-* Example 4:
+Example 4:
 
     2:          |----|
     1:     |--------------|

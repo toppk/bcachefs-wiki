@@ -11,7 +11,9 @@
 * Bcachefs developer documentation
   * [[Architecture]]
   * [[BtreeNodes]]
+  * [[BtreeWhiteouts]]
   * [[Encryption]]
   * [[Transactions]]
+  * [[Snapshots]]
 * Other technical docs
   * [[StablePages]]

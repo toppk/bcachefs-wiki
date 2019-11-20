@@ -7,6 +7,9 @@ keys that are too big to be efficiently inserted to or deleted from - but since
 we're not doing random updates on them, we can build special data structures to
 highly accelerate lookups.
 
+Optimization: tracking when whiteouts need to be retained/written out:
+----------------------------------------------------------------------
+
 Since we usually can't delete or update in place an existing key, this means we
 need whiteouts, but whiteouts add their own complications. When we generate a
 whiteout because we overwrite or delete an existing key, we may or may not need
@@ -21,6 +24,9 @@ To track this we have the flag `bkey.needs_whiteout`: keys have this flag set
 when they've been written out to disk, or when they overwrote something that was
 written out to disk.
 
+Optimization: storing whiteouts separately from other keys
+----------------------------------------------------------
+
 Additionally: as mentioned, some whiteouts need to be retained until the next
 btree node write, but we don't want to keep them mixed in with the rest of the
 keys in a btree node where they'd have to be skipped over when we're iterating
@@ -28,6 +34,19 @@ over live keys. Therefore, when a given bset in a btree node has too many
 whiteouts (as a fraction of the total amount of data in that bset), we do a
 compact operation that drops whiteouts, saving the ones that need to be written
 where the next btree node write will find it.
+
+Optimization: deleting keys without emitting a new whiteout
+-----------------------------------------------------------
+
+We can delete a key, even one that's been written out to disk, without emitting
+a new whiteout (because that would require inserting into the last bset and an
+expensive memmove).
+
+This works by changing the key type to `KEY_TYPE_deleted` - as usual whenever we
+overwrite an existing key - and leaving `needs_whiteout` set for that key, and
+additionally calling `reserve_whiteout()` to reserve space in the next btree
+write. The btree write code will scan the already-written bsets for whiteouts
+that need to be written and pick them up.
 
 Extents
 -------

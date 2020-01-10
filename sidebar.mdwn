@@ -10,6 +10,7 @@
   * [[IoTunables]]
 * Bcachefs developer documentation
   * [[Architecture]]
+  * [[BtreeIterators]]
   * [[BtreeNodes]]
   * [[BtreeWhiteouts]]
   * [[Encryption]]

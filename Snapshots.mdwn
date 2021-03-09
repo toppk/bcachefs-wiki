@@ -117,6 +117,40 @@ In the current design, deleting a snapshot will require walking every btree that
 has snapshots (extents, inodes, dirents and xattrs) to find and delete keys with
 the given snapshot ID. It would be nice to improve this.
 
+Other performance considerations:
+=================================
+
+Snapshots seem to exist in one of those design spaces where there's inherent
+tradeoffs and it's almost impossible to design something that doesn't have
+pathalogical performance issues in any use case scenario. E.g. btrfs snapshots
+are known for being inefficient with sparse snapshots.
+
+bcachefs snapshots should perform beautifully when taking frequent periodic (and
+thus mostly fairly sparse) snapshots. The one thing we may have to watch out for
+is part of the keyspace becoming too dense with keys from unrelated snapshots -
+e.g. if we start with a 1 GB file, snapshot it 100 or 1000 times, and then have
+fio fully overwrite the file with 4k random writes in every snapshot - that
+would not be good, reading that file sequentially will require more or less
+sequentially scanning through all the extents from every snapshot.
+
+I expect this to be a fairly uncommon issue though, because when we allocate new
+inode numbers we'll be picking an inode number that's unused in any snapshot -
+most files in a filesystem are created, written to once, and then some time
+later a new version is created and then renamed over the old file. The only way
+to trigger this issue is by doing steady random writes to a large existing file
+that's never recreated - which is mostly just databases and virtual machine
+images. For virtual machine images people would be better off using reflink,
+which we already support and won't have this issue at all.
+
+But, if this does turn out to be a real issue for people (and if someone's
+willing to fund this area), it should be perfectly solvable: we first need to
+track number of keys for a given inode (extents/dirents/xattrs) in a given
+snapshot, and in all snapshots. When that ratio crosses some threshhold, we'll
+allocate a new inode and move all the keys for that inode number and snapshot ID
+to the new inode, and mark the original inode to redirect to the new inode so
+that the user visible inode number doesn't change. A bit tedious to implement,
+but straightforward enough.
+
 Permissions:
 ============
 

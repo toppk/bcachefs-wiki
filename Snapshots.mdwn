@@ -1,166 +1,135 @@
 
-Snapshots in bcachefs:
-======================
+Snapshots & subvolumes:
+=======================
 
-The plan for snapshots in bcachefs is radically different than anything that's
-been done previously in other filesystems, and the end result should be
-drastically more efficient than e.g. btrfs. Snapshots will be very cheap to
-create and keep around; in particular sparse snapshots (many snapshots with only
-a few changes each) will be very cheap.
+The short version:
 
-First thing to note - bcachefs the filesystem is built on top of bcachefs the
-key/value store; all filesystem objects are just key/value pairs indexed by
-inode:offset in a small number of btrees, and the btree code just treats the key
-as a large integer. If this was a relational database, we'd have an extents
-table, an inodes table, a dirents table, etc.
+bcachefs snapshots are a different approach - we're not using COW btrees.
+Instead, they're based on extending the key filesystem items (inodes, dirents,
+xattrs, extents) with a version number - a snapshot id - for the low bits.
 
-To implement snapshots, the key will be extended so that the low 32 bits will
-now be a snapshot ID (this already exists in struct bpos, it's just unused by
-the existing code).
+Snapshot IDs form a tree, which will be recorded in the snapshots btree. The
+root snapshot ID is `U32_MAX`, and we allocate new snapshot IDs growing down so
+that the parent of a given snapshot ID is always larger than that ID.
 
-Snapshots themselves will form a tree, where each entry in the tree has a 32 bit
-snapshot ID and - importantly - we enforce that child snapshots have a node ID
-less than their parent; thus, the root snapshot will have the id U32_MAX.
+To create a new writeable snapshot, we allocate two new snapshot IDs. We update
+the existing subvolume with one of the new snapshot IDs, and assign the other
+snapshot ID to the new snapshot.
 
-Then, when looking up filesystem data, our search key will include the snapshot
-ID of the snapshot we're currently in. The btree lookup returns the first key
-greater than or equal to the search key, so a lookup will return either a key in
-the current snapshot (if it exists) or (in the common case) a key in some
-ancestor snapshot - the only additional work we have to do for snapshots is to
-check the snapshot ID of the key return against our current snapshot and iterate
-forwards until we find a key in the current snapshot or an ancestor.
+When we do a lookup for a filesystem item, we have to check if the snapshot ID
+of the key we found is an ancestor of the snapshot ID we're searching for, and
+filter out items that aren't.
 
-That's pretty much the bcachefs snapshot design in a nutshell, for normal keys.
-Given typical filesystem snapshot usage, I expect the overhead from linear scan
-over unrelated snapshots to be minimal to nonexistent for most users. There are
-instances where this won't be the case - i.e. using snapshots for a virtual
-machine base image; many virtual machines would have their own overwrites to the
-same part of the keyspace. Reflink - which is already implemented in bcachefs -
-doesn't suffer from this problem, so either we would recommend users use reflink
-for those cases, or ideally we would be able to detect this condition and
-transparently do something like reflink when we detect a high density of
-overwrites in part of the keyspace.
+Subvolumes:
+===========
 
-Extents:
-========
+Subvolumes are needed for two reasons:
+ * They're the mechanism for accessing snapshots
+ * Also, they're a way of isolating different parts of the filesystem heirarchy
+   from snapshots, or taking snapshots that aren't global. I.e. you'd create a
+   subvolume for your database so that filesystem snapshots don't COW it, or
+   create subvolumes for each home directory so that users can snapshot their
+   own home directories.
 
-Extents, however, are more complicated - a key in a child snapshot always
-overwrites/replicas a key in an ancestor snapshot exactly, but extents can
-partially overlap in arbitrary ways. Some examples below will illustrate the
-problems that snapshots introduce, and then a proposed solution.
+The functionality and userspace interface for snapshots and subvolumes are
+roughly modelled after btrfs, but simplified.
 
-A note: in bcachefs, extents are indexed by their end position, not their start.
-This is more natural given typical usage: when doing a read we want the first
-extent that ends after the start of the range we're reading from.
+Subvolumes in bcachefs are just fancy directories. We introduce internally a new
+dirent type that can point to subvolumes, instead of inodes, and the subvolume
+has a pointer to the root inode. Subvolumes get their own table (btree), and
+subvolume keys have fields for root inode number and snapshot ID.
 
-In the examples below, 1 is the ancestor snapshot/extent and 2 is the child, and
-extents are listed in their sort order in the btree.
+Subvolumes have no name outside of the filesystem heirarchy. This means that, in
+order to enumerate and list subvolumes, we need to be able to reconstruct their
+path.
 
-Suppose we have these two extents:
+To reconstruct paths, we're adding inode backpointers - two new inode fields for
+the inode number of the directory they're in, and the dirent offset. We're only
+adding fields for a single backpointer, i.e. we're not handling hardlinks yet -
+we set an inode flag indicating the backpointer fields are untrusted whenever we
+create a hardlink. If we do ever want to add multiple backpointers for files
+with hardlinks, we'll need to add another btree where each backpointer gets its
+own key. This should be good enough for now.
 
-    1:   |--------|
-    2:       |---------|
+Subvolume root inodes have two more fields: one for the subvolume ID, and
+another for the parent subvolume ID. The subvolume ID field is only set for
+subvolume roots because otherwise taking a snapshot would require updating every
+inode in that subvolume. With these fields and inode backpointers, we'll be able
+to reconstruct a path to any directory, or any file that hasn't been hardlinked.
 
-This is a problem: on lookup (for snapshot 2), we find the extent in 1 first, as
-we should - we do require data from it. But we cannot use all of that extent; 2
-overwrites it, so we have to keep scanning forwards to find out how much of that
-extent we can use. But that forward scan has no stopping condition - extents are
-indexed by the end and there can be an arbitrary number of extents in unrelated
-snapshots in between.
+Snapshots:
+==========
 
-Suppose we add the restriction: a child extent cannot cross the boundary at the
-end of the ancestor extent, instead we split the child extent:
+We're also adding another table (btree) for snapshot keys. Snapshot keys form a
+tree where each node is just a u32. The btree iterator code that filters by
+snapshot ID assumes that a parent IDs are always larger than child IDs, so the
+root starts at `U32_MAX`. And, there will be multiple trees - creating a new
+empty subvolume will allocate a new snapshot ID that has no parent node.
 
-    2:       |----|
-    1:   |--------|
-    2:            |----|
+Any filesystem operation that's within a subvolume starts by looking up the key
+for that subvolume to get the current snapshot ID, to be used for both lookups
+and updates. This means we have to remember what subvolume we're in, in the in
+memory `bch_inode_info` - as mentioned previously only subvolume root inodes
+have this field in the btree.
 
-This is still a problem for lookups, for example:
+The btree iterator code is getting two new flags - `BTREE_ITER_ALL_SNAPSHOTS`
+and `BTREE_ITER_FILTER_SNAPSHOTS`, that controls how iteration handles the
+snapshot field of the key. One of these flags should be specified for iterators
+for a btree that uses the snapshots field. `BTREE_ITER_ALL_SNAPSHOTS` means
+don't handle the snapshot field specially: it returns every key, and
+advancing/rewinding the iterator position increments/decrements the snapshot
+field. `BTREE_ITER_FILTER_SNAPSHOTS` means incrementing/decrementing the
+iterator position does not include the snapshot field - there's only one
+iterator position for each inode number:offset - and we return the key that
+matches the specified snapshot ID, or the first ancestor if not found.
 
-        |------|
-       |-------|
-      |--------|
-     |---------|
-    |----------|
+The update path, `bch2_trans_commit()` now has more work to do:
 
-We must also add the restriction: start of child cannot land in middle of
-ancestor. Then we have these extents.
+ * When deleting, we have to check if there's another key at the same position
+   in an ancestor snapshot that would become visible - if so, we need to insert
+   a whiteout instead.
 
-    1:   |---|
-    2:       |----|
-    1:       |----|
-    2:            |----|
+ * When there was a key at the current position in an ancestor snapshot ID
+   that's being overwritten (i.e. it will no longer be visible in the current
+   snapshot) - we should also check if it's visible in any other snapshots, and
+   if not, delete it.
 
-This appears workable - however, given that we can have an arbitrary number of
-extents in different snapshots at the same position, this means we'll have to
-either split an unbounded number of existing extents - or we could only split
-the extent that's visible in the child snapshot, but this seems to result in
-invariants that would be difficult or impossible to check:
+Extents turn out to not require much special handling: extent handling has
+already been moved out of the core btree code, and there's now a pass at the top
+of `bch2_trans_commit()` for extents that walks the list of updates and compares
+them to what's being overwritten, and for extents being partially overwritten
+generates more updates for the existing extents. This all does basically what we
+want for snapshots and won't have to change much.
 
-    5:      |----|
-    4: |---||----|
-    3: |---------|
-    2: |---------|
-    1: |---------|
+There are implications for splitting and merging of existing extents. If we have
+to split an existing extent (i.e. when copygc is moving around existing data and
+the write path had to fragment it) - for each child snapshot ID of the extent's
+snapshot ID, if the extent is not visible in that snapshot emit a whiteout for
+the fragment.
 
-A different approach:
----------------------
+Conversely, existing extents may not be merged if one of them is visible in a
+child snapshot and the other is not.
 
-The original problem arises because introducing snapshots broke the invariant
-that extents are (also) ordered by start of extent (which was a result of
-sorting by end of extend and not having overlapping extents). Suppose we added a
-method for iterating across keys in a btree node in order the extent start
-position.
+Snapshot deletion:
+==================
 
-Back to the first example:
+In the current design, deleting a snapshot will require walking every btree that
+has snapshots (extents, inodes, dirents and xattrs) to find and delete keys with
+the given snapshot ID. It would be nice to improve this.
 
-    1:   |--------|
-    2:       |---------|
+Permissions:
+============
 
-Suppose we're reading from snapshot 2 at the position where extent 1 starts.
-Lookup returns extent 1, as it should - but we need to determine when to stop
-reading from extent 1. If we can scan forwards from extent 1, ordered by extent
-start position, we can scan forwards until we find an extent that overwrites 1
-(is in a newer snapshot than 1 and a descendant of the snapshot we're reading),
-or until we see an extent that starts after the position where extent 1 ends.
+Creating a new empty subvolume can be done by untrusted users anywhere they
+could call mkdir().
 
-Example 2:
+Creating a snapshot will also be an untrusted operation - the only additional
+requirement being that untrusted users must own the root of the subvolume being
+snapshotted.
 
-    2:      |----|
-    1: |--------------|
+Fsck:
+=====
 
-Suppose we're reading at the position where extent 1 starts. Lookup will return
-extent 2, but we actually want extent 1: What we can do is notice that the
-extent lookup return starts after the lookup position - so then iterate
-backwards, ordered by extent start position, until we find an extent that starts
-at or before our search position.
-
-Example 3:
-
-    1:      |----|
-    2: |--------------|
-
-Reading from snapshot 2, at the position where extent 1 starts. Lookup returns
-extent 1, but we actually want extent 2.
-
-Example 4:
-
-    2:          |----|
-    1:     |--------------|
-    3: |-----------------------|
-
-Reading from 3, at the start of extent 1: Then what?
-
-Lookup returns extent 2, then as in example 2 we scan backwards by start of
-extent pos to get extent 1.
-
-
-
-
-
-    2:      |-----|
-    1: |----------------|
-
-    2:      |-----|
-    1: |----------------|
-    2:            |------------|
+The fsck code is going to have to be reworked to use `BTREE_ITER_ALL_SNAPSHOTS`
+and check keys in all snapshots all at once, in order to have acceptable
+performance. This has not been started on yet.

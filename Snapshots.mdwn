@@ -25,7 +25,7 @@ Subvolumes:
 
 Subvolumes are needed for two reasons:
  * They're the mechanism for accessing snapshots
- * Also, they're a way of isolating different parts of the filesystem heirarchy
+ * Also, they're a way of isolating different parts of the filesystem hierarchy
    from snapshots, or taking snapshots that aren't global. I.e. you'd create a
    subvolume for your database so that filesystem snapshots don't COW it, or
    create subvolumes for each home directory so that users can snapshot their
@@ -115,14 +115,18 @@ Snapshot deletion:
 
 In the current design, deleting a snapshot will require walking every btree that
 has snapshots (extents, inodes, dirents and xattrs) to find and delete keys with
-the given snapshot ID. It would be nice to improve this.
+the given snapshot ID.
+
+We could improve on this if we had a mechanism for "areas of interest" of the
+btree - perhaps bloom filter based, and other parts of bcachefs might be able to
+benefit as well - e.g. rebalance.
 
 Other performance considerations:
 =================================
 
 Snapshots seem to exist in one of those design spaces where there's inherent
 tradeoffs and it's almost impossible to design something that doesn't have
-pathalogical performance issues in any use case scenario. E.g. btrfs snapshots
+pathological performance issues in any use case scenario. E.g. btrfs snapshots
 are known for being inefficient with sparse snapshots.
 
 bcachefs snapshots should perform beautifully when taking frequent periodic (and
@@ -151,6 +155,21 @@ to the new inode, and mark the original inode to redirect to the new inode so
 that the user visible inode number doesn't change. A bit tedious to implement,
 but straightforward enough.
 
+Locking overhead:
+=================
+
+Every btree transaction that operates within a subvolume (every filesystem level
+operation) will need to start by looking up the subvolume in the btree key cache
+and taking a read lock on it. Cacheline contention for those locks will
+certainly be an issue, so we'll need to add an optional mode to SIX locks that
+use percpu counters for taking read locks. Interior btree node locks will also
+be able to benefit from this mode.
+
+The btree key cache uses the rhashtable code for indexing items: those hash
+table lookups are expected to show up in profiles and be worth optimizing. We
+can probably switch to using a flat array to index btree key cache items for the
+subvolume btree.
+
 Permissions:
 ============
 
@@ -161,9 +180,31 @@ Creating a snapshot will also be an untrusted operation - the only additional
 requirement being that untrusted users must own the root of the subvolume being
 snapshotted.
 
+Disk space accounting:
+======================
+
+We definitely want per snapshot/subvolume disk space accounting. The disk space
+accounting code is going to need some major changes in order to make this
+happen, though: currently, accounting information only lives in the journal
+(it's included in each journal entry), and we'll need to change it to live in
+keys in the btree first. This is going to take a major rewrite as the disk space
+accounting code uses an intricate system of percpu counters that are flushed
+just prior to journal writes, but we should be able to extend the btree key
+cache code to accommodate this.
+
+Recursive snapshots:
+====================
+
+Taking recursive snapshots atomically should be fairly easy, with the caveat
+that right now there's a limit on the number of btree iterators that can be used
+simultaneously (64) which will limit the number of subvolumes we can snapshot at
+once. Lifting this limit would be useful for other reasons though, so will
+probably happen eventually.
+
 Fsck:
 =====
 
 The fsck code is going to have to be reworked to use `BTREE_ITER_ALL_SNAPSHOTS`
 and check keys in all snapshots all at once, in order to have acceptable
-performance. This has not been started on yet.
+performance. This has not been started on yet, and is expected to be the
+trickiest and most complicated part.

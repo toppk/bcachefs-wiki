@@ -24,7 +24,9 @@ Subvolumes:
 ===========
 
 Subvolumes are needed for two reasons:
+
 * They're the mechanism for accessing snapshots
+
 * Also, they're a way of isolating different parts of the filesystem hierarchy
    from snapshots, or taking snapshots that aren't global. I.e. you'd create a
    subvolume for your database so that filesystem snapshots don't COW it, or

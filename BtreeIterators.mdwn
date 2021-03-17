@@ -53,6 +53,43 @@ updated to point to the start of the key we're returning, and the leaf btree
 node iterator will _usually_ point to the key we're returning, unless we're at a
 hole - but there are exceptions for extents.
 
+### A discussion on iterator position
+
+`bch2_btree_iter_peek_slot()` and `bch2_btree_iter_peek_slot_extents()` never
+change `iter->pos`. `bch2_btree_iter_peek()` will change `iter->pos` to match
+the key just returned.
+
+`iter->pos` should always match the key we're currently at; this is so that
+on transaction restart we can get back to where we were at, and also so that
+when updating the key at the current position the iterator is at the correct
+position for that update.
+
+Also, `iter->pos` is used by code that uses btree iterators to keep track of
+where it's at in the work it's doing. Importantly, when iterating over extents
+by slots (i.e. in `bch2_read()`), as we call `next_slot()` `iter->pos` will be
+advanced to where the previously returned extent ended. 
+
+If we're iterating forwards, `iter->pos` will be monotonically increasing, and
+if we're iterating forwards by slots we guarantee that we'll return keys/extents
+that exactly cover the keyspace.
+
+For non extent iterators, we return the first key >= `iter->pos`; for extent
+iterators, we return the first key strictly greater than `iter->pos`. Right now
+this is handled by `btree_iter_search_key()`. This is because when we're
+iterating over extents we want the first extent that covers the range starting
+at `iter->pos`.
+
+For iterating backwards, we have `peek_prev()` that returns the first key <=
+`iter->pos`. Note: when using `peek_prev()` for extents, it's the same search
+condition as for non extents - first key <= `iter->pos`.
+
+Also: we need `iter->pos` to correspond to and be consistent what the rest of
+the iterator physically points to.
+
+So we want two different notions of iterator position:
+
+ * One 
+
 ## Extents:
 
 When returning an extent, `iter.pos` will typically be updated to point to the

@@ -24,8 +24,8 @@ Subvolumes:
 ===========
 
 Subvolumes are needed for two reasons:
- * They're the mechanism for accessing snapshots
- * Also, they're a way of isolating different parts of the filesystem hierarchy
+* They're the mechanism for accessing snapshots
+* Also, they're a way of isolating different parts of the filesystem hierarchy
    from snapshots, or taking snapshots that aren't global. I.e. you'd create a
    subvolume for your database so that filesystem snapshots don't COW it, or
    create subvolumes for each home directory so that users can snapshot their
@@ -85,11 +85,11 @@ matches the specified snapshot ID, or the first ancestor if not found.
 
 The update path, `bch2_trans_commit()` now has more work to do:
 
- * When deleting, we have to check if there's another key at the same position
+* When deleting, we have to check if there's another key at the same position
    in an ancestor snapshot that would become visible - if so, we need to insert
    a whiteout instead.
 
- * When there was a key at the current position in an ancestor snapshot ID
+* When there was a key at the current position in an ancestor snapshot ID
    that's being overwritten (i.e. it will no longer be visible in the current
    snapshot) - we should also check if it's visible in any other snapshots, and
    if not, delete it.

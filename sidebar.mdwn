@@ -16,5 +16,7 @@
   * [[Encryption]]
   * [[Transactions]]
   * [[Snapshots]]
+  * [[Allocator]]
+  * [[Fsck]]
 * Other technical docs
   * [[StablePages]]

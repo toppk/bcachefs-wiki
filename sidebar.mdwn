@@ -18,5 +18,6 @@
   * [[Snapshots]]
   * [[Allocator]]
   * [[Fsck]]
+  * [[Roadmap]]
 * Other technical docs
   * [[StablePages]]

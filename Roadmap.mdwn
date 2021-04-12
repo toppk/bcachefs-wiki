@@ -173,15 +173,14 @@ need online fsck.
 
 Fsck in bcachefs is divided up into two main components: there is `btree_gc`,
 which walks the btree and regenerates allocation information (and also checks
-btree topology), and there is fsck proper which checks higher level filesystme
+btree topology), and there is fsck proper which checks higher level filesystem
 invariants (e.g. extents/dirents/xattrs must belong to an inode, and filesystem
 connectivity).
 
-so named because
-bachefs originally (when it was bcache) not only did not have persistent
-allocation information, it also didn't keep bucket sector counts up to date when
-adding/removing extents from the btree - it relied entirely on periodically
-rescanning the btree.
+The `btree_gc` subsystem is so named because originally (when bcachefs was
+bcache) not only did not have persistent allocation information, it also didn't
+keep bucket sector counts up to date when adding/removing extents from the btree
+- it relied entirely on periodically rescanning the btree.
 
 This capability was kept for a very long time, partly as an aid to testing an
 debugging when uptodate allocation information was being developed, then

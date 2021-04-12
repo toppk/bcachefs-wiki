@@ -34,7 +34,7 @@ even when our memery accesses are not cached.
 On my Ryzen 3900X single threaded lookups across 16M keys go at 1.3M second, and
 scale almost linearly - with 12 threads it's about 12M/second. We can do 16M
 random inserts at 670k per second single threaded; with 12 threads we achieve
-2.4 random inserts per second.
+2.4M random inserts per second.
 
 Btree locking is very well optimized. We have external btree iterators which
 make it easy to aggressively drop and retake locks, giving the filesystem as a
@@ -57,7 +57,7 @@ where we're losing performance.
 
 Filesystem metadata operation performance (e.g. fsmark): On most benchmarks, we
 seem to be approaching or sometimes mathing XFS on performance. There are
-exceptions: multithreaded rm -rf of empty files is currently roughly 4k slower
+exceptions: multithreaded rm -rf of empty files is currently roughly 4x slower
 than XFS - we bottleneck on journal reclaim, which is flushing inodes from the
 btree key cache back to the inodes btree. 
 

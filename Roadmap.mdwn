@@ -1,5 +1,97 @@
 # bcachefs status, roadmap:
 
+## Stabilization - status, work to be done
+
+### Current stability/robustness
+
+We recently had a spate of corruptions that users were hitting - at the end of
+it, some users had to wait for new repair code to be written but (as far as I
+know) no filesystems or even significant amounts of data were lost - our check
+and repair code is getting to be really solid. The bugs themselves seem to have
+been resolved, except for (it appears) a bug in the journalling code that was
+causing journal entries to get lost - that one hasn't been reported in awhile
+but we'll still hunt for it some more.
+
+Users have been pushing it pretty hard.
+
+### Tooling
+
+The bcachefs kernel code is also included as a library in bcachefs-tools - 90%
+of the kernel code builds and runs in userspace. This is really useful - it
+makes new tooling easy to develop, and it also means we can test almost all of
+the codebase in userspace, with userspace debugging tools (ASAN and UBSAN in
+userspace catch more bugs than the kernel equivalents, and valgrind also catches
+things ASAN doesn't).
+
+We've got a tool for dumping filesystem metadata as qcow2 images - our normal
+workflow when a user has something go wrong with their filesystem is for them to
+dump the metadata, and then if necessary I can write new repair code and test it
+on the dumped image before touching their filesystem.
+
+A fuse port has been started, but isn't useable yet. This is something we really
+want to have - if a user or customer is hitting a bug that we can't reproduce
+locally, switching to the fuse version to debug it in userspace is going to save
+our bacon someday.
+
+We also have tooling for examining filesystem metadata - there's userspace
+tooling for examining an offline filesystem, and metadata can also be viewed in
+debugfs on a mounted filesystem.
+
+### Feature stability
+
+Erasure coding isn't quite there yet - there's still oopses being reported, and
+existing tests aren't finding the bugs.
+
+Everything else is considered supported. There's still a bug with the refcounts
+in the reflink code that xfstests sporadically hits, but that's the current area
+of focus and should be closed out soon.
+
+### Test infrastructure
+
+We have [ktest|https://evilpiepirate.org/git/ktest.git], which is a major asset.
+It turns virtual machine testing into a simple commandline tool - all test
+output is on standard output, ctrl-c kills the VM and releases all resources.
+It's designed for both interactive development (it tries to be as quick as
+possible from kernel build to when the tests start running) and automated
+testing (test pass/failure is reported as a return code, and implements a
+watchdog in case tests hang).
+
+It provides easy access to ssh, kgdb, qemu's gdb interface, and more. In the
+past we've had it working with the kernel's gcov support for code coverage,
+getting that going again is high on the todo list.
+
+### Testing:
+
+All tests need to be passing. Tests right now are divided between xfstests and
+ktest - ktest is used as a wrapper for running xfstests in a virtual machine,
+and it also has a good number of bcachefs-specific tests.
+
+We may want to move the bcachefs tests from ktest to xfstests - having all our
+tests in the same place would be more convenient and thus help ensure that
+they're getting run.
+
+We're down to ~15 xfstests tests that aren't passing - all are triaged, none
+are particularly concerning. We need to get all of them passing and then start
+leaving test runs going 24/7 - when the test dashboard is all green, that makes
+it much easier to notice and jump on tests that fail even sporadically.
+
+The ktest tests haven't been getting run as much and are in a messier state - we
+need to get all of them passing and ensure that they're being run continuously
+(possibly moving them to xfstests).
+
+We don't yet have an automated mechanism for running xfstests with the full
+matrix of configurable options - we want to be testing with checksumming both on
+and off, data compression on and off, encryption on and off, small btree nodes
+(to stress greater tree heights), and more.
+
+### Test coverage
+
+We need to get code coverage analysis going again - this will definitely
+highlight tests that need to be written, and we also need to add error injection
+testing. bcache/bcachefs used to have error injection tests, but it was with a
+nonstandard error injection framework - some of the error injection points still
+exist, though.
+
 ## Performance:
 
 ### Core btree:
@@ -218,6 +310,14 @@ only fsck passes that appear to require new locking are:
 
 So that's cool.
 
+### Deleted inodes after unclean shutdown
+
+Currently, we have to scan the inodes btree after an unclean shutdown to find
+unlinked inodes that need to be deleted, and on large filesystems this is the
+slowest part of the mount process (after unclean shutdown).
+
+We need to add a hidden directory for unlinked inodes.
+
 ### Snapshots:
 
 I expect bcachefs to scale well into the millions of snapshots. There will need
@@ -242,3 +342,14 @@ to be some additional work to make this happen, but it shouldn't be much.
   detect this situation - and then when we detect too many overwrites, we can
   allocate a new inode number internally, and move all keys that aren't visible
   in the main subvolume to that inode number.
+
+## Features:
+
+### SMR device support:
+
+This is something I'd like to see added - bcachefs buckets map nicely to SMR
+zones, we just need support for larger buckets (on disk format now supports
+them, we'll need to add an alternate in memory represenatation for large
+buckets), and plumbing to read the zone pointers and use them in the allocator.
+
+We already have copygc, so everything should just work.

@@ -45,11 +45,77 @@ available buckets. It's too easy to end up with bugs where this scanning is
 happening repeatedly (we have one now...), and it's a scalability issue and we
 shouldn't be doing it at all.
 
-Also, we would really like to get rid of the in memory array of buckets, this is
-another scalability issue. The in memory struct bucket now mostly just mirrors
-what's in the btree, in `KEY_TYPE_alloc` keys. The one exception is
-`journal_seq`, which is the journal sequence number of the last btree update
-that touched that bucket. It's needed for knowing whether we need to flush the
-journal before allocating and writing to that bucket - perhaps it should just be
-added to `struct bch_alloc` and stored in the keys in the btree.
+## In memory bucket array - kill
 
+We need to get rid of the in memory array of buckets - it's another scalability
+issue, and at this point it's an anachronism since now it mostly just mirrors
+what's in the btree, in `KEY_TYPE_alloc` keys. Exceptions:
+
+* `journal_seq`, which is the journal sequence number of the last btree update
+  that touched that bucket. It's needed for knowing whether we need to flush the
+  journal before allocating and writing to that bucket - we need to create
+  another data structure for bucket that can't be used until the journal is
+  flushed.
+
+* `owned_by_allocator`, which is true if an `open_bucket` referencing that
+  bucket exists - `open_buckets` represest buckets currently being allocated
+  from, they're reference counted to prevent buckets from being double allocated
+  (with writes taking a reference when they allocate space and releasing that
+  ref after they create the extent that points to that space).
+
+Currently, the main obstacle to getting rid of the bucket array is that we need
+to start the allocator threads to run journal replay, but we can't use btree
+iterators until journal replay has at least finished replaying updates to
+interior btree nodes.
+
+We have code in recovery.c for iterators that iterate over the btree with keys
+from the journal overlaid; it may be time to move this support into regular
+btree iterators in `btree_iter.c`.
+
+## WHAT WE NEED IN THE REWRITE:
+
+### Data structures:
+
+* buckets containing cached data that can be used if they are invalidated
+
+* buckets that are waiting on journal commit until they can be used
+
+* buckets ready to be discarded
+
+* buckets that are ready to be used now
+
+Buckets that are ready to be used now should be stored in sorted order.
+
+Buckets that are waiting on journal commit should be indexed by what journal
+seq needs to be flushed.
+
+Buckets that contain cached data should be stored on a heap.
+
+TASK LIST:
+
+* Move incrementing of bucket gens to happen when a bucket becomes empty (and
+  doesn't have an `open_bucket` pointing to it) - also need to add code to
+  `open_bucket_put()` to increment bucket gen if necessary
+
+* At the same time, add bucket to list of buckets awaiting journal commit
+
+* Add a flags field to `bch_alloc_v2` and a flag indicating bucket needs to be
+  discarded
+
+* Add a flag indicating whether a bucket had cached data in it - if not, we
+  don't need to track `oldest_gen`
+
+
+STATE TRANSITIONS:
+
+Cached data bucket -> empty uncommitted bucket
+Dirty  data bucket -> empty uncommitted bucket
+
+In either case, the empty bucket first goes on the list of buckets awaiting
+journal commit.
+
+After journal commit:
+
+empty uncommited bucket -> empty undiscarded bucket
+
+After discard

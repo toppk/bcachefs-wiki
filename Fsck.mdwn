@@ -29,6 +29,7 @@ What it does have to check is:
  * Check that extents do not exist past inode's `i_size`
  * Count extents for each inode and check inode's `i_sectors`.
 
+
 * Check that root directory exists
 
 * Check that lost+found exists
@@ -48,25 +49,28 @@ What it does have to check is:
 Changes for snapshots:
 ======================
 
-Subvolumes vs. snapshots:
+## References between keys:
 
-Filesystem code has to know what subvolume it is in, in order to fetch the
-current snapshot ID at the start of every btree transaction. Fsck code does not
-know or care what subvolume a given key belongs to - a key may belong to multiple
-subvolumes, if it's in a snapshot that's an interior node in the snapshots
-tree.
+Filesystem code operates within a subvolume: at the start of a btree transaction
+it looks up up the subvolume's snapshot ID, and passes that to the btree
+iterator code so that lookups always return the newest key visible to that
+snapshot ID.
 
-Instead, when one key references another (e.g. a dirent that points to an
-inode), it does the lookup for the inode by searching for an inode with a
-snapshot ID equal to or an ancestor of the dirent key's snapshot ID.
- 
-IOW, snaphsot IDs represent (branchable) "points in time", and fsck wants to
-check that every view of the filesystem, at every point in time, is consistent.
+The fsck code does not operate within a specific subvolume or snapshot ID - we
+have to iterate over and process keys in natural btree order, for performance.
+From fsck's point of view, any key that points to another key may now point to
+multiple versions of that key in different snapshots.
 
-Checking the filesystem for consistency in this fashion is conceptually
-straightforward - every key has a snapshot ID, and we use that when looking up
-anything that it references. However, we'll have to be careful about how we
-repair inconsistencies when the snapshot ID is an interior node:
+For example, given a dirent that points to an inode, we search for the first
+inode with a snapshot ID equal to or an ancestor of the snapshot ID of the
+dirent - a normal `BTREE_ITER_FILTER_WHITEOUTS` lookup, but using the snapshot
+ID of the dirent, not the subvolume - this key should exist, if the dirent
+points to a valid inode. Additionally, the dirent also references inodes at that
+position in snapshot IDs that are descendends of the dirent's snapshot ID -
+provided a newer dirent in a snapshot ID equal to or ancestor of the inode's
+snapshot ID doesn't exist.
+
+## Repair:
 
 If we repair an inconsistency by deleting a key, we need to ensure that key is
 not referenced by child snapshots. For example, if we find an extent that does
@@ -119,42 +123,3 @@ call. When we're dealing with a file that keys with many different snapshot IDs
 we need to make sure we don't have any hidden O(n^2) algorithms, but if fsck
 requires in the hundreds of megabytes of state to check these files with worst
 case numbers of overwrites, that's not the end of the world.
-
-## Checking directory structure:
-
-The current approach of doing a DFS from the root directory still works with
-snapshots, but algorithmically is too slow. If we have many sparse snapshots,
-the DFS would recurse into each of those snapshots, walking directory structure
-it has already seen in the original subvolume - but those snapshots could have
-directory structure changes in one or two places, so it would have to. We need
-an algorithm that iterators over keys, not filesystem structure.
-
-Fortunately, since backpointers from inodes to dirents were recently added we
-can take a different approach. We walk the inodes btree, and for every directory
-inode we find we chase backpointers until we get to the root directory. Note
-that since previous passes have already checked backpointers, we're really just
-check for loops here. This will still check the same structure repeatedly, like
-the DFS approach, but here we can solve it by adding every inum:snapshot tuple
-to a hash table after we've verified it has a path to the root.
-
-## Checking inode link counts:
-
-This one will be tedious, but algorithmically doesn't change much. The existing
-code walks the dirents btree in natural key order, and then for each dirent
-increments a link count in a radix tree. After walking the dirents, we walk the
-inodes btree and compare link counts we calculated to what's in the inode.
-
-As before, we'll walk the dirents btree in natural key order. However, we can't
-accumulate link counts without also looking at what actually exists in the inodes
-btree: a dirent may point to multiple inodes with different snapshot IDs, and
-which of those we increment also depends on which snapshots that dirent is
-visible in (we'll already have a helper for that part, as discussed previously).
-
-This means that instead of using a radix tree, we'll have to start by walking
-the inodes btree, and for every inode we find creating a new in memory data
-structure (eytzinger layout search tree, perhaps) indexed by inode
-number:snapshot id and containing just the link count we'll be calculating.
-
-Fortunately hardlinks are usually rare in actual practice. We can make use of
-the fact that we've already checked inode backpointers and only include inodes
-that actually have hardlinks in this table.

@@ -111,7 +111,7 @@ index an entire SSD worth of blocks, and for persistent data structures btrees
 have a number of advantages over hash tables (can do extents, and when access
 patterns have locality they preserve that locality). Using singleton btrees is
 a major simplification when writing a filesystem, but it does mean that
-everything is leaving rather heavily on the performance and scalability of the
+everything is leaning rather heavily on the performance and scalability of the
 btree implementation.
 
 Bcachefs b-trees are a hybrid compacting data structure - they share some

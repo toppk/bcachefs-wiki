@@ -28,10 +28,10 @@ Subvolumes are needed for two reasons:
 * They're the mechanism for accessing snapshots
 
 * Also, they're a way of isolating different parts of the filesystem hierarchy
-   from snapshots, or taking snapshots that aren't global. I.e. you'd create a
-   subvolume for your database so that filesystem snapshots don't COW it, or
-   create subvolumes for each home directory so that users can snapshot their
-   own home directories.
+  from snapshots, or taking snapshots that aren't global. I.e. you'd create a
+  subvolume for your database so that filesystem snapshots don't COW it, or
+  create subvolumes for each home directory so that users can snapshot their
+  own home directories.
 
 The functionality and userspace interface for snapshots and subvolumes are
 roughly modelled after btrfs, but simplified.
@@ -88,13 +88,13 @@ matches the specified snapshot ID, or the first ancestor if not found.
 The update path, `bch2_trans_commit()` now has more work to do:
 
 * When deleting, we have to check if there's another key at the same position
-   in an ancestor snapshot that would become visible - if so, we need to insert
-   a whiteout instead.
+  in an ancestor snapshot that would become visible - if so, we need to insert
+  a whiteout instead.
 
 * When there was a key at the current position in an ancestor snapshot ID
-   that's being overwritten (i.e. it will no longer be visible in the current
-   snapshot) - we should also check if it's visible in any other snapshots, and
-   if not, delete it.
+  that's being overwritten (i.e. it will no longer be visible in the current
+  snapshot) - we should also check if it's visible in any other snapshots, and
+  if not, delete it.
 
 Extents turn out to not require much special handling: extent handling has
 already been moved out of the core btree code, and there's now a pass at the top
@@ -194,6 +194,25 @@ accounting code uses an intricate system of percpu counters that are flushed
 just prior to journal writes, but we should be able to extend the btree key
 cache code to accommodate this.
 
+Right now, the number of inodes we count (as viewed with df -i) is just the
+number of keys in the inodes btree - i.e. number of inodes across all snapshots.
+This is probably not what we want.
+
+Breaking out accounting by snapshot ID will be straightforward, but what the
+user really wants is usage by subvolume, and it's not clear how to do that. Many
+keys with have a snapshot ID that is for an interior node in the snapshots tree,
+a node that isn't pointed to by any subvolume but has multiple child nodes owned
+by multiple subvolumes.
+
+What the user wants to know is "how much disk space will be freed up if I
+delete this snapshot/subvolume" - in particular, how much disk space historical
+snapshots are taking up. This is nontrivial.
+
+Suppose we're taking periodic RO snapshots, and then the snapshot tree is just a
+linear chain of nodes:
+
+a -> b -> c -> d -> e
+
 Recursive snapshots:
 ====================
 
@@ -210,3 +229,8 @@ The fsck code is going to have to be reworked to use `BTREE_ITER_ALL_SNAPSHOTS`
 and check keys in all snapshots all at once, in order to have acceptable
 performance. This has not been started on yet, and is expected to be the
 trickiest and most complicated part.
+
+Quotas:
+=======
+
+Todo

@@ -37,6 +37,11 @@ We also have tooling for examining filesystem metadata - there's userspace
 tooling for examining an offline filesystem, and metadata can also be viewed in
 debugfs on a mounted filesystem.
 
+One thing that's missing in the userspace bcachefs tool is access to what's
+published via sysfs when running in the kernel - this is a really important
+debugging tool. A good project for someone new to the code might be to embed an
+http server and implement a sysfs shim.
+
 ### Feature stability
 
 Erasure coding isn't quite there yet - there's still oopses being reported, and

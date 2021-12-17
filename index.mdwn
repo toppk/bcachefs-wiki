@@ -2,12 +2,14 @@
 # "The COW filesystem for Linux that won't eat your data".
 
 Bcachefs is an advanced new filesystem for Linux, with an emphasis on
-reliability and robustness. It has a long list of features, completed or in
-progress:
+reliability and robustness and the complete set of features one would expect
+from a modern filesystem.
 
 * Copy on write (COW) - like zfs or btrfs
 * Full data and metadata checksumming
-* Multiple devices, including replication and other types of RAID
+* Multiple devices
+* Replication
+* Erasure coding (only feature not quite stable)
 * Caching
 * Compression
 * Encryption
@@ -70,9 +72,7 @@ See `bcachefs format --help` for more options.
 
 ## Documentation
 
-End user documentation is currently fairly minimal; this would be a very helpful
-area for anyone who wishes to contribute - I would like the bcache man page in
-the bcachefs-tools repository to be rewritten and expanded.
+We now have a user manual: [[bcachefs-principles-of-operation.pdf]]
 
 ## Status
 
@@ -82,18 +82,6 @@ to expect issues as long as you stick to the currently supported feature set.
 It's been passing all xfstests for well over a year, and serious bugs are rare
 at this point. However, given that it's still under active development backups
 are a good idea.
-
-Performance is generally quite good - generally faster than btrfs, and not far
-behind xfs/ext4. On metadata intensive benchmarks, it's often considerably
-faster than xfs/ext4/btrfs.
-
-Normal posix filesystem functionality is all finished - if you're using bcachefs
-as a replacement for ext4 on a desktop, you shouldn't find anything missing. For
-servers, NFS export support is still missing (but coming soon) and we don't yet
-support quotas (probably further off).
-
-Until bcachefs goes upstream I reserve the right to change the on disk format if
-necessary, but I'm not expecting any more incompatible disk format changes.
 
 ### Feature status
 
@@ -120,9 +108,6 @@ necessary, but I'm not expecting any more incompatible disk format changes.
    asynchronously, and the hot subset of which is copied to the promote devices
    for performance.
 
-   Basic caching functionality works, but it's not (yet) as configurable as
-   bcache's caching (e.g. you can't specify writethrough caching).
-
  - Replication (i.e. RAID1/10)
 
    Done - you can yank out a disk while a filesystem is in use and it'll keep
@@ -131,8 +116,7 @@ necessary, but I'm not expecting any more incompatible disk format changes.
 
  - Erasure coding
 
-   Mostly done, but not quite usable yet. We still need a stripe level
-   compaction path.
+   Not quite stable
 
  - [[Encryption]]
 
@@ -142,18 +126,4 @@ necessary, but I'm not expecting any more incompatible disk format changes.
 
  - Snapshots
 
-   Snapshot implementation has been started, but snapshots are by far the most
-   complex of the remaining features to implement - it's going to be quite
-   awhile before I can dedicate enough time to finishing them, but I'm very much
-   looking forward to showing off what it'll be able to do.
-
-### Known issues/caveats
-
- - Mount time
-
-   We currently walk all metadata at mount time (multiple times, in fact) - on
-   flash this shouldn't even be noticeable unless your filesystem is very large,
-   but on rotating disk expect mount times to be slow.
-
-   This will be addressed in the future - mount times will likely be the next
-   big push after the next big batch of on disk format changes.
+   Done, still shaking out a few bugs

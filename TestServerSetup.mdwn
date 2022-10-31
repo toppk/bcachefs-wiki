@@ -34,7 +34,7 @@ For the AArch64 machines we have boot on `nvme0n1p1`, and root on RAID0 `nvme[01
     └─nvme0n1p2 259:5    0 893.3G  0 part
     └─md127     9:127  0   1.7T  0 raid0 /nix/store
                                         /
-# System setup.
+# System setup
 
 Read **BUT DO NOT RUN**, the installation steps in the [manual](https://nixos.org/manual/nixos/stable/index.html#sec-installation-installing).
 
@@ -54,7 +54,7 @@ Run our custom setup script (this automates `nixos-generate-config`):
     ./setup.sh <new HostName for machine>
     
     
-given the command `./setup.sh farm2` this will create 2 files, `farm2.nix` `farm2-hw.nix`, and symlink those to `configuration.nix` and `hardware-configuration.nix` respectively. `farm.nix` will have `common.nix` imported, and Host name set.
+given the command `./setup.sh farm2` this will create 2 files, `farm2.nix` `farm2-hw.nix`, and symlink those to `configuration.nix` and `hardware-configuration.nix` respectively. `farm.nix` will have `common.nix` imported, and host name set.
 
 `common.nix` comes with a bunch of tools and ssh keys setup for root make changes if needed.
 

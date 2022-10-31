@@ -61,6 +61,7 @@ given the command `./setup.sh farm2` this will create 2 files, `farm2.nix` `farm
 # Installation
 
 Run
+
     nixos-install --no-root-passwd && poweroff --reboot
     # the flag is optional but but the installer will
     # prompt for root password before rebooting otherwise.

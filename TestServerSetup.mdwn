@@ -43,11 +43,12 @@ Mount the partitions as steps 1-3 instruct.
 Clone our repo in to `/etc/nixos` on the target machine:
 
     cd /mnt
+    mkdir -p etc
     mkdir -p tmp # needed for a bug in the installer
 
     git clone https://github.com/YellowOnion/nixos-test-farm.git nixos
     
-    cd nixos
+    cd etc/nixos
 
 Run our custom setup script (this automates `nixos-generate-config`): 
 

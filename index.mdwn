@@ -50,7 +50,7 @@ First, check out the bcache kernel and tools repositories:
     git clone https://evilpiepirate.org/git/bcachefs.git
     git clone https://evilpiepirate.org/git/bcachefs-tools.git
 
-Build and install as usual - make sure you enable `CONFIG_BCACHE_FS`. Then, to
+Build and install as usual - make sure you enable `CONFIG_BCACHEFS_FS`. Then, to
 format and mount a single device with the default options, run:
 
     bcachefs format /dev/sda1

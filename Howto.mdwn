@@ -31,8 +31,8 @@ Firt run the following command to download a kernel branch with the bcachefs pat
 This is slighly more complicated to explain.
 It's best you look up a tutorial for your specific distribution.
 
-During the configuration make sure you enable `CONFIG_BCACHE_FS`.
-To check run `grep CONFIG_BCACHE_FS .config` in in the kernel source.
+During the configuration make sure you enable `CONFIG_BCACHEFS_FS`.
+To check run `grep CONFIG_BCACHEFS_FS .config` in in the kernel source.
 
 Tip if your distro kernel supports it you can extract the `.config` used by your distribution,
 by running `cat /proc/config.gz | gunzip > /tmp/distro.config`.

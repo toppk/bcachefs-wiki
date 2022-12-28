@@ -60,7 +60,7 @@ For a multi device filesystem, with sda1 caching sdb1:
 
     bcachefs format /dev/sd[ab]1 \
         --foreground_target /dev/sda1 \
-        --promote-target /dev/sda1 \
+        --promote_target /dev/sda1 \
         --background_target /dev/sdb1
     mount -t bcachefs /dev/sda1:/dev/sdb1 /mnt
 

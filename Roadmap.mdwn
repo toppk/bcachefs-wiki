@@ -55,7 +55,7 @@ of focus and should be closed out soon.
 
 ### Test infrastructure
 
-We have [ktest|https://evilpiepirate.org/git/ktest.git], which is a major asset.
+We have [[ktest|https://evilpiepirate.org/git/ktest.git]], which is a major asset.
 It turns virtual machine testing into a simple commandline tool - all test
 output is on standard output, ctrl-c kills the VM and releases all resources.
 It's designed for both interactive development (it tries to be as quick as

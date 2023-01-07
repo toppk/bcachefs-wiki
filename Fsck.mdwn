@@ -52,7 +52,7 @@ Changes for snapshots:
 ## References between keys:
 
 Filesystem code operates within a subvolume: at the start of a btree transaction
-it looks up up the subvolume's snapshot ID, and passes that to the btree
+it looks up the subvolume's snapshot ID, and passes that to the btree
 iterator code so that lookups always return the newest key visible to that
 snapshot ID.
 

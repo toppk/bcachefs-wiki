@@ -34,7 +34,7 @@ filesystem updates. In this, bcachefs's implementation is in spirit not unlike
 softupdates - however, since bcachefs is working with logical index updates and
 not physical disk writes, it works out to be drastically simpler. The btree
 guarantees that ordering is preserved of all index updates, without ever needing
-flushes - see the section on [[sequential consistency|BcacheGuide/#index10h3]].
+flushes - see the section on [[sequential consistency|Architecture#Sequential_consistency]].
 
 We use this approach is used for creating/deleting files and links, and for
 logical atomicity of appends/truncates. For those unfamiliar with softupdates,
@@ -290,7 +290,7 @@ yet:
  - It is not permissible to hold a read lock on any btree node while taking an
    intent lock on another. This is because of a deadlock it would cause (an even
    more obscure version of the one documented in section on
-   [[locking|BcacheGuide/#index8h3]] which I will hopefully document in the
+   [[locking|Architecture#Locking]] which I will hopefully document in the
    future).
 
    This is easy to work around - just traverse the iterator taking intent locks

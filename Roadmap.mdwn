@@ -1,5 +1,7 @@
 # bcachefs status, roadmap:
 
+[[!toc levels=3 startlevel=2  ]]
+
 ## Stabilization - status, work to be done
 
 ### Current stability/robustness

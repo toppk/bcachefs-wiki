@@ -5,12 +5,10 @@ implementers of cryptography code, before the design is frozen. Everything
 described in this document has been implemented and tested.
 
 The code may be found at
-[[https://evilpiepirate.org/git/linux-bcache.git/log/?h=bcache-encryption]]
+[[https://evilpiepirate.org/git/bcachefs.git/log/?h=master]]
 
 Feedback and comments should be sent to Kent Overstreet,
 kent.overstreet@gmail.com.
-
-Main bcachefs page: [[Bcachefs]]
 
 ## Intro:
 

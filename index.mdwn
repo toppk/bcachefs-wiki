@@ -92,8 +92,7 @@ are a good idea.
 
  - Compression
 
-   Done - LZ4, gzip and ZSTD are currently supported. ZSTD support unfortunately
-   still seems to be slightly buggy, but LZ4 is stable and well tested.
+   Done - LZ4, gzip and ZSTD are currently supported.
 
  - Multiple device support
 

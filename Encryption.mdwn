@@ -1,4 +1,14 @@
-# bcache/bcachefs encryption design:
+# Overview
+
+bcachefs uses AEAD style encryption (ChaCha20/Poly1305), where each encrypted
+block is authenticated with a MAC, with a chain of trust up to root (the
+superblock), and every encrypted block has a unique nonce.
+
+This protects against attacks that block level encryption (i.e. LUKS) cannot
+defend against, because at the block level there's nowhere to store MACs or
+nonces without causing painful alignment problems.
+
+# More detailed:
 
 This document is intended for review by cryptographers and other experience
 implementers of cryptography code, before the design is frozen. Everything

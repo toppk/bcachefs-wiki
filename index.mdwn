@@ -9,120 +9,36 @@ from a modern filesystem.
 * Full data and metadata checksumming
 * Multiple devices
 * Replication
-* Erasure coding (only feature not quite stable)
-* Caching
-* Compression
-* Encryption
-* Snapshots
-* Scalable - has been tested to 50+ TB, will eventually scale far higher
+* [[Erasure coding|ErasureCoding]] (not stable)
+* [[Caching, data placement|Caching]]
+* [[Compression]]
+* [[Encryption]]
+* [[Snapshots]]
+* Scalable - has been tested to 100+ TB, expected to scale far higher (testers wanted!)
+* High performance, low tail latency
 * Already working and stable, with a small community of users
 
-We prioritize robustness and reliability over features and hype: we make every
-effort to ensure you won't lose data. It's building on top of a codebase with a
-pedigree - bcache already has a reasonably good track record for reliability
-(particularly considering how young upstream bcache is, in terms of engineer
-man/years). Starting from there, bcachefs development has prioritized
-incremental development, and keeping things stable, and aggressively fixing
-design issues as they are found; the bcachefs codebase is considerably more
-robust and mature than upstream bcache.
+## Philosophy
 
-Fixing bugs always take priority over features! This means getting features out
-takes longer, but for a filesystem not losing your data is the biggest feature.
-
-Developing a filesystem is also not cheap or quick or easy; we need funding!
-Please chip in on [[Patreon|https://www.patreon.com/bcachefs]] - the Patreon
-page also has more information on the motivation for bcachefs and the state of
-Linux filesystems, as well as some bcachefs status updates and information on
-development.
-
-If you don't want to use Patreon, I'm also happy to take donations via paypal:
-kent.overstreet@gmail.com.
-
-Join us in the bcache IRC channel, we have a small group of bcachefs users and
-testers there: #bcache on OFTC (irc.oftc.net).
-
-## Getting started
-
-Bcachefs is not yet upstream - you'll have to build a kernel to use it. 
-
-First, check out the bcache kernel and tools repositories:
-
-    git clone https://evilpiepirate.org/git/bcachefs.git
-    git clone https://evilpiepirate.org/git/bcachefs-tools.git
-
-Build and install as usual - make sure you enable `CONFIG_BCACHEFS_FS`. Then, to
-format and mount a single device with the default options, run:
-
-    bcachefs format /dev/sda1
-    mount -t bcachefs /dev/sda1 /mnt
-
-For a multi device filesystem, with sda1 caching sdb1:
-
-    bcachefs format /dev/sd[ab]1 \
-        --foreground_target /dev/sda1 \
-        --promote_target /dev/sda1 \
-        --background_target /dev/sdb1
-    mount -t bcachefs /dev/sda1:/dev/sdb1 /mnt
-
-This will configure the filesystem so that writes will be buffered to /dev/sda1
-before being written back to /dev/sdb1 in the background, and that hot data
-will be promoted to /dev/sda1 for faster access.
-
-See `bcachefs format --help` for more options.
+We prioritize robustness and reliability over features: we make every effort to
+ensure you won't lose data. It's building on top of a codebase with a pedigree
+- bcache already has a reasonably good track record for reliability Starting
+from there, bcachefs development has prioritized incremental development, and
+keeping things stable, and aggressively fixing design issues as they are found;
+the bcachefs codebase is considerably more robust and mature than upstream
+bcache.
 
 ## Documentation
 
 We now have a user manual: [[bcachefs-principles-of-operation.pdf]]
 
-## Status
+## Contact and support
 
-Bcachefs can currently be considered beta quality. It has a small pool of
-outside users and has been stable for quite some time now; there's no reason
-to expect issues as long as you stick to the currently supported feature set.
-It's been passing all xfstests for well over a year, and serious bugs are rare
-at this point. However, given that it's still under active development backups
-are a good idea.
+Developing a filesystem is also not cheap, quick, or easy; we need funding!
+Please chip in on [[Patreon|https://www.patreon.com/bcachefs]]
 
-### Feature status
+Join us in the bcache [[IRC|Irc]] channel, we have a small group of bcachefs
+users and testers there: #bcache on OFTC (irc.oftc.net).
 
- - Full data checksumming
-
-   Fully supported and enabled by default; checksum errors will cause IOs to be
-   retried if there's another replica available.
-
- - Compression
-
-   Done - LZ4, gzip and ZSTD are currently supported.
-
- - Multiple device support
-
-   Done - you can add and remove devices at runtime while the filesystem is in
-   use, migrating data off the device if necessary.
-
- - Tiering/writeback caching:
-
-   Bcachefs allows you to specify disks (or groups thereof) to be used for
-   three categories of I/O: foreground, background, and promote. Foreground
-   devices accept writes, whose data is copied to background devices
-   asynchronously, and the hot subset of which is copied to the promote devices
-   for performance.
-
- - Replication (i.e. RAID1/10)
-
-   Done - you can yank out a disk while a filesystem is in use and it'll keep
-   working, transparently handling IO errors. You can then use the rereplicate
-   command to write out another copy of all the degraded data to another device.
-
- - Erasure coding
-
-   Not quite stable
-
- - [[Encryption]]
-
-   Whole filesystem AEAD style encryption (with ChaCha20 and Poly1305) is done
-   and merged. I would suggest not relying on it for anything critical until the
-   code has seen more outside review, though.
-
- - Snapshots
-
-   Done, still shaking out a few bugs
+Mailing list: [[https://lore.kernel.org/linux-bcachefs/]], or
+linux-bcachefs@vger.kernel.org.

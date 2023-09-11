@@ -1,6 +1,8 @@
+# Subvolumes and snapshots:
 
-Snapshots & subvolumes:
-=======================
+bcachefs provides btrfs style writeable snapshots, at subvolume granularity.
+
+# Detailed design:
 
 The short version:
 
@@ -20,8 +22,7 @@ When we do a lookup for a filesystem item, we have to check if the snapshot ID
 of the key we found is an ancestor of the snapshot ID we're searching for, and
 filter out items that aren't.
 
-Subvolumes:
-===========
+# Subvolumes:
 
 Subvolumes are needed for two reasons:
 
@@ -59,8 +60,7 @@ subvolume roots because otherwise taking a snapshot would require updating every
 inode in that subvolume. With these fields and inode backpointers, we'll be able
 to reconstruct a path to any directory, or any file that hasn't been hardlinked.
 
-Snapshots:
-==========
+# Snapshots:
 
 We're also adding another table (btree) for snapshot keys. Snapshot keys form a
 tree where each node is just a u32. The btree iterator code that filters by
@@ -112,8 +112,7 @@ the fragment.
 Conversely, existing extents may not be merged if one of them is visible in a
 child snapshot and the other is not.
 
-Snapshot deletion:
-==================
+# Snapshot deletion:
 
 In the current design, deleting a snapshot will require walking every btree that
 has snapshots (extents, inodes, dirents and xattrs) to find and delete keys with
@@ -123,8 +122,7 @@ We could improve on this if we had a mechanism for "areas of interest" of the
 btree - perhaps bloom filter based, and other parts of bcachefs might be able to
 benefit as well - e.g. rebalance.
 
-Other performance considerations:
-=================================
+# Other performance considerations:
 
 Snapshots seem to exist in one of those design spaces where there's inherent
 tradeoffs and it's almost impossible to design something that doesn't have
@@ -157,8 +155,7 @@ to the new inode, and mark the original inode to redirect to the new inode so
 that the user visible inode number doesn't change. A bit tedious to implement,
 but straightforward enough.
 
-Locking overhead:
-=================
+# Locking overhead:
 
 Every btree transaction that operates within a subvolume (every filesystem level
 operation) will need to start by looking up the subvolume in the btree key cache
@@ -172,8 +169,7 @@ table lookups are expected to show up in profiles and be worth optimizing. We
 can probably switch to using a flat array to index btree key cache items for the
 subvolume btree.
 
-Permissions:
-============
+# Permissions:
 
 Creating a new empty subvolume can be done by untrusted users anywhere they
 could call mkdir().
@@ -182,8 +178,7 @@ Creating a snapshot will also be an untrusted operation - the only additional
 requirement being that untrusted users must own the root of the subvolume being
 snapshotted.
 
-Disk space accounting:
-======================
+# Disk space accounting:
 
 We definitely want per snapshot/subvolume disk space accounting. The disk space
 accounting code is going to need some major changes in order to make this
@@ -213,8 +208,7 @@ linear chain of nodes:
 
 a -> b -> c -> d -> e
 
-Recursive snapshots:
-====================
+# Recursive snapshots:
 
 Taking recursive snapshots atomically should be fairly easy, with the caveat
 that right now there's a limit on the number of btree iterators that can be used
@@ -222,15 +216,13 @@ simultaneously (64) which will limit the number of subvolumes we can snapshot at
 once. Lifting this limit would be useful for other reasons though, so will
 probably happen eventually.
 
-Fsck:
-=====
+# Fsck:
 
 The fsck code is going to have to be reworked to use `BTREE_ITER_ALL_SNAPSHOTS`
 and check keys in all snapshots all at once, in order to have acceptable
 performance. This has not been started on yet, and is expected to be the
 trickiest and most complicated part.
 
-Quotas:
-=======
+# Quotas:
 
 Todo

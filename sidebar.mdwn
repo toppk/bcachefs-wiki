@@ -1,10 +1,6 @@
 * [[About]]
   * [[Stability]]
   * [[Performance]]
-* Support
-  * [[FAQ]]
-  * [[Howto]]
-  * [[Contact]]
 * Development
   * [[Todo]]
   * [[IoTunables]]
@@ -23,3 +19,4 @@
 * Other technical docs
   * [[StablePages]]
   * [[October 2022 talk for Redhat|bcachefs_talk_2022_10.mpv]]
+* [[FAQ]]

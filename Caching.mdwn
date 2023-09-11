@@ -1,0 +1,67 @@
+# Caching, targets, data placement
+
+bcachefs can be configured for writethrough, writeback, and writearound
+caching, as well as other more specialized setups.
+
+The basic operations (and options) to consider are:
+
+ - Where foreground writes go
+ - Where data is moved to in the background
+ - Where data is promoted to on read
+
+## Target options and disk labels
+
+To configure caching, we first need to be able to refer to one or more devices;
+referring to more than one device requires labelling devices. Labels are paths,
+with dot delimiters, which allows devices to be grouped into a heirarchy.
+
+For example, formatting with the following labels
+
+  bcachefs format				\
+	--label=ssd.ssd1	/dev/sda1	\
+	--label=ssd.ssd2	/dev/sdb1	\
+	--label=hdd.hdd1	/dev/sdc1	\
+	--label=hdd.hdd2	/dev/sdd1	\
+
+Then target options could refer to any of:
+
+	`--foreground_target=/dev/sda1`
+	`--foreground_target=ssd	`(both sda1 and sdb1)
+	`--foreground_target=ssd.ssd1	`(alias for sda1)
+
+## Caching:
+
+For writeback caching (the most common configuration), we want foreground
+writes to go to the fast device, data to be moved in the background to the slow
+device, and additionally any time we read if the data isn't already on the fast
+device we want a copy to be stored there. Continuing with the previous example,
+you'd use the following options:
+
+	--foreground_target=ssd
+	--background_target=hdd
+	--promote_target=ssd
+
+The rebalance thread will continually move data to the `background_target`
+device(s). When doing so, the copy on the original device will be kept but
+marked as cached; also, when promoting data to the promote target the
+newly-written copy will be marked as cached.
+
+Cached data is evicted as-needed, in standard LRU fashion.
+
+## `data_allowed`
+
+The target options are best-effort; if the specified devices are full the
+allocator will fall back to allocating from any device that has space.
+
+The per-device `data_allowed` option can be used to restrict devices to be used
+for only journal, btree, or user data, and this is a hard restriction.
+
+## `durabiliity`
+
+Some devices may already have internal redundancy, e.g. a hardware raid
+controller. The `durability` option may be used to indicate that a replicas on
+a device should count as being worth `n` replicas towards the desired total.
+
+Also, specifying `--durability=0` allows a device to be used for true
+writethrough caching, where we consider a device to be untrusted: allocations
+will ensure that the device can be yanked at any time without losing data.

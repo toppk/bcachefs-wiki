@@ -30,7 +30,11 @@ bcache.
 
 ## Documentation
 
-We now have a user manual: [[bcachefs-principles-of-operation.pdf]]
+[[Getting Started|GettingStarted]]
+
+[[User manual|bcachefs-principles-of-operation.pdf]]
+
+[[FAQ]]
 
 ## Contact and support
 

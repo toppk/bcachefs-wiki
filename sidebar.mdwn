@@ -1,11 +1,4 @@
-* [[About]]
-  * [[Stability]]
-  * [[Performance]]
-* Development
-  * [[Todo]]
-  * [[IoTunables]]
-  * [[TestServerSetup]]
-* Bcachefs developer documentation
+### bcachefs developer documentation
   * [[Architecture]]
   * [[BtreeIterators]]
   * [[BtreeNodes]]
@@ -16,7 +9,7 @@
   * [[Allocator]]
   * [[Fsck]]
   * [[Roadmap]]
-* Other technical docs
+  * [[Todo]]
+  * [[TestServerSetup]]
   * [[StablePages]]
   * [[October 2022 talk for Redhat|bcachefs_talk_2022_10.mpv]]
-* [[FAQ]]

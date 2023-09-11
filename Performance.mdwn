@@ -1,5 +1,0 @@
-## How is performance of bcachefs with VM-disk-images ?
-
-You can best disable COW to prevent fragmentation.
-ADD HOWTO + More information
-

@@ -9,7 +9,7 @@
   * [[Allocator]]
   * [[Fsck]]
   * [[Roadmap]]
-  * [[Todo]]
+  * [[Wishlist]]
   * [[TestServerSetup]]
   * [[StablePages]]
   * [[October 2022 talk for Redhat|bcachefs_talk_2022_10.mpv]]

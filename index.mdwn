@@ -1,4 +1,3 @@
-
 # "The COW filesystem for Linux that won't eat your data".
 
 Bcachefs is an advanced new filesystem for Linux, with an emphasis on
@@ -17,8 +16,28 @@ from a modern filesystem.
 * Scalable - has been tested to 100+ TB, expected to scale far higher (testers wanted!)
 * High performance, low tail latency
 * Already working and stable, with a small community of users
+* [[Use Cases|UseCases]]
 
-## Philosophy
+## Documentation
+
+* [[Getting Started|GettingStarted]]
+* [[User manual|bcachefs-principles-of-operation.pdf]]
+* [[FAQ]]
+
+## Debugging tools
+
+bcachefs has extensive debugging tools and facilities for inspecting the state
+of the system while running: [[Debugging]].
+
+## Development tools
+
+bcachefs development is done with
+[[ktest|https://evilpiepirate.org/git/ktest.git]], which is used for both
+interactive and automated testing, with a large test suite.
+
+[[Test dashboard|https://evilpiepirate.org/~testdashboard/ci]]
+
+## Philosophy, vision
 
 We prioritize robustness and reliability over features: we make every effort to
 ensure you won't lose data. It's building on top of a codebase with a pedigree
@@ -28,16 +47,75 @@ keeping things stable, and aggressively fixing design issues as they are found;
 the bcachefs codebase is considerably more robust and mature than upstream
 bcache.
 
-## Documentation
+The long term goal of bcachefs is to produce a truly general purpose filesystem:
+ - scalable and reliable for the high end
+ - simple and easy to use
+ - an extensible and modular platform for new feature development, based on a
+   core that is a general purpose database, including potentially distributed storage
 
-* [[Getting Started|GettingStarted]]
-* [[User manual|bcachefs-principles-of-operation.pdf]]
-* [[FAQ]]
+## Some technical high points
+
+Filesystems have conventionally been implemented with a great deal of special
+purpose, ad-hoc data structures; a filesystem-as-a-database is a rarer beast:
+
+### btree: high performance, low latency
+
+The core of bcachefs is a high performance, low latency b+ tree.
+[[Wikipedia|https://en.wikipedia.org/wiki/Bcachefs]] covers some of the
+highlights - large, log structured btree nodes, which enables some novel
+performance optimizations. As a result, the bcachefs b+ tree is one of the
+fastest production ordered key value stores around: [[benchmarks|BtreePerformance]].
+
+Tail latency has also historically been a difficult area for filesystems, due
+largely to locking and metadata write ordering dependencies. The database
+approach allows bcachefs to shine here as well, it gives us a unified way to
+handle locking for all on disk state, and introduce patterns and techniques for
+avoiding aforementioned dependencies - we can easily avoid holding btree locks
+while doing blocking operations, and as a result benchmarks show write
+performance to be more consistant than even XFS.
+
+#### Sophisticated transaction model
+
+The main interface between the database layer and the filesystem layer provides
+ - Transactions: updates are queued up, and are visible to code running within
+   the transaction, but not the rest of the system until a successful
+   transaction commit
+ - Deadlock avoidance: High level filesystem code need not concern itself with lock ordering
+ - Sophisticated iterators
+ - Memoized btree lookups, for efficient transaction restart handling, as well
+   as greatly simplifying high level filesystem code that need not pass
+   iterators around to avoid lookups unnecessarily.
+
+#### Triggers
+
+Like other database systems, bcachefs-the-database provides triggers: hooks run
+when keys enter or leave the btree - this is used for e.g. disk space
+accounting.
+
+Coupled with the btree write buffer code, this gets us highly efficient
+backpointers (for copygc), and in the future and efficient way to maintain an
+index-by-hash for data deduplication.
+
+### Unified codebase
+
+The entire bcachefs codebase can be built and used either inside the kernel, or
+in userspace - notably, fsck is not a from-scratch implementation, it's just a
+small module in the larger bcachefs codebase.
+
+### Rust
+
+We've got some initial work done on transitioning to Rust, with plans for much
+more: here's an example of walking the btree, from Rust:
+[[cmd_list|https://evilpiepirate.org/git/bcachefs-tools.git/tree/rust-src/src/cmd_list.rs]]
 
 ## Contact and support
 
 Developing a filesystem is also not cheap, quick, or easy; we need funding!
 Please chip in on [[Patreon|https://www.patreon.com/bcachefs]]
+
+We're also now offering contracts for support and feature development -
+[[email|kent.overstreet@gmail.com]] for more info. Check the
+[[roadmap|Roadmap]] for ideas on things you might like to support.
 
 Join us in the bcache [[IRC|Irc]] channel, we have a small group of bcachefs
 users and testers there: #bcache on OFTC (irc.oftc.net).

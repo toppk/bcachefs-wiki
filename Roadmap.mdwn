@@ -1,232 +1,82 @@
-# bcachefs status, roadmap:
+# Roadmap for future work:
 
 [[!toc levels=3 startlevel=2  ]]
 
-## Stabilization - status, work to be done
-
-### Current stability/robustness
-
-We recently had a spate of corruptions that users were hitting - at the end of
-it, some users had to wait for new repair code to be written but (as far as I
-know) no filesystems or even significant amounts of data were lost - our check
-and repair code is getting to be really solid. The bugs themselves seem to have
-been resolved, except for (it appears) a bug in the journalling code that was
-causing journal entries to get lost - that one hasn't been reported in awhile
-but we'll still hunt for it some more.
-
-Users have been pushing it pretty hard.
-
-### Tooling
-
-The bcachefs kernel code is also included as a library in bcachefs-tools - 90%
-of the kernel code builds and runs in userspace. This is really useful - it
-makes new tooling easy to develop, and it also means we can test almost all of
-the codebase in userspace, with userspace debugging tools (ASAN and UBSAN in
-userspace catch more bugs than the kernel equivalents, and valgrind also catches
-things ASAN doesn't).
-
-We've got a tool for dumping filesystem metadata as qcow2 images - our normal
-workflow when a user has something go wrong with their filesystem is for them to
-dump the metadata, and then if necessary I can write new repair code and test it
-on the dumped image before touching their filesystem.
-
-A fuse port has been started, but isn't useable yet. This is something we really
-want to have - if a user or customer is hitting a bug that we can't reproduce
-locally, switching to the fuse version to debug it in userspace is going to save
-our bacon someday.
-
-We also have tooling for examining filesystem metadata - there's userspace
-tooling for examining an offline filesystem, and metadata can also be viewed in
-debugfs on a mounted filesystem.
-
-One thing that's missing in the userspace bcachefs tool is access to what's
-published via sysfs when running in the kernel - this is a really important
-debugging tool. A good project for someone new to the code might be to embed an
-http server and implement a sysfs shim.
-
-### Feature stability
-
-Erasure coding isn't quite there yet - there's still oopses being reported, and
-existing tests aren't finding the bugs.
-
-Everything else is considered supported. There's still a bug with the refcounts
-in the reflink code that xfstests sporadically hits, but that's the current area
-of focus and should be closed out soon.
-
-### Test infrastructure
-
-We have [[ktest|https://evilpiepirate.org/git/ktest.git]], which is a major asset.
-It turns virtual machine testing into a simple commandline tool - all test
-output is on standard output, ctrl-c kills the VM and releases all resources.
-It's designed for both interactive development (it tries to be as quick as
-possible from kernel build to when the tests start running) and automated
-testing (test pass/failure is reported as a return code, and implements a
-watchdog in case tests hang).
-
-It provides easy access to ssh, kgdb, qemu's gdb interface, and more. In the
-past we've had it working with the kernel's gcov support for code coverage,
-getting that going again is high on the todo list.
-
-### Testing:
-
-All tests need to be passing. Tests right now are divided between xfstests and
-ktest - ktest is used as a wrapper for running xfstests in a virtual machine,
-and it also has a good number of bcachefs-specific tests.
-
-We may want to move the bcachefs tests from ktest to xfstests - having all our
-tests in the same place would be more convenient and thus help ensure that
-they're getting run.
-
-We're down to ~15 xfstests tests that aren't passing - all are triaged, none
-are particularly concerning. We need to get all of them passing and then start
-leaving test runs going 24/7 - when the test dashboard is all green, that makes
-it much easier to notice and jump on tests that fail even sporadically.
-
-The ktest tests haven't been getting run as much and are in a messier state - we
-need to get all of them passing and ensure that they're being run continuously
-(possibly moving them to xfstests).
-
-We don't yet have an automated mechanism for running xfstests with the full
-matrix of configurable options - we want to be testing with checksumming both on
-and off, data compression on and off, encryption on and off, small btree nodes
-(to stress greater tree heights), and more.
-
-### Test coverage
-
-We need to get code coverage analysis going again - this will definitely
-highlight tests that need to be written, and we also need to add error injection
-testing. bcache/bcachefs used to have error injection tests, but it was with a
-nonstandard error injection framework - some of the error injection points still
-exist, though.
-
-## Performance:
-
-### Core btree:
-
-The core btree code is heavily optimized, and I don't expect much in the way of
-significant gains without novel data structures. Btree performance is
-particularly important in bcachefs because we not shard btrees on a per inode
-basis like most filesystems. Instead have one global extents btree, one global
-dirents btree, et cetera. Historically, this came about because bcachefs started
-as a block cache where we needed a single index that would be fast enough to
-index an entire SSD worth of blocks, and for persistent data structures btrees
-have a number of advantages over hash tables (can do extents, and when access
-patterns have locality they preserve that locality). Using singleton btrees is
-a major simplification when writing a filesystem, but it does mean that
-everything is leaning rather heavily on the performance and scalability of the
-btree implementation.
-
-Bcachefs b-trees are a hybrid compacting data structure - they share some
-aspect with COW btrees, but btree nodes internally are log structured. This
-means that btree nodes are big (default 256k), and have a very high fanout. We
-keep multiple sorted sets of keys within a btree node (up to 3),
-compacting/sorting when the last set, the one that updates go to, becomes too
-large.
-
-Lookups within a btree node use eytzinger layout search trees with summary keys
-that fit in 4 bytes. Eytzinger layout means descendents of any given node are
-adjacent in memory, meaning they can be effectively prefetched, and 4 byte nodes
-mean 16 of them fit on a cacheline, which means we can prefetch 4 levels ahead -
-this means we can pipeline effectively enough to get good lookup performance
-even when our memery accesses are not cached.
-
-On my Ryzen 3900X single threaded lookups across 16M keys go at 1.3M second, and
-scale almost linearly - with 12 threads it's about 12M/second. We can do 16M
-random inserts at 670k per second single threaded; with 12 threads we achieve
-2.4M random inserts per second.
-
-Btree locking is very well optimized. We have external btree iterators which
-make it easy to aggressively drop and retake locks, giving the filesystem as a
-whole very good latency.
-
-Minor scalability todo item: btree node splits/merges still take intent locks
-all the way up to the root, they should be checking how far up they need to go.
-This hasn't shown up yet because bcachefs btree nodes are big and splits/merges
-are infrequent.
-
-### IO path:
-
-IO paths: the read path looks to be in excellent shape - I see around 350k iops
-doing async 4k random reads, single threaded, on a somewhat pokey Xeon server.
-We're nowhere near where we should be on 4k random writes - I've been getting in
-the neighborhood of 70k iops lately, single threaded, and it's unclear where the
-bottleneck is - we don't seem to be cpu bound. Considering the btree performance
-this shouldn't be a core architectural issue - work needs to be done to identify
-where we're losing performance.
-
-Filesystem metadata operation performance (e.g. fsmark): On most benchmarks, we
-seem to be approaching or sometimes mathing XFS on performance. There are
-exceptions: multithreaded rm -rf of empty files is currently roughly 4x slower
-than XFS - we bottleneck on journal reclaim, which is flushing inodes from the
-btree key cache back to the inodes btree. 
-
-## Scalability:
-
-There are still some places where we rely on walking/scanning metadata too much.
-
-### Allocator:
-
-For allocation purposes, we divide up the device into buckets (default 512k,
-currently support up to 8M). There is an in-memory array that represents these
-buckets, and the allocator periodically scans this array to fill up freelists -
-this is currently a pain point, and eliminating this scanning is a high priority
-item. Secondarily, we want to get rid of this in memory array - buckets are
-primarily represented in the alloc btree. Almost all of the work to get rid of
-this has been done, fixing the allocator to not rescan for empty buckets is the
-last major item.
-
-### Copygc:
-
-Because allocation is bucket based, we're subject to internal fragmentation that
-we need copygc to deal with, and when copygc needs to run it has to scan the
-bucket arrays to determine which buckets to evacuate, and then it has to scan
-the extents and reflink btrees for extents to be moved.
-
-This is something we'd like to improve, but is not a major pain point issue -
-being a filesystem, we're better positioned to avoid mixing unrelated writes
-which tends to be the main cause of write amplification in SSDs. Improving this
-will require adding a backpointer index, which will necessarily add overhead to
-the write path - thus, I intend to defer this until after we've diagnosed our
-current lack of performance in the write path and worked to make is fast as we
-think it can go. We may also want backpointers to be an optional feature.
-
-### Rebalance:
+## Rebalance work index:
 
 Various filesystem features may want data to be moved around or rewritten in the
 background: e.g. using a device as a writeback cache, or using the
 `background_compression` option - excluding copygc, these are all handled by the
 rebalance thread. Rebalance currently has to scan the entire extents and reflink
-btrees to find work items - and this is more of a pain point than copygc, as
-this is a normal filesystem feature. We should add a secondary index for extents
-that rebalance will need to move or rewrite - this will be a "pay if you're
-using it" feature so the performance impact should be less of a concern than
-with copygc.
+btrees to find work items: in the near future, we'll be adding a
+`rebalance_work` index, which will just be a bitset btree indicating which
+extents need to have work done on them.
 
-Some thought and attention should be given to what else we might want to use
-rebalance for in the future.
+The btree write buffer, which e.g. the backpointers code heavily relies upon,
+gives us the ability to maintain this index with minimal runtime overhead.
 
-There are also current bug reports of rebalance reading data and not doing any
-work; while work is being done on this subsystem we should think about improving
-visibility as to what it's doing.
+We also have to start tracking the pending work in the extent itself, with a
+new extent field (e.g. compress with given compression type, for the
+`background_compression` option, or move to different target for the
+`background_target` option).
 
-### Disk space accounting:
+Most of the design and implementation for this is complete - there is still
+some work related to the triggers code remaining.
 
-Currently, disk space accounting is primarily persisted in the journal (on clean
-shutdown, it's also stored in the superblock) - and each disk space counter is
-added to every journal entry. As the number of devices in a filesystem increases
-this overhead grows, but where this will really become an issue is adding
-per-snapshot disk space accounting. We really need these counters to be stored
-in btree keys, but this will be a nontrivial change as we use a complicated
-system of percpu counters for disk space accounting, with multiple sets of
-counters for each open journal entry - rolling them up just prior to each
-journal write. My plan is to extend the btree key cache so that it can support a
-similar mechanism.
+## Compression
 
-Also, we want disk space accounting to be broken by compression type, for
-compressed data, and compressed/uncompressed totals to both be kept - right now
-there's no good way for users to find out the compression ratio they're getting.
+We'd like to add multithreaded compression, for when a single thread is doing
+writes at a high enough rate to be CPU bound.
 
-### Number of devices in a filesystem:
+We'd also like to add support for xz compression: this will be useful when
+doing a "squashfs-like" mode. The blocker is that kernel only has support for
+xz decompression, not compression - hopefully we can get this added.
+
+## Scrub
+
+We're still missing scrub support. Scrub's job will be to walk all data in the
+filesystem and verify checksums, recovery bad data from a good copy if it
+exists or notifying the user if data is unrecoverable.
+
+Since we now have backpointers, we have the option of doing scrub in keyspace
+order, or lba order - lba order will be much better for rotational devices.
+
+## Configurationless tiered storage
+
+We're starting to work on benchmarking individual devices at format time, and
+storing their performance characteristics in the superblock.
+
+This will allow for a number of useful things - including better tracking of
+drive health over time - but the real prize will be tiering that doesn't
+require explicit configuration: foreground writes will preferentially go to
+the fastest device(s), and in the background data will be moved from fast
+devices to slow devices, taking into account how hot or cold that data is.
+
+Even better, this will finally give us a way to manage more than two tiers, or
+performance classes, of devices.
+
+## Disk space accounting:
+
+Currently, disk space accounting is primarily persisted in the journal (on
+clean shutdown, it's also stored in the superblock), and each disk space
+counter is added to every journal entry.
+
+So currently there's a real limit on how many counters we can maintain, and
+we'll need to do something else before adding e.g. per snapshot disk space
+accounting.
+
+We'll need to make disk space accounting keys in a btree, like all other
+metadata. Since disk space accounting was implemented we've gained the btree
+write buffer code, so this is now possible: on transaction commit, we will do
+write buffer updates with deltas for the counters being modified, and then the
+btree write buffer flush code will handle summing up the deltas and flushing
+the updates to the underlying btree.
+
+We also want to add more counters to the inode. Right now in the inode we only
+track sectors used as fallocate would see them - we should add counters that
+take into account replication and compression.
+
+## Number of devices in a filesystem:
 
 Currently, we're limited to a maximum of 64 devices in a filesystem. It would be
 desirable and not much work to lift that limit - it's not encoded in any on disk
@@ -265,98 +115,97 @@ which means that the failure of _any_ three devices would lead to loss of data.
 
 A feature that addresses these issues still needs to be designed.
 
-### Fsck
+### Support for sub-block size writes
 
-Fsck performance is good, but for supporting huge filesystems we are going to
+Devices with larger than 4k blocksize are coming, and this is going to result
+in more wasted disk space due to internal fragmentation.
+
+Support for writes at smaller than blocksize granularity would be a useful
+addition. The read size is easy: they'll require bouncing, which we already
+support. Writes are trickier - there's a few options:
+
+ * Buffer up writes when we don't have full blocks to write? Highly
+   problematic, not going to do this.
+ * Read modify write? Not an option for raw flash, would prefer it to not be
+   our only option
+ * Do data journalling when we don't have a full block to write? Possible
+   solution, we want data journalling anyways
+
+### Journal on NVRAM devices
+
+NVRAM devices are currently a specialized thing, which are always promising to
+become more widely available. We could make use of them for the journal;
+they'd let us cheaply add full data journalling (useful for previous feature)
+and greatly reduce fsync overhead.
+
+### Online fsck
+
+For supporting huge filesystems, and competing with XFS, we will eventually
 need online fsck.
 
-Fsck in bcachefs is divided up into two main components: there is `btree_gc`,
-which walks the btree and regenerates allocation information (and also checks
-btree topology), and there is fsck proper which checks higher level filesystem
-invariants (e.g. extents/dirents/xattrs must belong to an inode, and filesystem
-connectivity).
+This will be easier in bcachefs than it was in XFS, since our fsck
+implementation is part of the main filesystem codebase and uses the normal
+btree transaction API that's available at runtime.
 
-The `btree_gc` subsystem is so named because originally (when bcachefs was
-bcache) not only did not have persistent allocation information, it also didn't
-keep bucket sector counts up to date when adding/removing extents from the btree
-- it relied entirely on periodically rescanning the btree.
+That means that the current fsck implementation will eventually also be the
+online fsck implementation: the process will mostly be a matter of auditing the
+existing fsck codebase for locking issues, and adding additional locking w.r.t.
+the rest of the filesystem where needed.
 
-This capability was kept for a very long time, partly as an aid to testing an
-debugging when uptodate allocation information was being developed, then
-persistent, then transactionally persistent allocation information was
-developed. The capability to run `btree_gc` at runtime has been disabled for
-roughly the past year or so - it was a bit too much to deal with while getting
-everything else stabilized - but the code has been retained and there haven't
-been any real architectural changes that would preclude making it a supported
-feature again - this is something that we'd like to do, after bcachefs is
-upstreamed and when more manpower is available.
+## ZNS, SMR device support:
 
-Additionally, fsck itself is part of the kernel bcachefs codebase - the
-userspace fsck tool uses a shim layer to run the kernel bcachefs codebase in
-userspace, and fsck uses the normal btree iterators interface that the rest of
-the filesystem uses. The in-kernel fsck code can be run at mount time by
-mounting wiht the `-o  fsck` option - this is essentially what the userspace
-fsck tool does, just running the same code in userspace.
+[[ZNS|https://zonedstorage.io/docs/introduction/zns]] is a technology for
+cutting out the normal normal flash translation layer (FTL), and instead
+exposing an interface closer to the raw flash.
 
-This means that there's nothing preventing us from running the current fsck
-implementation at runtime, while the filesystem is in use, and there's actually
-not much work that needs to be done for this to work properly and reliably: we
-need to add locking for the parts of fsck are checking nonlocal invariants and
-can't rely solely on btree iterators for locking.
+SSDs have large erase units, much larger than the write blocksize, so the FTL
+has to implement a mapping layer as well as garbage collection to expose a
+normal, random write block device interface. Since a copy-on-write filesystem
+needs both of these anyways, adding ZNS support to bcachefs will eliminate a
+significant amount of overhead and improve performance, especially tail latency.
 
-Since backpointers from inodes to dirents were recently added, the checking of
-directory connectivity is about to become drastically simpler and shouldn't need
-any external data structures or locking with the rest of the filesystem. The
-only fsck passes that appear to require new locking are:
+[[SMR|https://en.wikipedia.org/wiki/Shingled_magnetic_recording]] is another
+technology for rotational hard drives, completely different from ZNS in
+implementation but quite similar in how it is exposed and used. SMR enables
+higher density, and supporting it directly in the filesystem eliminates much of
+the performance penalties.
 
-* Counting of extents/dirents to validate `i_sectors` and subdirectory counts.
+bcachefs allocation is bucket based: we allocate an entire bucket, write to it
+once, and then never rewrite it until the entire bucket is empty and ready to
+be reused. This maps nicely to both ZNS and SMR zones, which makes supporting
+both of these directly particularly attractive.
 
-* Checking of `i_nlink` for inodes with hardlinks - but since inode backpointers
-  have now been added, this pass now only needs to consider inodes that actually
-  have hardlinks.
+## Squashfs mode
 
-So that's cool.
+Righ now we have dedicated filesystems, like
+[[squashfs|https://en.wikipedia.org/wiki/SquashFS]], for building and reading
+from a highly compressed but read-only filesystem.
 
-### Deleted inodes after unclean shutdown
+bcachefs metadata is highly space efficient(e.g. [[packed
+bkeys|https://bcachefs.org/Architecture/#Bkey_packing]], and could probably
+serve as a direct replacement with a relatively small amount of work to
+generate a filesystem image in the most compact way. The same filesystem image
+could later be mounted read-write, if given more space.
 
-Currently, we have to scan the inodes btree after an unclean shutdown to find
-unlinked inodes that need to be deleted, and on large filesystems this is the
-slowest part of the mount process (after unclean shutdown).
+Specifying a directory tree to include when creating a new filesystem is
+already a requested feature - other filesystems have this as the `-c` option
+to mkfs.
 
-We need to add a hidden directory for unlinked inodes.
+## Container filesystem mode
 
-### Snapshots:
+Container filesystems are another special purpose type of filesystem we could
+potentially fold into bcachefs - e.g.
+[[puzzlefs|https://github.com/project-machine/puzzlefs]]
 
-I expect bcachefs to scale well into the millions of snapshots. There will need
-to be some additional work to make this happen, but it shouldn't be much.
+These have a number of features, e.g. verity support for cryptographically
+verifying a filesystem image (which we can do via our existing cryptographic
+MAC support) - but the interesting feature here is support for referring to
+data (extents, entire files) in a separate location - in this case, the host
+filesystem.
 
-* We have a function, `bch2_snapshot_is_ancestor()`, that needs to be fast -
-  it's called by the btree iterator code (in `BTREE_ITER_FILTER_SNAPSHOTS` mode)
-  for every key it looks at. The current implementation is linear in the depth
-  of the snapshot tree. We'll probably need to improve this - perhaps by caching
-  a bit vector, for each snapshot ID, of ancestor IDs.
+### Cloud storage management
 
-* Too many overwrites in different snapshots at the same part of the keyspace
-  will slow down lookups - we haven't seen this come up yet, but it certainly
-  will at some point.
-
-  When this happens, it won't be for most files in the filesystem, in anything
-  like typical usage - most files are created, written to once, and then
-  overwritten with a rename; it will be for a subset of files that are long
-  lived and continuously being overwritten - i.e. databases.
-
-  To deal with this we'll need to implement per-inode counters so that we can
-  detect this situation - and then when we detect too many overwrites, we can
-  allocate a new inode number internally, and move all keys that aren't visible
-  in the main subvolume to that inode number.
-
-## Features:
-
-### SMR device support:
-
-This is something I'd like to see added - bcachefs buckets map nicely to SMR
-zones, we just need support for larger buckets (on disk format now supports
-them, we'll need to add an alternate in memory represenatation for large
-buckets), and plumbing to read the zone pointers and use them in the allocator.
-
-We already have copygc, so everything should just work.
+The previous feature is potentially more widely useful: allowing inodes and
+extents to refer to arbitrary callbacks for fetching/storing data would be the
+basis for managing data in e.g. cloud storage, and in combination with local
+storage in a seamless tierid system.

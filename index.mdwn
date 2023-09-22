@@ -46,6 +46,7 @@ the bcachefs codebase is considerably more robust and mature than upstream
 bcache.
 
 The long term goal of bcachefs is to produce a truly general purpose filesystem:
+
 * scalable and reliable for the high end
 * simple and easy to use
 * an extensible and modular platform for new feature development, based on a
@@ -75,6 +76,7 @@ performance to be more consistant than even XFS.
 #### Sophisticated transaction model
 
 The main interface between the database layer and the filesystem layer provides
+
 * Transactions: updates are queued up, and are visible to code running within
   the transaction, but not the rest of the system until a successful
   transaction commit

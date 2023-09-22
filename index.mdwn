@@ -16,7 +16,6 @@ from a modern filesystem.
 * Scalable - has been tested to 100+ TB, expected to scale far higher (testers wanted!)
 * High performance, low tail latency
 * Already working and stable, with a small community of users
-* [[Use Cases|UseCases]]
 
 ## Documentation
 
@@ -27,15 +26,14 @@ from a modern filesystem.
 ## Debugging tools
 
 bcachefs has extensive debugging tools and facilities for inspecting the state
-of the system while running: [[Debugging]].
+of the system while running - [[debugging]].
 
 ## Development tools
 
 bcachefs development is done with
 [[ktest|https://evilpiepirate.org/git/ktest.git]], which is used for both
-interactive and automated testing, with a large test suite.
-
-[[Test dashboard|https://evilpiepirate.org/~testdashboard/ci]]
+interactive and automated testing, with a large test suite -
+[[test dashboard|https://evilpiepirate.org/~testdashboard/ci]].
 
 ## Philosophy, vision
 
@@ -48,9 +46,9 @@ the bcachefs codebase is considerably more robust and mature than upstream
 bcache.
 
 The long term goal of bcachefs is to produce a truly general purpose filesystem:
- - scalable and reliable for the high end
- - simple and easy to use
- - an extensible and modular platform for new feature development, based on a
+ * scalable and reliable for the high end
+ * simple and easy to use
+ * an extensible and modular platform for new feature development, based on a
    core that is a general purpose database, including potentially distributed storage
 
 ## Some technical high points
@@ -77,12 +75,12 @@ performance to be more consistant than even XFS.
 #### Sophisticated transaction model
 
 The main interface between the database layer and the filesystem layer provides
- - Transactions: updates are queued up, and are visible to code running within
+ * Transactions: updates are queued up, and are visible to code running within
    the transaction, but not the rest of the system until a successful
    transaction commit
- - Deadlock avoidance: High level filesystem code need not concern itself with lock ordering
- - Sophisticated iterators
- - Memoized btree lookups, for efficient transaction restart handling, as well
+ * Deadlock avoidance: High level filesystem code need not concern itself with lock ordering
+ * Sophisticated iterators
+ * Memoized btree lookups, for efficient transaction restart handling, as well
    as greatly simplifying high level filesystem code that need not pass
    iterators around to avoid lookups unnecessarily.
 

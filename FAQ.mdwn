@@ -1,7 +1,62 @@
-Frequently Asked Questions
+# Frequently Asked Questions
 
-## Do I have to reformat my bcache drive to use the new bcachefs ?
+1.  What is bcachefs
+Bcachefs is an advanced new filesystem for Linux, with an emphasis on reliability
+and robustness and the complete set of features one would expect from a modern filesystem.
 
+2.  How does bcachefs compare to other Linux filesystems like ext4, btrfs, xfs, and zfs? 
+The bcachefs filesystem has various advantages over other Linux filesystems. 
+Bcachefs is a feature complete filesystem while also containing extra features such as
+checksumming and multi-device functionality within a filesystem. These are both features
+that are absent from the ext4 and xfs filesystems. Other benefits presented by bcachefs
+include a focus on reliability, robustness, and performance. Bcachefs is safer to use than
+btrfs and is also shown to outperform zfs in terms of speed and reliability. 
+
+3.  Is bcachefs stable for production use?
+Bcachefs can currently be considered beta quality. It has a small pool of
+outside users and has been stable for quite some time now; there's no reason
+to expect issues as long as you stick to the currently supported feature set.
+
+4.  How do I install and use bcachefs on my Linux system?
+Instructions for installation can be found here:
+[[Getting Started|GettingStarted]]
+
+The user manual can be found here:
+[[bcachefs-principles-of-operation.pdf]]    
+
+5.  Does bcachefs support data deduplication and compression?
+Bcachefs currently does not support data deduplication however compression
+is supported, more information can be found here: [[Compression]]
+
+6.  Is bcachefs included in the Linux kernel by default?
+Bcachefs is not yet upstream - you will have to build a kernel to use it.
+
+7.  Are there any limitations or known issues with bcachefs?
+Information on current bugs within bcachefs and related tooling can be found here:
+[[bcachefs bugs|https://github.com/koverstreet/bcachefs/issues]]
+[[bcachefs-tools bugs|https://github.com/koverstreet/bcachefs-tools/issues]]
+
+Our Todo list can be found here:
+[[Todo]]    
+
+8.  What is the development status of bcachefs?
+Currently we are working on getting bcachefs merged into the linux kernel. 
+A roadmap and features list can be found here:
+[[Roadmap]]
+
+9. Can I migrate my existing filesystem to bcachefs?
+Yes, users can migrate their existing filesystems into a bcachefs filesystem
+using the 'bcachefs migrate' subcommand
+
+10. Are there any recommended use cases for bcachefs?
+Bcachefs is primarily for multi-device filesystems.
+
+11. How do I contribute to the bcachefs project?
+Information on contributions can be found here:
+[[Contributing]]
+Join the [[IRC|irc]] channel and chat with other contributers
+
+12. Do I have to reformat my bcache drive to use the new bcachefs ?
 To use the caching device (cdev) with the new bcachefs, you will need to
 reformat it. In principle this should not be a problem, as they can be removed
 from a backing device (bdev/bcache).
@@ -12,12 +67,21 @@ nolonger an option.
 If you wish to use bcachefs as a filesystem you will have to format the
 backing device (bdev/bcache) with the new filesystem.
 
-## Does bcachefs still have the bcache caching functionality of block devices ?
+14. Do I have to reformat my bcache drive to use the new bcachefs ?
+To use the caching device (cdev) with the new bcachefs, you will need to
+reformat it. In principle this should not be a problem, as they can be removed
+from a backing device (bdev/bcache).
 
+If you wish to reuse the backing device (bdev/bcache), you can't this is
+nolonger an option.
+
+If you wish to use bcachefs as a filesystem you will have to format the
+backing device (bdev/bcache) with the new filesystem.
+
+15. Does bcachefs still have the bcache caching functionality of block devices ?
 No.
 
-## Where do I obtain statically linked bcachefs-tool (for use in initramfs) ?
-
+16. Where do I obtain statically linked bcachefs-tool (for use in initramfs) ?
 You can either compile them yourself from source, or refer to your
 distribution on how to obtain a statically linked set.
 
@@ -25,13 +89,11 @@ Statically linked programs have all the required dependencies compiled in. As
 such, they require no external libraries at runtime. This does however
 increase the size of the binary.
 
-## What is liburcu ?
-
+17. What is liburcu ?
 userspace RCU (read-copy-update) library
 [[http://lttng.org/urcu]]
 
-## I get the error "tools-util.c:16:19: fatal error: blkid.h: No such file or directory":
-
+18. I get the error "tools-util.c:16:19: fatal error: blkid.h: No such file or directory":
 You might need to add
 	EXTRA_CFLAGS="-l/usr/include/blkid/"
 or where-ever your OS stores the blkid.h file.

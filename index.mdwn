@@ -13,6 +13,9 @@ from a modern filesystem.
 * [[Compression]]
 * [[Encryption]]
 * [[Snapshots]]
+* Nocow mode
+* Reflink
+* Extended attributes, ACLs, quotas
 * Scalable - has been tested to 100+ TB, expected to scale far higher (testers wanted!)
 * High performance, low tail latency
 * Already working and stable, with a small community of users
@@ -23,17 +26,22 @@ from a modern filesystem.
 * [[User manual|bcachefs-principles-of-operation.pdf]]
 * [[FAQ]]
 
-## Debugging tools
+## Repositories
+
+[[https://evilpiepirate.org/git/bcachefs.git]]
+[[https://evilpiepirate.org/git/bcachefs-tools.git]]
+
+## [[Debugging tools|Debugging]]
 
 bcachefs has extensive debugging tools and facilities for inspecting the state
-of the system while running - [[debugging]].
+of the system while running.
 
 ## Development tools
 
 bcachefs development is done with
 [[ktest|https://evilpiepirate.org/git/ktest.git]], which is used for both
-interactive and automated testing, with a large test suite -
-[[test dashboard|https://evilpiepirate.org/~testdashboard/ci]].
+interactive and automated testing (including code coverage analysis), with a
+large test suite: [[dashboard|https://evilpiepirate.org/~testdashboard/ci]].
 
 ## Philosophy, vision
 

@@ -23,6 +23,16 @@ new extent field (e.g. compress with given compression type, for the
 Most of the design and implementation for this is complete - there is still
 some work related to the triggers code remaining.
 
+## tmpdir support
+
+Add a directory option for using it as a tmpdir - the contents will be deleted
+on every mount.
+
+Since the contents won't be needed after an unclean shutdown, there's no need
+for fsync() to do anything - this option will also turn fsync() into a noop,
+and without the fsync buffered IO will only be flushed on memory reclaim -
+meaning, tmpdir directories should perform just as well as a tmpfs.
+
 ## Compression
 
 We'd like to add multithreaded compression, for when a single thread is doing
@@ -76,20 +86,6 @@ We also want to add more counters to the inode. Right now in the inode we only
 track sectors used as fallocate would see them - we should add counters that
 take into account replication and compression.
 
-## Number of devices in a filesystem:
-
-Currently, we're limited to a maximum of 64 devices in a filesystem. It would be
-desirable and not much work to lift that limit - it's not encoded in any on disk
-data structures, just in memory bitmasks. After that we'll support 256 devices,
-and to go past that we'll need another, larger `bch_extent_ptr` type and a new
-superblock section for larger device index fields.
-
-`bch_extent_ptr` uses 44 bits for the offset field (in units of 512 byte
-sectors), giving us a current maximum device size of 8 petabytes. We already
-have code for different types of checksum fields within an extent for different
-size checksums, so adding support for a new, larger extent ptr type will be
-fairly trivial.
-
 ### Device management:
 
 We need a concept of "failure domains", and perhaps something more, for managing
@@ -114,6 +110,17 @@ devices filesystem with 3x replication, each allocation will be unconstrained
 which means that the failure of _any_ three devices would lead to loss of data.
 
 A feature that addresses these issues still needs to be designed.
+
+### Send and receive
+
+Like ZFS and btrfs have, we need it to. This will give us the ability to
+efficiently synchronize filesystems over a network for backup/redundancy
+purposes - much more efficient than rsync, and it'll pair well with snapshots.
+
+Since all metadata exists as btree keys, this won't be a huge amount of work
+to implement: we need a network protocol, and then we need to scan and send
+for keys newer than version number X (if making use of key version numbers),
+or keys newer than a given snapshot ID.
 
 ### Support for sub-block size writes
 

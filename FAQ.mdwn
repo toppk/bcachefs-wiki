@@ -1,19 +1,16 @@
 Frequently Asked Questions
 
-
-## Does bcachefs support ACL/xattrs ?
-Yes it supports both ACL and xattrs.
-
-
 ## Do I have to reformat my bcache drive to use the new bcachefs ?
 
-To use the caching device (cdev) with the new bcachefs, you will need to reformat it.
-In principle this should not be a problem, as they can be removed from a backing device (bdev/bcache).
+To use the caching device (cdev) with the new bcachefs, you will need to
+reformat it. In principle this should not be a problem, as they can be removed
+from a backing device (bdev/bcache).
 
-If you wish to reuse the backing device (bdev/bcache), you can't this is nolonger an option.
+If you wish to reuse the backing device (bdev/bcache), you can't this is
+nolonger an option.
 
-If you wish to use bcachefs as a filesystem you will have to format the backing device (bdev/bcache) with
-the new filesystem.
+If you wish to use bcachefs as a filesystem you will have to format the
+backing device (bdev/bcache) with the new filesystem.
 
 ## Does bcachefs still have the bcache caching functionality of block devices ?
 
@@ -21,22 +18,20 @@ No.
 
 ## Where do I obtain statically linked bcachefs-tool (for use in initramfs) ?
 
-You can either compile them yourself from source,
-or refer to your distribution on how to obtain a statically linked set.
+You can either compile them yourself from source, or refer to your
+distribution on how to obtain a statically linked set.
 
-About:
-Statically linked programs have all the required dependencies compiled in.
-As such, they require no external libraries at runtime.
-This does however increase the size of the binary.
+Statically linked programs have all the required dependencies compiled in. As
+such, they require no external libraries at runtime. This does however
+increase the size of the binary.
 
-##What is liburcu ?
+## What is liburcu ?
+
 userspace RCU (read-copy-update) library
 [[http://lttng.org/urcu]]
 
-##I get the error "tools-util.c:16:19: fatal error: blkid.h: No such file or directory":
+## I get the error "tools-util.c:16:19: fatal error: blkid.h: No such file or directory":
+
 You might need to add
 	EXTRA_CFLAGS="-l/usr/include/blkid/"
 or where-ever your OS stores the blkid.h file.
-
-
-

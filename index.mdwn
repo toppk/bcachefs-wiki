@@ -133,3 +133,8 @@ linux-bcachefs@vger.kernel.org.
 
 Bug trackers: [[bcachefs|https://github.com/koverstreet/bcachefs/issues]],
 [[bcachefs-tools|https://github.com/koverstreet/bcachefs-tools/issues]]
+
+## News
+
+Blog: [[!inline pages="news/*"]]
+Archive: [[Archive|News-full.mdwn]]

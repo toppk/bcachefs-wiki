@@ -31,6 +31,10 @@ from a modern filesystem.
 [[https://evilpiepirate.org/git/bcachefs.git]]  
 [[https://evilpiepirate.org/git/bcachefs-tools.git]]
 
+## Release tarballs
+
+[[https://evilpiepirate.org/bcachefs-tools/]]
+
 ## [[Debugging tools|Debugging]]
 
 bcachefs has extensive debugging tools and facilities for inspecting the state

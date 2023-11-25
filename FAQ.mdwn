@@ -97,3 +97,22 @@ userspace RCU (read-copy-update) library
 You might need to add
 	EXTRA_CFLAGS="-l/usr/include/blkid/"
 or where-ever your OS stores the blkid.h file.
+
+19. I get the error "mount(2) system call failed: Required key not available."
+You need to unlock the filesystem before mounting. As a superuser, run
+(substituting your drive for `/dev/sdc1`):
+    bcachefs unlock /dev/sdc1
+
+If the error persists, it might be because you're using `sudo` and root's
+keyring is not connected to your session. To verify, run these two commands:
+    sudo keyctl list @u
+    sudo keyctl list @s
+
+The first one displays the keys in root's keyring, and should mention external
+UUID of your bcachefs filesystem (which you can find with `bcachefs show-super
+/dev/scd1`). The second one displays your session's keyring, and should mention
+uid.0 (root).
+
+If you don't see uid.0 in the output of the second command, connect root's
+keyring to your session:
+    sudo keyctl link @u @s

@@ -2,26 +2,10 @@
 
 [[!toc levels=3 startlevel=2  ]]
 
-## Rebalance work index:
+## More ways of setting IO path options
 
-Various filesystem features may want data to be moved around or rewritten in the
-background: e.g. using a device as a writeback cache, or using the
-`background_compression` option - excluding copygc, these are all handled by the
-rebalance thread. Rebalance currently has to scan the entire extents and reflink
-btrees to find work items: in the near future, we'll be adding a
-`rebalance_work` index, which will just be a bitset btree indicating which
-extents need to have work done on them.
-
-The btree write buffer, which e.g. the backpointers code heavily relies upon,
-gives us the ability to maintain this index with minimal runtime overhead.
-
-We also have to start tracking the pending work in the extent itself, with a
-new extent field (e.g. compress with given compression type, for the
-`background_compression` option, or move to different target for the
-`background_target` option).
-
-Most of the design and implementation for this is complete - there is still
-some work related to the triggers code remaining.
+We need an option for setting IO path options on a per file descriptor or per
+process basis.
 
 ## tmpdir support
 

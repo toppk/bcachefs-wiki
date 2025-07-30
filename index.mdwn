@@ -11,6 +11,7 @@ from a modern filesystem.
 * Multiple devices
 * Replication
 * [[Erasure coding|ErasureCoding]] (incomplete)
+  High performance: doesn't fragment your writes (like ZFS), no RAID hole
 * [[Caching, data placement|Caching]]
 * [[Compression]]
 * [[Encryption]]
@@ -196,8 +197,8 @@ Other areas of emphasis:
 
   You can't debug what you can't see. Any time something goes wrong, the system
   should tell you clearly what went wrong, and tell you clearly and directly
-  everything you, as an end user or engineer, to understand what went wrong and
-  debug the issue.
+  everything you, as an end user or engineer, need to understand what went
+  wrong and debug the issue.
 
 - Comprehensive and robust fsck
 

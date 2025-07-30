@@ -228,7 +228,7 @@ small module in the larger bcachefs codebase.
 
 We've got some initial work done on transitioning to Rust, with plans for much
 more: here's an example of walking the btree, from Rust:
-[[cmd_list|https://evilpiepirate.org/git/bcachefs-tools.git/tree/rust-src/src/cmd_list.rs]]
+[[cmd_list|https://evilpiepirate.org/git/bcachefs-tools.git/tree/src/commands/list.rs]]
 
 ## Contact and support
 

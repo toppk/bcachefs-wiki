@@ -4,11 +4,13 @@ Bcachefs is an advanced new filesystem for Linux, with an emphasis on
 reliability and robustness and the complete set of features one would expect
 from a modern filesystem.
 
-* Copy on write (COW) - like zfs or btrfs
-* Full data and metadata checksumming
+* Copy on write (COW) - like zfs
+* Full data and metadata checksumming, for full data integrity: the filesystem
+  should always detect (and where possible, recover from) damage; it should
+  never return incorrect data.
 * Multiple devices
 * Replication
-* [[Erasure coding|ErasureCoding]] (not stable)
+* [[Erasure coding|ErasureCoding]] (incomplete)
 * [[Caching, data placement|Caching]]
 * [[Compression]]
 * [[Encryption]]
@@ -16,9 +18,16 @@ from a modern filesystem.
 * Nocow mode
 * Reflink
 * Extended attributes, ACLs, quotas
-* Scalable - has been tested to 100+ TB, expected to scale far higher (testers wanted!)
-* High performance, low tail latency
-* Already working and stable, with a small community of users
+* Petabyte scalability
+* Full online fsck, check and repair (in progress)
+* Robustness and rock solid repair. Damage and breakage are a fact of life,
+  it's not a matter of if, but when. It doesn't matter what happened to the
+  filesystem: bad hardware, lightning strikes, an errant dd, you can expect
+  that bcachefs will repair the damage and keep going, usually with no user
+  intervention required.
+
+  It's the job of the filesystem to never lose your data: anything that can be
+  repaired, will be.
 
 ## Documentation
 
@@ -47,74 +56,174 @@ bcachefs development is done with
 interactive and automated testing (including code coverage analysis), with a
 large test suite: [[dashboard|https://evilpiepirate.org/~testdashboard/ci]].
 
-## Philosophy, vision
+## About
 
-We prioritize robustness and reliability over features: we make every effort to
-ensure you won't lose data. It's building on top of a codebase with a pedigree
-- bcache already has a reasonably good track record for reliability Starting
-from there, bcachefs development has prioritized incremental development, and
-keeping things stable, and aggressively fixing design issues as they are found;
-the bcachefs codebase is considerably more robust and mature than upstream
-bcache.
+There are two main themes or ideas that make up bcachefs: copy on write, and
+filesystem-as-database. These are the two primary tools for achieving
+reliability: a filesystem that won't corrupt or lose your data, and that can
+always be repaired even when things go horribly wrong.
 
-The long term goal of bcachefs is to produce a truly general purpose filesystem:
+### History - ZFS
 
-* scalable and reliable for the high end
-* simple and easy to use
-* an extensible and modular platform for new feature development, based on a
-  core that is a general purpose database, including potentially distributed storage
+The history of modern filesystems starts with ZFS. Their primary goal was a
+filesystem that absolutely guarantees data integrity, and COW is primary
+mechanism by which ZFS achieves that goal: it enables full data and metadata
+checksumming, with a chain of trust up to a single root, the superblock.
 
-## Some technical high points
+This came out of real world experience with failure modes of block storage that
+conventional filesystems weren't able to protect against: bit corruption, lost
+writes, misdirected writes, and others. COW, coupled with full data and
+metadata checksumming, makes it possible for the filesystem to definitively
+guard againts all of them: a properly implemented COW filesystem should never
+return incorrect data.
 
-Filesystems have conventionally been implemented with a great deal of special
-purpose, ad-hoc data structures; a filesystem-as-a-database is a rarer beast:
+The push towards copy on write goes back even further in academic research. It
+had long been realized that it was fundamentally a safer technique than
+update-in-place, but ZFS was the first to realize COW in a filesystem and
+demonstrate the benefits to data integrity.
 
-### btree: high performance, low latency
+### Filesystem as a database
 
-The core of bcachefs is a high performance, low latency b+ tree.
-[[Wikipedia|https://en.wikipedia.org/wiki/Bcachefs]] covers some of the
-highlights - large, log structured btree nodes, which enables some novel
-performance optimizations. As a result, the bcachefs b+ tree is one of the
-fastest production ordered key value stores around: [[benchmarks|BtreePerformance]].
+The other half of bcachefs is "filesystem as a database".
 
-Tail latency has also historically been a difficult area for filesystems, due
-largely to locking and metadata write ordering dependencies. The database
-approach allows bcachefs to shine here as well, it gives us a unified way to
-handle locking for all on disk state, and introduce patterns and techniques for
-avoiding aforementioned dependencies - we can easily avoid holding btree locks
-while doing blocking operations, and as a result benchmarks show write
-performance to be more consistant than even XFS.
+The original Unix filesystem (and other filesystems of the era are broadly
+similar in concept, though the ideas were different) was implented with various
+special purpose (but simple - originally) on disk data structures: inodes (file
+metadata) of fixed size that live in fixed locations on disk, file data stored
+in blocks (not extents) indexed by radix trees hanging off the inode, and
+simple bitmaps for free space allocation.
 
-#### Sophisticated transaction model
+This worked well when filesystems were 1k loc, or 10k loc. But every additional
+feature needed new on disk data structures and pushed the limits of this
+design, with transactional correctness (filesystems that don't need a fsck
+after a crash) being a particularly big jump in complexity. In this model,
+every additional feature has needed new on disk data structures - each unique
+and special purpose. High performance directory indexing, xattrs, reflink, and
+a great many features not visible to users but necessary for scalability to
+modern filesystem sizes.
 
-The main interface between the database layer and the filesystem layer provides
+Notably, ZFS has more in common with the original Unix filesystem in the design
+of its data structures than other modern filesystems, for what were good and
+pragmatic reasons at the time. Their primary goal was robustness, and that has
+been the strength of filesystems in that lineage (as with ext2/3/4, also based
+off the original Unix filesystem): those simple, often fixed-location on disk
+data structures make for reliable repair.
 
-* Transactions: updates are queued up, and are visible to code running within
-  the transaction, but not the rest of the system until a successful
-  transaction commit
-* Deadlock avoidance: High level filesystem code need not concern itself with lock ordering
-* Sophisticated iterators
-* Memoized btree lookups, for efficient transaction restart handling, as well
-  as greatly simplifying high level filesystem code that need not pass
-  iterators around to avoid lookups unnecessarily.
+But as research into b-trees and databases advanced, a great many filesystems
+looked at that and said: "Wouldn't life be simpler if all metadata was just
+keys in a key/value store?", with that ideally being a single core
+b-tree/database implementation, with scalability and performance usually being
+primary goals.
 
-#### Triggers
+XFS was the earliest and most successful of the "everything is a b-tree"
+approach, but largely predating the push towards COW filesystems, and didn't
+push the "unified data model" very far in comparison to later filesystems.
+Reiserfs and btrfs are also notable for pushing this approach.
 
-Like other database systems, bcachefs-the-database provides triggers: hooks run
-when keys enter or leave the btree - this is used for e.g. disk space
-accounting.
+Historically, the primary disadvantages of this approach has been:
 
-Coupled with the btree write buffer code, this gets us highly efficient
-backpointers (for copygc), and in the future and efficient way to maintain an
-index-by-hash for data deduplication.
+- Robustness. "Everything is a b-tree" introduces new single points of failure
+  (b-tree roots), and high performance, production quality b-trees are
+  notoriously complicated beasts.
 
-### Unified codebase
+- Performance. The original Unix filesystem design had a major scalability
+  advantage, with a lot of built in sharding at the inode level. Fully realizing
+  the benefits of the "filesystem as a database" approach requires tossing that
+  out: instead of many b-trees, one per inode, having internals that work like
+  a normal-ish database requires the filesystem to be implemented with a few
+  massive b-trees: then we can have something that starts to look like a
+  relational database, with tables corresponding to data types, and simple
+  unified transactional interface.
+
+These have been the achille's heels, and the reason why other more modern COW
+filesystems have not lived up to ZFS's robustness.
+
+### History of bcachefs, and how these were solved
+
+bcache:
+
+Enter bcache, the prototype for bcachefs. When SSDs were first being
+introduced, they were from the beginning orders of magnitude faster than
+rotating disk - but expensive, so block layer caching was an obvious approach
+for using them effectively.
+
+Whereas other approaches towards SSD caching at the time were based on hash
+tables (which have major disadvantages as persistent data structures, and don't
+support range lookups - making indexing extents instead of blocks extremely
+problematic), bcache went with a b-tree approach, with several novel
+innovations to make the b-tree performant enough to work for indexing every IO
+lookup, without sharding. The primary innovation was log structured btree
+nodes: this enabled eytzinger search trees, which eliminates binary search.
+This was huge: binary search is O(log n), but from a CPU cache perspective is
+the worst lookup algorithm possible.
+
+This made bcache's b-tree the fastest ordered, persistent, production quality
+key value store in existence; perhaps bcachefs's biggest claim to fame, but
+more importantly, making the rest of the problems in "modern COW filesystem
+with real database underpinnings" tractable.
+
+### Robustness and reliability: making "restore from backup" a thing of the past
+
+Unlike the rest, there is no silver bullet to producing truly reliable code.
+Reliability comes from making it a priority and sticking to it, at every stage
+of development; learning from every accident and mistake, discovering all the
+failure modes that can happen in the wild, and continually building on those
+lessons and experience.
+
+Some approaches pioneered in other filesystems:
+
+- btree node scan, for disaster recovery scenarios - originally done in
+  reiserfs. The reiserfs implementation had issues; notably, it would pick up
+  btree nodes from unrelated filesystems on the same device. bcachefs corrects
+  all of these with improved per-btree-node metadata, and makes it practical
+  for the huge filesystems of today by segregating data and metadata (and
+  noting which regions are which in the superblock).
+
+- Extensive runtime verification of metadata, any time metadata is read - or
+  written; XFS also makes heavy use of this approach. This drastically reduces
+  the impact of bugs: bugs that would otherwise result in filesystem corruption
+  typically result in emergency shutdown - restart and keep going, and bugs are
+  caught much more quickly (and are therefore much easier to debug).
+
+- Full filesystem rollback, as in log structured filesystems (like nilfs2), and
+  ZFS in limited fashion. This falls out of the "filesystem as a database"
+  approach: with all metadata as keys in b-trees, with all updates (and
+  overwrites) logged in a single unified journal, anything can be rolled back.
+
+Other areas of emphasis:
+
+- Comprehensive and thorough logging, introspection, and debugging tools.
+
+  You can't debug what you can't see. Any time something goes wrong, the system
+  should tell you clearly what went wrong, and tell you clearly and directly
+  everything you, as an end user or engineer, to understand what went wrong and
+  debug the issue.
+
+- Comprehensive and robust fsck
+
+  Notably, filesystem repair is considerably simplified with the "filesystem as
+  a database" approach, but it's still a major topic, worth its own chapter in
+  the user manual.
+
+  The main point is: repair is not, and cannot be, an afterthought. It doesn't
+  matter what the cause of the damage was, it's the filesystem's job to repair
+  it, without causing additional damage or loss.
+
+If you're running bcachefs: you won't lose data. If you find a way to break it:
+first, I'll be impressed, and secondly - get in contact. We've got the
+debugging tools to make short work of anything that may come up, and real world
+testing (the crazier, the better!) is how we make this filesystem more robust
+and rock solid for everyone.
+
+### A few other things worth mentioning
+
+#### Unified codebase
 
 The entire bcachefs codebase can be built and used either inside the kernel, or
 in userspace - notably, fsck is not a from-scratch implementation, it's just a
 small module in the larger bcachefs codebase.
 
-### Rust
+#### Rust
 
 We've got some initial work done on transitioning to Rust, with plans for much
 more: here's an example of walking the btree, from Rust:

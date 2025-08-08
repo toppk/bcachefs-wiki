@@ -28,8 +28,12 @@
           <a href="/">bcachefs</a>
         {{ end }}
       </h1>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation" />
+      <label for="nav-toggle" class="nav-burger" aria-controls="primary-navigation" aria-expanded="false">
+        <span></span>
+      </label>
       {{ $sec := .Section }}
-      <nav class="nav-left">
+      <nav id="primary-navigation" class="nav-left">
         {{/* Primary sections: Documentation (Using), Developers, Architecture, News */}}
         {{ if eq $sec "using" }}
           <span class="nav-item current">Documentation</span>

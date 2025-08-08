@@ -5,6 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ block "title" . }}{{ .Title }} | bcachefs wiki{{ end }}</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="any" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
   {{/* Feed discovery for News section */}}
   {{ if and .IsSection (eq .Section "news") }}
     {{ with .OutputFormats.Get "RSS" }}

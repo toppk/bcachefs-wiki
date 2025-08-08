@@ -1,6 +1,6 @@
 <div class="toc">
   {{ $toc := .TableOfContents }}
-  {{ if (in $toc "<li>") }}
+  {{ if and (not .IsHome) (in $toc "<li>") }}
     <h3>On this page</h3>
     {{ $toc }}
   {{ end }}
@@ -16,20 +16,21 @@
     </div>
   {{ else }}
     <div class="sectionlist">
-      {{ with .CurrentSection }}
-        {{ $cur := . }}
-        <h3>In this section</h3>
-        <ul>
-          <li><a href="{{ $cur.RelPermalink }}">← {{ $cur.Title }}</a></li>
-          {{ range sort (where .RegularPages "Draft" "ne" true) "Title" }}
-            <li>
-              <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-              {{ if eq .RelPermalink $cur.RelPermalink }}
-              {{ end }}
-            </li>
-          {{ end }}
-        </ul>
-      {{ end }}
+    {{ with .CurrentSection }}
+      {{ $cur := . }}
+      <h3>In this section</h3>
+      <ul>
+        <li><a href="{{ $cur.RelPermalink }}">← {{ $cur.Title }}</a></li>
+        {{ $children := where .RegularPages "Draft" "ne" true }}
+        {{ range $children.ByWeight }}
+          <li>
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            {{ if eq .RelPermalink $cur.RelPermalink }}
+            {{ end }}
+          </li>
+        {{ end }}
+      </ul>
+    {{ end }}
     </div>
   {{ end }}
 {{ end }}

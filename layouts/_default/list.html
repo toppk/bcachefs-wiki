@@ -14,6 +14,8 @@
     {{ $pages := .Pages }}
     {{ if eq .Section "news" }}
       {{ $pages = $pages.ByDate.Reverse }}
+    {{ else }}
+      {{ $pages = $pages.ByWeight }}
     {{ end }}
 
     {{ $p := .Paginate $pages }}

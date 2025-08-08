@@ -2,6 +2,7 @@
 title = "Getting Started"
 slug = "GettingStarted"
 url = "/Using/GettingStarted/"
+weight = -50
 +++
 
 Bcachefs is not yet upstream - you'll have to [build a kernel](https://kernelnewbies.org/KernelBuild) to use it.

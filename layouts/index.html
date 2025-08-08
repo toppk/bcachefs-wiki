@@ -1,0 +1,24 @@
+{{ define "main" }}
+  <div class="layout">
+    <article>
+      {{/* Render homepage content with wikilink support */}}
+      {{ $raw := .Content }}
+      {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
+      {{ $content := replaceRE $withText (printf "[$1](/$2/)") $raw }}
+      {{ $simple := `\[\[([^\]|#]+)\]\]` }}
+      {{ $content = replaceRE $simple (printf "[$1](/$1/)") $content }}
+      {{ $content | safeHTML }}
+
+      <h2>News</h2>
+      <ul>
+        {{ range first 5 (where .Site.RegularPages "Section" "news") }}
+          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+    </article>
+    <aside>
+      {{ partial "sidebar.html" . }}
+    </aside>
+  </div>
+{{ end }}
+

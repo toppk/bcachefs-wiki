@@ -1,1 +1,0 @@
-[[!inline pages="news/*" archive="yes"]]

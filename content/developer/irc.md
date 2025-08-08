@@ -1,0 +1,8 @@
++++
+title = "IRC"
+slug = "Irc"
+url = "/Developer/Irc/"
++++
+
+\#bcache on oftc.net
+<iframe src="https://webchat.oftc.net/?randomnick=1&channels=bcache&prompt=1" width="647" height="400"></iframe>

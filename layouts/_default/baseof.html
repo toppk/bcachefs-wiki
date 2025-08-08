@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ block "title" . }}{{ .Title }} | bcachefs wiki{{ end }}</title>
+  {{/* Feed discovery for News section */}}
+  {{ if and .IsSection (eq .Section "news") }}
+    {{ with .OutputFormats.Get "RSS" }}
+      <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }} — News RSS" href="{{ .Permalink }}" />
+    {{ end }}
+  {{ end }}
+  {{/* Use Hugo Pipes to serve a single, fingerprinted stylesheet */}}
+  {{ $css := resources.Get "css/main.css" | resources.Minify | resources.Fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" />
+</head>
+
+<body class="{{ if .IsHome }}home{{ end }}">
+  <header class="site-header">
+    <div class="container nav-inner">
+      <h1>
+        {{ if .IsHome }}
+          <span class="brand">bcachefs</span>
+        {{ else }}
+          <a href="/">bcachefs</a>
+        {{ end }}
+      </h1>
+      {{ $sec := .Section }}
+      <nav class="nav-left">
+        {{/* Primary sections: Documentation (Using), Developers, Architecture, News */}}
+        {{ if eq $sec "using" }}
+          <span class="nav-item current">Documentation</span>
+        {{ else }}
+          <a class="nav-item" href='{{ relref . "using/_index.md" }}'>Documentation</a>
+        {{ end }}
+
+        {{ if eq $sec "developer" }}
+          <span class="nav-item current">Developers</span>
+        {{ else }}
+          <a class="nav-item" href='{{ relref . "developer/_index.md" }}'>Developers</a>
+        {{ end }}
+
+        {{ if eq $sec "architecture" }}
+          <span class="nav-item current">Architecture</span>
+        {{ else }}
+          <a class="nav-item" href='{{ relref . "architecture/_index.md" }}'>Architecture</a>
+        {{ end }}
+
+        {{ if eq $sec "news" }}
+          <span class="nav-item current">News</span>
+        {{ else }}
+          <a class="nav-item" href='{{ relref . "/news/" }}'>News</a>
+        {{ end }}
+      </nav>
+      <div class="nav-right">
+        <a class="patreon-bubble" href="https://www.patreon.com/bcachefs" target="_blank" rel="noopener noreferrer" aria-label="Support bcachefs on Patreon">Patreon</a>
+      </div>
+    </div>
+  </header>
+  {{ partial "breadcrumbs.html" . }}
+  <main>
+    <div class="container">
+      {{ block "main" . }}{{ end }}
+    </div>
+  </main>
+</body>
+
+</html>

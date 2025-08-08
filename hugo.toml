@@ -1,0 +1,24 @@
+baseURL = "/"
+title = "bcachefs wiki"
+languageCode = "en-us"
+pagination.pagerSize = 10
+enableRobotsTXT = true
+
+# Keep pretty URLs with trailing slashes
+uglyURLs = false
+
+# Map common sections to sensible permalinks
+[permalinks]
+  news = "/news/:slug/"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[params]
+  wikilinks = true
+
+# Feeds
+[outputs]
+  section = ["HTML", "RSS"]

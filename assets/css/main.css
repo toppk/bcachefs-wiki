@@ -1,0 +1,322 @@
+.title {
+    color: #1a260d
+}
+
+.title,
+h1,
+h3 {
+    font-weight: 700
+}
+
+.header {
+    font-size: 150%
+}
+
+h1 {
+    font-size: 160%;
+    border-top: none
+}
+
+h3 {
+    font-size: 110%
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: helvetica, arial, freesans, clean, sans-serif;
+    *font-size: small;
+    color: #000;
+    background: #fff;
+    font-size: 1.01em
+}
+
+a {
+    text-decoration: none;
+    color: #136c13
+}
+
+a:hover {
+    color: #1fad1f
+}
+
+#content {
+    margin: 1em 2em
+}
+
+header {
+    background: #f2f7ed
+}
+
+header a {
+    color: #136c13
+}
+
+span.tags a {
+    margin: .2em;
+    padding: .2em;
+    font-size: 1.01em;
+    background: #e6e6e6;
+    color: #000;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ccc;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px
+}
+
+span.tags a:hover {
+    background: #ccc;
+    color: #1a260d
+}
+
+body {
+    margin: 0;
+    line-height: 1.6
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem
+}
+
+/* Nudge main content right with a comfortable left margin on wide screens */
+@media (min-width: 1200px) {
+  main .container {
+    margin-left: 10rem; /* ~1.6in at 16px/rem */
+    margin-right: 2rem;
+    max-width: none;
+  }
+  .breadcrumbs .container {
+    margin-left: 10rem; /* align with article */
+    margin-right: 2rem;
+    max-width: none;
+  }
+  .layout article {
+    max-width: 80ch; /* comfortable reading width */
+  }
+}
+
+nav a {
+    margin-right: .75rem
+}
+
+.layout {
+    display: flex;
+    gap: 2.5rem
+}
+
+.layout article {
+    flex: auto;
+    min-width: 0
+}
+
+.layout aside {
+    flex: 0 0 260px;
+    padding-top: 4.25rem
+}
+
+.toc {
+    font-size: .95em
+}
+
+.toc h3 {
+    margin: .25rem 0
+}
+
+.toc nav {
+    border-left: none;
+    padding-left: 0
+}
+
+.toc ul {
+    margin: .25rem 0 0;
+    padding-left: 1.1rem
+}
+
+.sectionlist h3 {
+    margin-top: 1.25rem
+}
+
+.sectionlist ul {
+    margin: .25rem 0 0;
+    padding-left: 1.1rem
+}
+
+.seealso ul {
+    margin: .25rem 0 0;
+    padding-left: 1.1rem;
+}
+
+.sectionlist.up-link {
+    margin-top: .75rem;
+}
+
+.sectionlist.up-link .up-link {
+    display: inline-block;
+}
+
+.site-header {
+    background: #f2f7ed;
+    border-bottom: 1px solid #e2e8dc
+}
+
+.site-header .container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding-left: 1rem;
+    padding-right: 1rem
+}
+
+.site-header .nav-inner {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: .75rem 1rem
+}
+
+.site-header .nav-left {
+    display: flex;
+    gap: .75rem;
+    margin-left: .5rem;
+    flex: 1 1 auto
+}
+
+.site-header .nav-right {
+    display: flex;
+    align-items: center
+}
+
+.site-header .patreon-bubble {
+    display: inline-block;
+    padding: .35rem .6rem;
+    border-radius: 999px;
+    background: #ff424d;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.site-header .patreon-bubble:hover,
+.site-header .patreon-bubble:focus {
+    background: #ff5f68;
+}
+
+.site-header h1 {
+    font-size: 1.75rem;
+    margin: 0
+}
+
+.site-header a {
+    color: #136c13
+}
+
+.site-header nav .nav-item {
+    margin-right: .75rem;
+    display: inline-block;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.site-header .nav-left .nav-item.current,
+.site-header .brand {
+    color: #6b7280 !important;
+    cursor: default;
+}
+
+.site-header .nav-left .nav-item,
+.site-header .nav-left .nav-item:visited {
+    color: #136c13;
+}
+
+.site-header .nav-left .nav-item:hover,
+.site-header .nav-left .nav-item:focus {
+    color: #1fad1f;
+}
+
+a {
+    color: #136c13;
+    text-decoration: none
+}
+
+a:hover,
+a:focus {
+    color: #1fad1f
+}
+
+.breadcrumbs {
+    border-bottom: 1px solid #e9efe3;
+    background: #fafcf8;
+    font-size: .95rem
+}
+
+.breadcrumbs .container {
+    padding: .5rem 1rem
+}
+
+.breadcrumbs .sep {
+    margin: 0 .35rem;
+    color: #6b7280
+}
+
+.breadcrumbs .current {
+    color: #1a260d
+}
+
+ul {
+    margin: .5rem 0 .5rem 1.25rem
+}
+
+li {
+    margin: .15rem 0
+}
+
+li p {
+    margin: 0
+}
+
+/* News listing cards on section landing */
+.news-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .75rem;
+    margin: .5rem 0 0;
+    padding: 0;
+}
+
+.news-card {
+    list-style: none;
+    border: 1px solid #e2e8dc;
+    background: #fff;
+    border-radius: 6px;
+    padding: .75rem .9rem;
+}
+
+.news-card .news-meta {
+    font-size: .9rem;
+    color: #6b7280;
+    margin-bottom: .15rem;
+}
+
+.news-card .news-title {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.feed-links {
+    margin: .25rem 0 .5rem;
+    color: #6b7280;
+    font-size: .95rem;
+}
+
+.feed-links .feed-link {
+    color: #6b7280;
+}
+
+.feed-links .feed-link:hover,
+.feed-links .feed-link:focus {
+    color: #1a260d;
+}
+
+.feed-links .sep { margin: 0 .35rem; color: #9aa1aa; }

@@ -1,0 +1,17 @@
+{{/* Breadcrumbs: hidden on home, show on sections and pages */}}
+{{ if not .IsHome }}
+<nav class="breadcrumbs">
+  <div class="container">
+    <a href="/">Home</a>
+    {{ with .CurrentSection }}
+      <span class="sep">›</span>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+    {{ end }}
+    {{ if not .IsSection }}
+      <span class="sep">›</span>
+      <span class="current">{{ .Title }}</span>
+    {{ end }}
+  </div>
+  </nav>
+{{ end }}
+

@@ -1,2 +1,2 @@
-/.ikiwiki
-.*
+/public/
+.hugo_build.lock

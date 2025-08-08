@@ -1,0 +1,24 @@
+{{ define "main" }}
+<div class="layout">
+  <article>
+    {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
+    {{ $raw := .Content }}
+    {{ $content := replaceRE `\[\[![^\]]*\]\]` "" $raw }}
+    {{ $content = replaceRE `\[\[([^\]|#]+)\|(https?://[^\]]+)\]\]` `<a href="$2">$1<\ /a>` $content }}
+    {{ $content = replaceRE `\[\[(https?://[^\]]+)\]\]` `<a href="$1">$1<\ /a>` $content }}
+    {{ $content = replaceRE `\[\[([^\]|#]+)\|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\]\]` `<a href="mailto:$2">$1<\ /a>` $content }}
+    {{ $content = replaceRE `\[\[([^\]|#]+)\|(mailto:[^\]]+)\]\]` `<a href="$2">$1<\ /a>` $content }}
+    {{ $content = replaceRE `\[\[([^\]|#]+)\|([^\]]+\.(?i:pdf))\]\]` `<a href="/$2">$1<\ /a>` $content }}
+    {{ $content = replaceRE `\[\[([^\]]+\.(?i:pdf))\]\]` `<a href="/$1">$1<\ /a>` $content }}
+    {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
+    {{ $content = replaceRE $withText `<a href="/$2/">$1<\ /a>` $content }}
+    {{ $simple := `\[\[([^\]|#]+)\]\]` }}
+    {{ $content = replaceRE $simple `<a href="/$1/">$1<\ /a>` $content }}
+    <h1>{{ .Title }}</h1>
+    {{ $content | safeHTML }}
+  </article>
+  <aside>
+    {{ partial "sidebar.html" . }}
+  </aside>
+</div>
+{{ end }}

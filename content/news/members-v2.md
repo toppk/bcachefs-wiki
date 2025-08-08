@@ -1,0 +1,71 @@
++++
+title = "Members v2 , configurationless tiering"
+date = 2020-01-01T00:00:00Z
+slug = "MembersV2"
+url = "/News/MembersV2/"
+
++++
+
+A feature request we've had is configurationless tiering, smart tiering of
+member devices in a filesystem based on performance. This feature will allow
+easy and simple tiering of devices within a filesystem based on the
+performance of the device. The effect of this is that it will allow data that
+is commonly accessed, hot data, stored on the faster drives while data that is
+not used as often, cold data, will be stored on slower drives. This will
+increase filesystem performance greatly.
+
+## Background: extensible metadata
+
+Extensible metadata means having to ability to add new fields to metadata
+while still being compatible with older versions of the filesystem. To achieve
+this structs cannot be of a fixed size and need to be able to add new fields
+using a bounds check or filling in wth zeroes when reading data from a
+previous version.
+
+## Non extensible members
+
+Early in the process of implementing the tiering feature we ran into an
+interesting problem.  Members within the superblock were not large enough to
+properly store this data. While we could have just resized the member, this
+would have caused further issues regarding compatability. Instead we opted to
+implement resizable members, members v2 if you will. The effect of adding
+resizable members allows us to add new fields to the members while still
+ensuring backwards compatability.
+
+## Members v2
+
+The superblock of a filesystem is the start of that filesystem and requires
+extensible fields which contain important data such as a list of member
+devices. A suberblock needs extensible fields in cases such as a new device
+being added to the filesystem, in which case the members field needs to be
+extended.
+
+In the case of members v1, the members array itself was extensible, the
+members themselves were a fixed size. Due to their fixed size it was quite easy
+to index and retrieve members from the list. However, when members can be
+dynamically resizable it is not that easy. The location of each member can not
+be known before runtime and therefore has to be found and accessed manually within the
+array of members. This was at times a complicated process for me to implement
+but will make future expansions of the members much simpler.
+
+## Configurationless tiering
+
+Configurationless tiering is a feature that has been commonly requested.
+Instead the user specifying foreground and background targets, foreground
+allocations will go to the fastest device(s) and cold data will be moved to the
+slower device(s) in the background. To implement this the filesystem will
+require some idea of device performance which needs to be stored in the
+superblock.
+
+## Storing device performance
+
+The devices within the filesytem will now store IOPS measurements for randread,
+randwrite, seq-read, and seq-write. In the future the new IOPS field can also be
+useful in other features such as monitoring device health.
+
+## Addendum: Cap'n proto
+
+Some of the ideas in bcachefs about how to handle metadata were inspired by
+[Cap'n Proto](https://capnproto.org/), which is highly recommended reading -
+it's a library that does everything we have to do by hand in C, exactly the
+way we want it.

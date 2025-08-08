@@ -1,0 +1,57 @@
+{{ define "main" }}
+<div class="layout">
+  <article>
+    <h1>{{ .Title }}</h1>
+    {{/* Render any intro content from _index.md with wikilink support */}}
+    {{ $raw := .Content }}
+    {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
+    {{ $content := replaceRE $withText (printf "[$1](/$2/)") $raw }}
+    {{ $simple := `\[\[([^\]|#]+)\]\]` }}
+    {{ $content = replaceRE $simple (printf "[$1](/$1/)") $content }}
+    {{ $content | safeHTML }}
+
+    {{/* Build the list of pages; for news, sort by date desc and show dates */}}
+    {{ $pages := .Pages }}
+    {{ if eq .Section "news" }}
+      {{ $pages = $pages.ByDate.Reverse }}
+    {{ end }}
+
+    {{ $p := .Paginate $pages }}
+    {{ if eq .Section "news" }}
+      {{/* Feed links for news landing */}}
+      {{ if .IsSection }}
+        {{ with .OutputFormats.Get "RSS" }}
+          <div class="feed-links">
+            <a class="feed-link" href="{{ .Permalink }}">RSS</a>
+          </div>
+        {{ end }}
+      {{ end }}
+      <div class="news-list">
+        {{ range $p.Pages }}
+          <div class="news-card">
+            <div class="news-meta">
+              <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>
+            </div>
+            <h3 class="news-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          </div>
+        {{ end }}
+      </div>
+    {{ else }}
+      <ul>
+        {{ range $p.Pages }}
+          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+    {{ end }}
+
+    {{ with .Params.section_footer }}
+      <div class="section-footer">
+        {{ . | markdownify }}
+      </div>
+    {{ end }}
+  </article>
+  <aside>
+    {{ partial "sidebar.html" . }}
+  </aside>
+</div>
+{{ end }}

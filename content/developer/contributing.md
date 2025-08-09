@@ -2,6 +2,7 @@
 title = "Contributing"
 slug = "Contributing"
 url = "/Developer/Contributing/"
+weight = -100
 +++
 
 bcachefs contributor's guide:

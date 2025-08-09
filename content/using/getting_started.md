@@ -9,22 +9,28 @@ Bcachefs is not yet upstream - you'll have to [build a kernel](https://kernelnew
 
 First, check out the bcachefs kernel and tools repositories:
 
-    git clone https://evilpiepirate.org/git/bcachefs.git
-    git clone https://evilpiepirate.org/git/bcachefs-tools.git
+```shell
+git clone https://evilpiepirate.org/git/bcachefs.git
+git clone https://evilpiepirate.org/git/bcachefs-tools.git
+```
 
 Build and install as usual - make sure you enable `CONFIG_BCACHEFS_FS`. Then, to
 format and mount a single device with the default options, run:
 
-    bcachefs format /dev/sda1
-    mount -t bcachefs /dev/sda1 /mnt
+```shell
+bcachefs format /dev/sda1
+mount -t bcachefs /dev/sda1 /mnt
+```
 
 For a multi device filesystem, with sda1 caching sdb1:
 
-    bcachefs format /dev/sd[ab]1 \
-        --foreground_target /dev/sda1 \
-        --promote_target /dev/sda1 \
-        --background_target /dev/sdb1
-    mount -t bcachefs /dev/sda1:/dev/sdb1 /mnt
+```shell
+bcachefs format /dev/sd[ab]1 \
+    --foreground_target /dev/sda1 \
+    --promote_target /dev/sda1 \
+    --background_target /dev/sdb1
+mount -t bcachefs /dev/sda1:/dev/sdb1 /mnt
+```
 
 This will configure the filesystem so that writes will be buffered to /dev/sda1
 before being written back to /dev/sdb1 in the background, and that hot data

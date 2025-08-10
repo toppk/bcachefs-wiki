@@ -38,6 +38,19 @@
           </div>
         {{ end }}
       </div>
+      {{ if or $p.HasPrev $p.HasNext }}
+        <nav class="pager" aria-label="News pagination" style="margin-top: .75rem;">
+          {{ if $p.HasPrev }}
+            <a class="pager-newer" href="{{ $p.Prev.URL }}">← Newer posts</a>
+          {{ end }}
+          {{ if and $p.HasPrev $p.HasNext }}
+            <span class="sep" style="margin: 0 .5rem; color: #9aa1aa;">|</span>
+          {{ end }}
+          {{ if $p.HasNext }}
+            <a class="pager-older" href="{{ $p.Next.URL }}">Older posts →</a>
+          {{ end }}
+        </nav>
+      {{ end }}
     {{ else }}
       <ul>
         {{ range $p.Pages }}

@@ -1,0 +1,806 @@
+[
+  {
+    "kernel_version": "6.7",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "9e87705289667a6c5185c619ea32f3d39314eb1b",
+          "date": "2023-10-30",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2023-10-30' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2023-10-30",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2023-10-30' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2023-10-30' of https://evilpiepirate.org/git/bcachefs\n\nPull initial bcachefs updates from Kent Overstreet:\n \"Here's the bcachefs filesystem pull request.\n\n  One new patch since last week: the exportfs constants ended up\n  conflicting with other filesystems that are also getting added to the\n  global enum, so switched to new constants picked by Amir.\n\n  The only new non fs/bcachefs/ patch is the objtool patch that adds\n  bcachefs functions to the list of noreturns. The patch that exports\n  osq_lock() has been dropped for now, per Ingo\"\n\n* tag 'bcachefs-2023-10-30' of https://evilpiepirate.org/git/bcachefs: (2781 commits)\n  exportfs: Change bcachefs fid_type enum to avoid conflicts\n  bcachefs: Refactor memcpy into direct assignment\n  bcachefs: Fix drop_alloc_keys()\n  bcachefs: snapshot_create_lock\n  bcachefs: Fix snapshot skiplists during snapshot deletion\n  bcachefs: bch2_sb_field_get() refactoring\n  bcachefs: KEY_TYPE_error now counts towards i_sectors\n  bcachefs: Fix handling of unknown bkey types\n  bcachefs: Switch to unsafe_memcpy() in a few places\n  bcachefs: Use struct_size()\n  bcachefs: Correctly initialize new buckets on device resize\n  bcachefs: Fix another smatch complaint\n  bcachefs: Use strsep() in split_devs()\n  bcachefs: Add iops fields to bch_member\n  bcachefs: Rename bch_sb_field_members -> bch_sb_field_members_v1\n  bcachefs: New superblock section members_v2\n  bcachefs: Add new helper to retrieve bch_member from sb\n  bcachefs: bucket_lock() is now a sleepable lock\n  bcachefs: fix crc32c checksum merge byte order problem\n  bcachefs: Fix bch2_inode_delete_keys()\n  ..."
+        }
+      ],
+      "rc2": [
+        {
+          "hash": "791c8ab095f71327899023223940dd52257a4173",
+          "date": "2023-11-17",
+          "rc": "rc2",
+          "subject": "Merge tag 'bcachefs-2023-11-17' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2023-11-17",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2023-11-17' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2023-11-17' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Lots of small fixes for minor nits and compiler warnings.\n\n  Bigger items:\n\n   - The six locks lost wakeup is finally fixed: six_read_trylock() was\n     checking for the waiting bit before decrementing the number of\n     readers - validated the fix with a torture test.\n\n   - Fix for a memory reclaim issue: when needing to reallocate a key\n     cache key, we now do our usual GFP_NOWAIT; unlock(); GFP_KERNEL\n     dance.\n\n   - Multiple deleted inodes btree fixes\n\n   - Fix an issue in fsck, where i_nlink would be recalculated\n     incorrectly for hardlinked files if a snapshot had ever been taken.\n\n   - Kill journal pre-reservations: This is a bigger patch than I would\n     normally send at this point, but it deletes code and it fixes some\n     of our tests that would sporadically die with the journal getting\n     stuck, and it's a performance improvement, too\"\n\n* tag 'bcachefs-2023-11-17' of https://evilpiepirate.org/git/bcachefs: (22 commits)\n  bcachefs: Fix missing locking for dentry->d_parent access\n  bcachefs: six locks: Fix lost wakeup\n  bcachefs: Fix no_data_io mode checksum check\n  bcachefs: Fix bch2_check_nlinks() for snapshots\n  bcachefs: Don't decrease BTREE_ITER_MAX when LOCKDEP=y\n  bcachefs: Disable debug log statements\n  bcachefs: Fix missing transaction commit\n  bcachefs: Fix error path in bch2_mount()\n  bcachefs: Fix potential sleeping during mount\n  bcachefs: Fix iterator leak in may_delete_deleted_inode()\n  bcachefs: Kill journal pre-reservations\n  bcachefs: Check for nonce offset inconsistency in data_update path\n  bcachefs: Make sure to drop/retake btree locks before reclaim\n  bcachefs: btree_trans->write_locked\n  bcachefs: Run btree key cache shrinker less aggressively\n  bcachefs: Split out btree_key_cache_types.h\n  bcachefs: Guard against insufficient devices to create stripes\n  bcachefs: Fix null ptr deref in bch2_backpointer_get_node()\n  bcachefs: Fix multiple -Warray-bounds warnings\n  bcachefs: Use DECLARE_FLEX_ARRAY() helper and fix multiple -Warray-bounds warnings\n  ..."
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "e6861be452a53a5de3e1a048eabd811a05a44915",
+          "date": "2023-12-02",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2023-11-29' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2023-11-29",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2023-11-29' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2023-11-29' of https://evilpiepirate.org/git/bcachefs\n\nPull more bcachefs bugfixes from Kent Overstreet:\n\n - bcache & bcachefs were broken with CFI enabled; patch for closures to\n   fix type punning\n\n - mark erasure coding as extra-experimental; there are incompatible\n   disk space accounting changes coming for erasure coding, and I'm\n   still seeing checksum errors in some tests\n\n - several fixes for durability-related issues (durability is a device\n   specific setting where we can tell bcachefs that data on a given\n   device should be counted as replicated x times)\n\n - a fix for a rare livelock when a btree node merge then updates a\n   parent node that is almost full\n\n - fix a race in the device removal path, where dropping a pointer in a\n   btree node to a device would be clobbered by an in flight btree write\n   updating the btree node key on completion\n\n - fix one SRCU lock hold time warning in the btree gc code - ther's\n   still a bunch more of these to fix\n\n - fix a rare race where we'd start copygc before initializing the \"are\n   we rw\" percpu refcount; copygc would think we were already ro and die\n   immediately\n\n* tag 'bcachefs-2023-11-29' of https://evilpiepirate.org/git/bcachefs: (23 commits)\n  bcachefs: Extra kthread_should_stop() calls for copygc\n  bcachefs: Convert gc_alloc_start() to for_each_btree_key2()\n  bcachefs: Fix race between btree writes and metadata drop\n  bcachefs: move journal seq assertion\n  bcachefs: -EROFS doesn't count as move_extent_start_fail\n  bcachefs: trace_move_extent_start_fail() now includes errcode\n  bcachefs: Fix split_race livelock\n  bcachefs: Fix bucket data type for stripe buckets\n  bcachefs: Add missing validation for jset_entry_data_usage\n  bcachefs: Fix zstd compress workspace size\n  bcachefs: bpos is misaligned on big endian\n  bcachefs: Fix ec + durability calculation\n  bcachefs: Data update path won't accidentaly grow replicas\n  bcachefs: deallocate_extra_replicas()\n  bcachefs: Proper refcounting for journal_keys\n  bcachefs: preserve device path as device name\n  bcachefs: Fix an endianness conversion\n  bcachefs: Start gc, copygc, rebalance threads after initing writes ref\n  bcachefs: Don't stop copygc thread on device resize\n  bcachefs: Make sure bch2_move_ratelimit() also waits for move_ops\n  ..."
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "26aff849438cebcd05f1a647390c4aa700d5c0f1",
+          "date": "2023-12-11",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2023-12-10' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2023-12-10",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2023-12-10' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2023-12-10' of https://evilpiepirate.org/git/bcachefs\n\nPull more bcachefs bugfixes from Kent Overstreet:\n\n - Fix a rare emergency shutdown path bug: dropping journal pins after\n   the filesystem has mostly been torn down is not what we want.\n\n - Fix some concurrency issues with the btree write buffer and journal\n   replay by not using the btree write buffer until journal replay is\n   finished\n\n - A fixup from the prior patch to kill journal pre-reservations: at the\n   start of the btree update path, where previously we took a\n   pre-reservation, we do at least want to check the journal watermark.\n\n - Fix a race between dropping device metadata and btree node writes,\n   which would re-add a pointer to a device that had just been dropped\n\n - Fix one of the SCRU lock warnings, in\n   bch2_compression_stats_to_text().\n\n - Partial fix for a rare transaction paths overflow, when indirect\n   extents had been split by background tasks, by not running certain\n   triggers when they're not needed.\n\n - Fix for creating a snapshot with implicit source in a subdirectory of\n   the containing subvolume\n\n - Don't unfreeze when we're emergency read-only\n\n - Fix for rebalance spinning trying to compress unwritten extentns\n\n - Another deleted_inodes fix, for directories\n\n - Fix a rare deadlock (usually just an unecessary wait) when flushing\n   the journal with an open journal entry.\n\n* tag 'bcachefs-2023-12-10' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Close journal entry if necessary when flushing all pins\n  bcachefs: Fix uninitialized var in bch2_journal_replay()\n  bcachefs: Fix deleted inode check for dirs\n  bcachefs: rebalance shouldn't attempt to compress unwritten extents\n  bcachefs: don't attempt rw on unfreeze when shutdown\n  bcachefs: Fix creating snapshot with implict source\n  bcachefs: Don't run indirect extent trigger unless inserting/deleting\n  bcachefs: Convert compression_stats to for_each_btree_key2\n  bcachefs: Fix bch2_extent_drop_ptrs() call\n  bcachefs: Fix a journal deadlock in replay\n  bcachefs; Don't use btree write buffer until journal replay is finished\n  bcachefs: Don't drop journal pins in exit path"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "74d8fc2b868ae156dcbd33132029561a8341d659",
+          "date": "2023-12-20",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2023-12-19' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2023-12-19",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2023-12-19' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2023-12-19' of https://evilpiepirate.org/git/bcachefs\n\nPull more bcachefs fixes from Kent Overstreet:\n\n - Fix a deadlock in the data move path with nocow locks (vs. update in\n   place writes); when trylock failed we were incorrectly waiting for in\n   flight ios to flush.\n\n - Fix reporting of NFS file handle length\n\n - Fix early error path in bch2_fs_alloc() - list head wasn't being\n   initialized early enough\n\n - Make sure correct (hardware accelerated) crc modules get loaded\n\n - Fix a rare overflow in the btree split path, when the packed bkey\n   format grows and all the keys have no value (LRU btree).\n\n - Fix error handling in the sector allocator\n\n   This was causing writes to spuriously fail in multidevice setups, and\n   another bug meant that the errors weren't being logged, only reported\n   via fsync.\n\n* tag 'bcachefs-2023-12-19' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix bch2_alloc_sectors_start_trans() error handling\n  bcachefs; guard against overflow in btree node split\n  bcachefs: btree_node_u64s_with_format() takes nr keys\n  bcachefs: print explicit recovery pass message only once\n  bcachefs: improve modprobe support by providing softdeps\n  bcachefs: fix invalid memory access in bch2_fs_alloc() error path\n  bcachefs: Fix determining required file handle length\n  bcachefs: Fix nocow locks deadlock"
+        }
+      ],
+      "rc8": [
+        {
+          "hash": "eeec2599630ac1ac03db98f3ba976975c72a1427",
+          "date": "2023-12-28",
+          "rc": "rc8",
+          "subject": "Merge tag 'bcachefs-2023-12-27' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2023-12-27",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2023-12-27' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2023-12-27' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Just a few fixes: besides a few one liners, we have a fix for\n  snapshots + compression where the extent update path didn't account\n  for the fact that with snapshots, we might split an existing extent\n  into three, not just two; and a small fixup for promotes which were\n  broken by the recent changes in the data update path to correctly take\n  into account device durability\"\n\n* tag 'bcachefs-2023-12-27' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix promotes\n  bcachefs: Fix leakage of internal error code\n  bcachefs: Fix insufficient disk reservation with compression + snapshots\n  bcachefs: fix BCH_FSCK_ERR enum"
+        }
+      ],
+      "final": [
+        {
+          "hash": "981d04137a4b5ea95133572bdb3d888c9b515850",
+          "date": "2024-01-03",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2024-01-01' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-01-01",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-01-01' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-01-01' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs from Kent Overstreet:\n \"More bcachefs bugfixes for 6.7, and forwards compatibility work:\n\n   - fix for a nasty extents + snapshot interaction, reported when\n     reflink of a snapshotted file wouldn't complete but turned out to\n     be a more general bug\n\n   - fix for an invalid free in dio write path when iov vector was\n     longer than our inline vector\n\n   - fix for a buffer overflow in the nocow write path -\n     BCH_REPLICAS_MAX doesn't actually limit the number of pointers in\n     an extent when cached pointers are included\n\n   - RO snapshots are actually RO now\n\n   - And, a new superblock section to avoid future breakage when the\n     disk space acounting rewrite rolls out: the new superblock section\n     describes versions that need work to downgrade, where the work\n     required is a list of recovery passes and errors to silently fix\"\n\n* tag 'bcachefs-2024-01-01' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: make RO snapshots actually RO\n  bcachefs: bch_sb_field_downgrade\n  bcachefs: bch_sb.recovery_passes_required\n  bcachefs: Add persistent identifiers for recovery passes\n  bcachefs: prt_bitflags_vector()\n  bcachefs: move BCH_SB_ERRS() to sb-errors_types.h\n  bcachefs: fix buffer overflow in nocow write path\n  bcachefs: DARRAY_PREALLOCATED()\n  bcachefs: Switch darray to kvmalloc()\n  bcachefs: Factor out darray resize slowpath\n  bcachefs: fix setting version_upgrade_complete\n  bcachefs: fix invalid free in dio write path\n  bcachefs: Fix extents iteration + snapshots interaction"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.8",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "35a4474b5c3dd4315f72bd53e87b97f128d9bb3d",
+          "date": "2024-01-21",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-01-21' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-01-21",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-01-21' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-01-21' of https://evilpiepirate.org/git/bcachefs\n\nPull more bcachefs updates from Kent Overstreet:\n \"Some fixes, Some refactoring, some minor features:\n\n   - Assorted prep work for disk space accounting rewrite\n\n   - BTREE_TRIGGER_ATOMIC: after combining our trigger callbacks, this\n     makes our trigger context more explicit\n\n   - A few fixes to avoid excessive transaction restarts on\n     multithreaded workloads: fstests (in addition to ktest tests) are\n     now checking slowpath counters, and that's shaking out a few bugs\n\n   - Assorted tracepoint improvements\n\n   - Starting to break up bcachefs_format.h and move on disk types so\n     they're with the code they belong to; this will make room to start\n     documenting the on disk format better.\n\n   - A few minor fixes\"\n\n* tag 'bcachefs-2024-01-21' of https://evilpiepirate.org/git/bcachefs: (46 commits)\n  bcachefs: Improve inode_to_text()\n  bcachefs: logged_ops_format.h\n  bcachefs: reflink_format.h\n  bcachefs; extents_format.h\n  bcachefs: ec_format.h\n  bcachefs: subvolume_format.h\n  bcachefs: snapshot_format.h\n  bcachefs: alloc_background_format.h\n  bcachefs: xattr_format.h\n  bcachefs: dirent_format.h\n  bcachefs: inode_format.h\n  bcachefs; quota_format.h\n  bcachefs: sb-counters_format.h\n  bcachefs: counters.c -> sb-counters.c\n  bcachefs: comment bch_subvolume\n  bcachefs: bch_snapshot::btime\n  bcachefs: add missing __GFP_NOWARN\n  bcachefs: opts->compression can now also be applied in the background\n  bcachefs: Prep work for variable size btree node buffers\n  bcachefs: grab s_umount only if snapshotting\n  ..."
+        },
+        {
+          "hash": "999a36b52b1b11b2ca0590756e4f8cf21f2d9182",
+          "date": "2024-01-10",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-01-10' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-01-10",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-01-10' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-01-10' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs updates from Kent Overstreet:\n\n - btree write buffer rewrite: instead of adding keys to the btree write\n   buffer at transaction commit time, we now journal them with a\n   different journal entry type and copy them from the journal to the\n   write buffer just prior to journal write.\n\n   This reduces the number of atomic operations on shared cachelines in\n   the transaction commit path and is a signicant performance\n   improvement on some workloads: multithreaded 4k random writes went\n   from ~650k iops to ~850k iops.\n\n - Bring back optimistic spinning for six locks: the new implementation\n   doesn't use osq locks; instead we add to the lock waitlist as normal,\n   and then spin on the lock_acquired bit in the waitlist entry, _not_\n   the lock itself.\n\n - New ioctls:\n\n    - BCH_IOCTL_DEV_USAGE_V2, which allows for new data types\n\n    - BCH_IOCTL_OFFLINE_FSCK, which runs the kernel implementation of\n      fsck but without mounting: useful for transparently using the\n      kernel version of fsck from 'bcachefs fsck' when the kernel\n      version is a better match for the on disk filesystem.\n\n    - BCH_IOCTL_ONLINE_FSCK: online fsck. Not all passes are supported\n      yet, but the passes that are supported are fully featured - errors\n      may be corrected as normal.\n\n   The new ioctls use the new 'thread_with_file' abstraction for kicking\n   off a kthread that's tied to a file descriptor returned to userspace\n   via the ioctl.\n\n - btree_paths within a btree_trans are now dynamically growable,\n   instead of being limited to 64. This is important for the\n   check_directory_structure phase of fsck, and also fixes some issues\n   we were having with btree path overflow in the reflink btree.\n\n - Trigger refactoring; prep work for the upcoming disk space accounting\n   rewrite\n\n - Numerous bugfixes :)\n\n* tag 'bcachefs-2024-01-10' of https://evilpiepirate.org/git/bcachefs: (226 commits)\n  bcachefs: eytzinger0_find() search should be const\n  bcachefs: move \"ptrs not changing\" optimization to bch2_trigger_extent()\n  bcachefs: fix simulateously upgrading & downgrading\n  bcachefs: Restart recovery passes more reliably\n  bcachefs: bch2_dump_bset() doesn't choke on u64s == 0\n  bcachefs: improve checksum error messages\n  bcachefs: improve validate_bset_keys()\n  bcachefs: print sb magic when relevant\n  bcachefs: __bch2_sb_field_to_text()\n  bcachefs: %pg is banished\n  bcachefs: Improve would_deadlock trace event\n  bcachefs: fsck_err()s don't need to manually check c->sb.version anymore\n  bcachefs: Upgrades now specify errors to fix, like downgrades\n  bcachefs: no thread_with_file in userspace\n  bcachefs: Don't autofix errors we can't fix\n  bcachefs: add missing bch2_latency_acct() call\n  bcachefs: increase max_active on io_complete_wq\n  bcachefs: add time_stats for btree_node_read_done()\n  bcachefs: don't clear accessed bit in btree node fill\n  bcachefs: Add an option to control btree node prefetching\n  ..."
+        }
+      ],
+      "rc2": [
+        {
+          "hash": "064a4a5bfac8bb24af08ec8a4c2664ff61a06f16",
+          "date": "2024-01-27",
+          "rc": "rc2",
+          "subject": "Merge tag 'bcachefs-2024-01-26' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-01-26",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-01-26' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-01-26' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - fix for REQ_OP_FLUSH usage; this fixes filesystems going read only\n   with -EOPNOTSUPP from the block layer.\n\n   (this really should have gone in with the block layer patch causing\n   the -EOPNOTSUPP, or should have gone in before).\n\n - fix an allocation in non-sleepable context\n\n - fix one source of srcu lock latency, on devices with terrible discard\n   latency\n\n - fix a reattach_inode() issue in fsck\n\n* tag 'bcachefs-2024-01-26' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: __lookup_dirent() works in snapshot, not subvol\n  bcachefs: discard path uses unlock_long()\n  bcachefs: fix incorrect usage of REQ_OP_FLUSH\n  bcachefs: Add gfp flags param to bch2_prt_task_backtrace()"
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "99bd3cb0d12e85d5114425353552121ec8f93adc",
+          "date": "2024-02-06",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2024-02-05' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-02-05",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-02-05' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-02-05' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Two serious ones here that we'll want to backport to stable: a fix for\n  a race in the thread_with_file code, and another locking fixup in the\n  subvolume deletion path\"\n\n* tag 'bcachefs-2024-02-05' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: time_stats: Check for last_event == 0 when updating freq stats\n  bcachefs: install fd later to avoid race with close\n  bcachefs: unlock parent dir if entry is not found in subvolume deletion\n  bcachefs: Fix build on parisc by avoiding __multi3()"
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "f2667e0c32404a68496891b2d2015825de189b06",
+          "date": "2024-02-17",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2024-02-17' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-02-17",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-02-17' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-02-17' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Mostly pretty trivial, the user visible ones are:\n\n   - don't barf when replicas_required > replicas\n\n   - fix check_version_upgrade() so it doesn't do something nonsensical\n     when we're downgrading\"\n\n* tag 'bcachefs-2024-02-17' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix missing va_end()\n  bcachefs: Fix check_version_upgrade()\n  bcachefs: Clamp replicas_required to replicas\n  bcachefs: fix missing endiannes conversion in sb_members\n  bcachefs: fix kmemleak in __bch2_read_super error handling path\n  bcachefs: Fix missing bch2_err_class() calls"
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "e231dbd452a79b9100846c0552fd9077251c042e",
+          "date": "2024-02-25",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2024-02-25' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-02-25",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-02-25' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-02-25' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Some more mostly boring fixes, but some not\n\n  User reported ones:\n\n   - the BTREE_ITER_FILTER_SNAPSHOTS one fixes a really nasty\n     performance bug; user reported an untar initially taking two\n     seconds and then ~2 minutes\n\n   - kill a __GFP_NOFAIL in the buffered read path; this was a leftover\n     from the trickier fix to kill __GFP_NOFAIL in readahead, where we\n     can't return errors (and have to silently truncate the read\n     ourselves).\n\n     bcachefs can't use GFP_NOFAIL for folio state unlike iomap based\n     filesystems because our folio state is just barely too big, 2MB\n     hugepages cause us to exceed the 2 page threshhold for GFP_NOFAIL.\n\n     additionally, the flags argument was just buggy, we weren't\n     supplying GFP_KERNEL previously (!)\"\n\n* tag 'bcachefs-2024-02-25' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: fix bch2_save_backtrace()\n  bcachefs: Fix check_snapshot() memcpy\n  bcachefs: Fix bch2_journal_flush_device_pins()\n  bcachefs: fix iov_iter count underflow on sub-block dio read\n  bcachefs: Fix BTREE_ITER_FILTER_SNAPSHOTS on inodes btree\n  bcachefs: Kill __GFP_NOFAIL in buffered read path\n  bcachefs: fix backpointer_to_text() when dev does not exist"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.9",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "a4145ce1e7bc247fd6f2846e8699473448717b37",
+          "date": "2024-03-19",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-03-19' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-03-19",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-03-19' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-03-19' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Assorted bugfixes.\n\n  Most are fixes for simple assertion pops; the most significant fix is\n  for a deadlock in recovery when we have to rewrite large numbers of\n  btree nodes to fix errors. This was incorrectly running out of the\n  same workqueue as the core interior btree update path - we now give it\n  its own single threaded workqueue.\n\n  This was visible to users as \"bch2_btree_update_start(): error:\n  BCH_ERR_journal_reclaim_would_deadlock\" - and then recovery hanging\"\n\n* tag 'bcachefs-2024-03-19' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix lost wakeup on journal shutdown\n  bcachefs; Fix deadlock in bch2_btree_update_start()\n  bcachefs: ratelimit errors from async_btree_node_rewrite\n  bcachefs: Run check_topology() first\n  bcachefs: Improve bch2_fatal_error()\n  bcachefs: Fix lost transaction restart error\n  bcachefs: Don't corrupt journal keys gap buffer when dropping alloc info\n  bcachefs: fix for building in userspace\n  bcachefs: bch2_snapshot_is_ancestor() now safe to call in early recovery\n  bcachefs: Fix nested transaction restart handling in bch2_bucket_gens_init()\n  bcachefs: Improve sysfs internal/btree_updates\n  bcachefs: Split out btree_node_rewrite_worker\n  bcachefs: Fix locking in bch2_alloc_write_key()\n  bcachefs: Avoid extent entry type assertions in .invalid()\n  bcachefs: Fix spurious -BCH_ERR_transaction_restart_nested\n  bcachefs: Fix check_key_has_snapshot() call\n  bcachefs: Change \"accounting overran journal reservation\" to a warning"
+        },
+        {
+          "hash": "32a50540c3d26341698505998dfca5b0e8fb4fd4",
+          "date": "2024-03-15",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-03-13' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-03-13",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-03-13' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-03-13' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs updates from Kent Overstreet:\n\n - Subvolume children btree; this is needed for providing a userspace\n   interface for walking subvolumes, which will come later\n\n - Lots of improvements to directory structure checking\n\n - Improved journal pipelining, significantly improving performance on\n   high iodepth write workloads\n\n - Discard path improvements: the discard path is more efficient, and no\n   longer flushes the journal unnecessarily\n\n - Buffered write path can now avoid taking the inode lock\n\n - new mm helper: memalloc_flags_{save|restore}\n\n - mempool now does kvmalloc mempools\n\n* tag 'bcachefs-2024-03-13' of https://evilpiepirate.org/git/bcachefs: (128 commits)\n  bcachefs: time_stats: shrink time_stat_buffer for better alignment\n  bcachefs: time_stats: split stats-with-quantiles into a separate structure\n  bcachefs: mean_and_variance: put struct mean_and_variance_weighted on a diet\n  bcachefs: time_stats: add larger units\n  bcachefs: pull out time_stats.[ch]\n  bcachefs: reconstruct_alloc cleanup\n  bcachefs: fix bch_folio_sector padding\n  bcachefs: Fix btree key cache coherency during replay\n  bcachefs: Always flush write buffer in delete_dead_inodes()\n  bcachefs: Fix order of gc_done passes\n  bcachefs: fix deletion of indirect extents in btree_gc\n  bcachefs: Prefer struct_size over open coded arithmetic\n  bcachefs: Kill unused flags argument to btree_split()\n  bcachefs: Check for writing superblocks with nonsense member seq fields\n  bcachefs: fix bch2_journal_buf_to_text()\n  lib/generic-radix-tree.c: Make nodes more reasonably sized\n  bcachefs: copy_(to|from)_user_errcode()\n  bcachefs: Split out bkey_types.h\n  bcachefs: fix lost journal buf wakeup due to improved pipelining\n  bcachefs: intercept mountoption value for bool type\n  ..."
+        }
+      ],
+      "rc3": [
+        {
+          "hash": "ec25bd8d981d910cdcc84914bf57e2cff9e7d63b",
+          "date": "2024-04-04",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2024-04-03' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-04-03",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-04-03' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-04-03' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs repair code from Kent Overstreet:\n \"A couple more small fixes, and new repair code.\n\n  We can now automatically recover from arbitrary corrupted interior\n  btree nodes by scanning, and we can reconstruct metadata as needed to\n  bring a filesystem back into a working, consistent, read-write state\n  and preserve access to whatevver wasn't corrupted.\n\n  Meaning - you can blow away all metadata except for extents and\n  dirents leaf nodes, and repair will reconstruct everything else and\n  give you your data, and under the correct paths. If inodes are missing\n  i_size will be slightly off and permissions/ownership/timestamps will\n  be gone, and we do still need the snapshots btree if snapshots were in\n  use - in the future we'll be able to guess the snapshot tree structure\n  in some situations.\n\n  IOW - aside from shaking out remaining bugs (fuzz testing is still\n  coming), repair code should be complete and if repair ever doesn't\n  work that's the highest priority bug that I want to know about\n  immediately.\n\n  This patchset was kindly tested by a user from India who accidentally\n  wiped one drive out of a three drive filesystem with no replication on\n  the family computer - it took a couple weeks but we got everything\n  important back\"\n\n* tag 'bcachefs-2024-04-03' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: reconstruct_inode()\n  bcachefs: Subvolume reconstruction\n  bcachefs: Check for extents that point to same space\n  bcachefs: Reconstruct missing snapshot nodes\n  bcachefs: Flag btrees with missing data\n  bcachefs: Topology repair now uses nodes found by scanning to fill holes\n  bcachefs: Repair pass for scanning for btree nodes\n  bcachefs: Don't skip fake btree roots in fsck\n  bcachefs: bch2_btree_root_alloc() -> bch2_btree_root_alloc_fake()\n  bcachefs: Etyzinger cleanups\n  bcachefs: bch2_shoot_down_journal_keys()\n  bcachefs: Clear recovery_passes_required as they complete without errors\n  bcachefs: ratelimit informational fsck errors\n  bcachefs: Check for bad needs_discard before doing discard\n  bcachefs: Improve bch2_btree_update_to_text()\n  mean_and_variance: Drop always failing tests\n  bcachefs: fix nocow lock deadlock\n  bcachefs: BCH_WATERMARK_interior_updates\n  bcachefs: Fix btree node reserve"
+        },
+        {
+          "hash": "67199a47ddb9e265d1a83bb23bb06c752ffa1f4b",
+          "date": "2024-04-02",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2024-04-01' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-04-01",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-04-01' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-04-01' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Lots of fixes for situations with extreme filesystem damage.\n\n  One fix (\"Fix journal pins in btree write buffer\") applicable to\n  normal usage; also a dio performance fix.\n\n  New repair/construction code is in the final stages, should be ready\n  in about a week. Anyone that lost btree interior nodes (or a variety\n  of other damage) as a result of the splitbrain bug will be able to\n  repair then\"\n\n* tag 'bcachefs-2024-04-01' of https://evilpiepirate.org/git/bcachefs: (32 commits)\n  bcachefs: On emergency shutdown, print out current journal sequence number\n  bcachefs: Fix overlapping extent repair\n  bcachefs: Fix remove_dirent()\n  bcachefs: Logged op errors should be ignored\n  bcachefs: Improve -o norecovery; opts.recovery_pass_limit\n  bcachefs: bch2_run_explicit_recovery_pass_persistent()\n  bcachefs: Ensure bch_sb_field_ext always exists\n  bcachefs: Flush journal immediately after replay if we did early repair\n  bcachefs: Resume logged ops after fsck\n  bcachefs: Add error messages to logged ops fns\n  bcachefs: Split out recovery_passes.c\n  bcachefs: fix backpointer for missing alloc key msg\n  bcachefs: Fix bch2_btree_increase_depth()\n  bcachefs: Kill bch2_bkey_ptr_data_type()\n  bcachefs: Fix use after free in check_root_trans()\n  bcachefs: Fix repair path for missing indirect extents\n  bcachefs: Fix use after free in bch2_check_fix_ptrs()\n  bcachefs: Fix btree node keys accounting in topology repair path\n  bcachefs: Check btree ptr min_key in .invalid\n  bcachefs: add REQ_SYNC and REQ_IDLE in write dio\n  ..."
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "e1dc191dbf3f35cf07790b52110267bef55515a2",
+          "date": "2024-04-11",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2024-04-10' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-04-10",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-04-10' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-04-10' of https://evilpiepirate.org/git/bcachefs\n\nPull more bcachefs fixes from Kent Overstreet:\n \"Notable user impacting bugs\n\n   - On multi device filesystems, recovery was looping in\n     btree_trans_too_many_iters(). This checks if a transaction has\n     touched too many btree paths (because of iteration over many keys),\n     and isuses a restart to drop unneeded paths.\n\n     But it's now possible for some paths to exceed the previous limit\n     without iteration in the interior btree update path, since the\n     transaction commit will do alloc updates for every old and new\n     btree node, and during journal replay we don't use the btree write\n     buffer for locking reasons and thus those updates use btree paths\n     when they wouldn't normally.\n\n   - Fix a corner case in rebalance when moving extents on a\n     durability=0 device. This wouldn't be hit when a device was\n     formatted with durability=0 since in that case we'll only use it as\n     a write through cache (only cached extents will live on it), but\n     durability can now be changed on an existing device.\n\n   - bch2_get_acl() could rarely forget to handle a transaction restart;\n     this manifested as the occasional missing acl that came back after\n     dropping caches.\n\n   - Fix a major performance regression on high iops multithreaded write\n     workloads (only since 6.9-rc1); a previous fix for a deadlock in\n     the interior btree update path to check the journal watermark\n     introduced a dependency on the state of btree write buffer flushing\n     that we didn't want.\n\n   - Assorted other repair paths and recovery fixes\"\n\n* tag 'bcachefs-2024-04-10' of https://evilpiepirate.org/git/bcachefs: (25 commits)\n  bcachefs: Fix __bch2_btree_and_journal_iter_init_node_iter()\n  bcachefs: Kill read lock dropping in bch2_btree_node_lock_write_nofail()\n  bcachefs: Fix a race in btree_update_nodes_written()\n  bcachefs: btree_node_scan: Respect member.data_allowed\n  bcachefs: Don't scan for btree nodes when we can reconstruct\n  bcachefs: Fix check_topology() when using node scan\n  bcachefs: fix eytzinger0_find_gt()\n  bcachefs: fix bch2_get_acl() transaction restart handling\n  bcachefs: fix the count of nr_freed_pcpu after changing bc->freed_nonpcpu list\n  bcachefs: Fix gap buffer bug in bch2_journal_key_insert_take()\n  bcachefs: Rename struct field swap to prevent macro naming collision\n  MAINTAINERS: Add entry for bcachefs documentation\n  Documentation: filesystems: Add bcachefs toctree\n  bcachefs: JOURNAL_SPACE_LOW\n  bcachefs: Disable errors=panic for BCH_IOCTL_FSCK_OFFLINE\n  bcachefs: Fix BCH_IOCTL_FSCK_OFFLINE for encrypted filesystems\n  bcachefs: fix rand_delete unit test\n  bcachefs: fix ! vs ~ typo in __clear_bit_le64()\n  bcachefs: Fix rebalance from durability=0 device\n  bcachefs: Print shutdown journal sequence number\n  ..."
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "cef27048e5c2f88677a647c336fae490e9c5492a",
+          "date": "2024-04-15",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2024-04-15' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-04-15",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-04-15' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-04-15' of https://evilpiepirate.org/git/bcachefs\n\nPull yet more bcachefs fixes from Kent Overstreet:\n \"This gets recovery working again for the affected user I've been\n  working with, and I'm still waiting to hear back on other bug reports\n  but should fix it for everyone else who's been having issues with\n  recovery.\n\n   - Various recovery fixes:\n\n       - fixes for the btree_insert_entry being resized on path\n         allocation btree_path array recently became dynamically\n         resizable, and btree_insert_entry along with it; this was being\n         observed during journal replay, when write buffer btree updates\n         don't use the write buffer and instead use the normal btree\n         update path\n\n       - multiple fixes for deadlock in recovery when we need to do lots\n         of btree node merges; excessive merges were clocking up the\n         whole pipeline\n\n       - write buffer path now correctly does btree node merges when\n         needed\n\n       - fix failure to go RW when superblock indicates recovery passes\n         needed (i.e. to complete an unfinished upgrade)\n\n   - Various unsafety fixes - test case contributed by a user who had\n     two drives out of a six drive array write out a whole bunch of\n     garbage after power failure\n\n   - New (tiny) on disk format feature: since it appears the btree node\n     scan tool will be a more regular thing (crappy hardware, user\n     error) - this adds a 64 bit per-device bitmap of regions that have\n     ever had btree nodes.\n\n   - A path->should_be_locked fix, from a larger patch series tightening\n     up invariants and assertions around btree transaction and path\n     locking state.\n\n     This particular fix prevents us from keeping around btree_paths\n     that are no longer needed\"\n\n* tag 'bcachefs-2024-04-15' of https://evilpiepirate.org/git/bcachefs: (24 commits)\n  bcachefs: set_btree_iter_dontneed also clears should_be_locked\n  bcachefs: fix error path of __bch2_read_super()\n  bcachefs: Check for backpointer bucket_offset >= bucket size\n  bcachefs: bch_member.btree_allocated_bitmap\n  bcachefs: sysfs internal/trigger_journal_flush\n  bcachefs: Fix bch2_btree_node_fill() for !path\n  bcachefs: add safety checks in bch2_btree_node_fill()\n  bcachefs: Interior known are required to have known key types\n  bcachefs: add missing bounds check in __bch2_bkey_val_invalid()\n  bcachefs: Fix btree node merging on write buffer btrees\n  bcachefs: Disable merges from interior update path\n  bcachefs: Run merges at BCH_WATERMARK_btree\n  bcachefs: Fix missing write refs in fs fio paths\n  bcachefs: Fix deadlock in journal replay\n  bcachefs: Go rw if running any explicit recovery passes\n  bcachefs: Standardize helpers for printing enum strs with bounds checks\n  bcachefs: don't queue btree nodes for rewrites during scan\n  bcachefs: fix race in bch2_btree_node_evict()\n  bcachefs: fix unsafety in bch2_stripe_to_text()\n  bcachefs: fix unsafety in bch2_extent_ptr_to_text()\n  ..."
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "a2c63a3f3d687ac4f63bf4ffa04d7458a2db350b",
+          "date": "2024-04-22",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2024-04-22' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-04-22",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-04-22' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-04-22' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Nothing too crazy in this one, and it looks like (fingers crossed) the\n  recovery and repair issues are settling down - although there's going\n  to be a long tail there, as we've still yet to really ramp up on error\n  injection or syzbot.\n\n   - fix a few more deadlocks in recovery\n\n   - fix u32/u64 issues in mi_btree_bitmap\n\n   - btree key cache shrinker now actually frees, with more\n     instrumentation coming so we can verify that it's working\n     correctly more easily in the future\"\n\n* tag 'bcachefs-2024-04-22' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: If we run merges at a lower watermark, they must be nonblocking\n  bcachefs: Fix inode early destruction path\n  bcachefs: Fix deadlock in journal write path\n  bcachefs: Tweak btree key cache shrinker so it actually frees\n  bcachefs: bkey_cached.btree_trans_barrier_seq needs to be a ulong\n  bcachefs: Fix missing call to bch2_fs_allocator_background_exit()\n  bcachefs: Check for journal entries overruning end of sb clean section\n  bcachefs: Fix bio alloc in check_extent_checksum()\n  bcachefs: fix leak in bch2_gc_write_reflink_key\n  bcachefs: KEY_TYPE_error is allowed for reflink\n  bcachefs: Fix bch2_dev_btree_bitmap_marked_sectors() shift\n  bcachefs: make sure to release last journal pin in replay\n  bcachefs: node scan: ignore multiple nodes with same seq if interior\n  bcachefs: Fix format specifier in validate_bset_keys()\n  bcachefs: Fix null ptr deref in twf from BCH_IOCTL_FSCK_OFFLINE"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "0a2e230514c5f1b09630bab94e457e930ced4cf0",
+          "date": "2024-04-29",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2024-04-29' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-04-29",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-04-29' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-04-29' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Tiny set of fixes this time\"\n\n* tag 'bcachefs-2024-04-29' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: fix integer conversion bug\n  bcachefs: btree node scan now fills in sectors_written\n  bcachefs: Remove accidental debug assert"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.10",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "c40b1994b9ffb45e19e6d83b7655d7b9db0174c3",
+          "date": "2024-05-24",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-05-24' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-05-24",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-05-24' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-05-24' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Nothing exciting, just syzbot fixes (except for the one\n  FMODE_CAN_ODIRECT patch).\n\n  Looks like syzbot reports have slowed down; this is all catch up from\n  two weeks of conferences.\n\n  Next hardening project is using Thomas's error injection tooling to\n  torture test repair\"\n\n* tag 'bcachefs-2024-05-24' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix race path in bch2_inode_insert()\n  bcachefs: Ensure we're RW before journalling\n  bcachefs: Fix shutdown ordering\n  bcachefs: Fix unsafety in bch2_dirent_name_bytes()\n  bcachefs: Fix stack oob in __bch2_encrypt_bio()\n  bcachefs: Fix btree_trans leak in bch2_readahead()\n  bcachefs: Fix bogus verify_replicas_entry() assert\n  bcachefs: Check for subvolues with bogus snapshot/inode fields\n  bcachefs: bch2_checksum() returns 0 for unknown checksum type\n  bcachefs: Fix bch2_alloc_ciphers()\n  bcachefs: Add missing guard in bch2_snapshot_has_children()\n  bcachefs: Fix missing parens in drop_locks_do()\n  bcachefs: Improve bch2_assert_pos_locked()\n  bcachefs: Fix shift overflows in replicas.c\n  bcachefs: Fix shift overflow in btree_lost_data()\n  bcachefs: Fix ref in trans_mark_dev_sbs() error path\n  bcachefs: set FMODE_CAN_ODIRECT instead of a dummy direct_IO method\n  bcachefs: Fix rcu splat in check_fix_ptrs()"
+        },
+        {
+          "hash": "16dbfae867cdeb32f3d24cea81193793d5decc61",
+          "date": "2024-05-19",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-05-19' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-05-19",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-05-19' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-05-19' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs updates from Kent Overstreet:\n\n - More safety fixes, primarily found by syzbot\n\n - Run the upgrade/downgrade paths in nochnages mode. Nochanges mode is\n   primarily for testing fsck/recovery in dry run mode, so it shouldn't\n   change anything besides disabling writes and holding dirty metadata\n   in memory.\n\n   The idea here was to reduce the amount of activity if we can't write\n   anything out, so that bringing up a filesystem in \"super ro\" mode\n   would be more lilkely to work for data recovery - but norecovery is\n   the correct option for this.\n\n - btree_trans->locked; we now track whether a btree_trans has any btree\n   nodes locked, and this is used for improved assertions related to\n   trans_unlock() and trans_relock(). We'll also be using it for\n   improving how we work with lockdep in the future: we don't want\n   lockdep to be tracking individual btree node locks because we take\n   too many for lockdep to track, and it's not necessary since we have a\n   cycle detector.\n\n - Trigger improvements that are prep work for online fsck\n\n - BTREE_TRIGGER_check_repair; this regularizes how we do some repair\n   work for extents that goes with running triggers in fsck, and fixes\n   some subtle issues with transaction restarts there.\n\n - bch2_snapshot_equiv() has now been ripped out of fsck.c; snapshot\n   equivalence classes are for when snapshot deletion leaves behind\n   redundant snapshot nodes, but snapshot deletion now cleans this up\n   right away, so the abstraction doesn't need to leak.\n\n - Improvements to how we resume writing to the journal in recovery. The\n   code for picking the new place to write when reading the journal is\n   greatly simplified and we also store the position in the superblock\n   for when we don't read the journal; this means that we preserve more\n   of the journal for list_journal debugging.\n\n - Improvements to sysfs btree_cache and btree_node_cache, for debugging\n   memory reclaim.\n\n - We now detect when we've blocked for 10 seconds on the allocator in\n   the write path and dump some useful info.\n\n - Safety fixes for devices references: this is a big series that\n   changes almost all device lookups to properly check if the device\n   exists and take a reference to it.\n\n   Previously we assumed that if a bkey exists that references a device\n   then the device must exist, and this was enforced in .invalid\n   methods, but this was incorrect because it meant device removal\n   relied on accounting being correct to not leave keys pointing to\n   invalid devices, and that's not something we can assume.\n\n   Getting the \"pointer to invalid device\" checks out of our .invalid()\n   methods fixes some long standing device removal bugs; the only\n   outstanding bug with device removal now is a race between the discard\n   path and deleting alloc info, which should be easily fixed.\n\n - The allocator now prefers not to expand the new\n   member_info.btree_allocated bitmap, meaning if repair ever requires\n   scanning for btree nodes (because of a corrupt interior nodes) we\n   won't have to scan the whole device(s).\n\n - New coding style document, which among other things talks about the\n   correct usage of assertions\n\n* tag 'bcachefs-2024-05-19' of https://evilpiepirate.org/git/bcachefs: (155 commits)\n  bcachefs: add no_invalid_checks flag\n  bcachefs: add counters for failed shrinker reclaim\n  bcachefs: Fix sb_field_downgrade validation\n  bcachefs: Plumb bch_validate_flags to sb_field_ops.validate()\n  bcachefs: s/bkey_invalid_flags/bch_validate_flags\n  bcachefs: fsync() should not return -EROFS\n  bcachefs: Invalid devices are now checked for by fsck, not .invalid methods\n  bcachefs: kill bch2_dev_bkey_exists() in bch2_check_fix_ptrs()\n  bcachefs: kill bch2_dev_bkey_exists() in bch2_read_endio()\n  bcachefs: bch2_dev_get_ioref() checks for device not present\n  bcachefs: bch2_dev_get_ioref2(); io_read.c\n  bcachefs: bch2_dev_get_ioref2(); debug.c\n  bcachefs: bch2_dev_get_ioref2(); journal_io.c\n  bcachefs: bch2_dev_get_ioref2(); io_write.c\n  bcachefs: bch2_dev_get_ioref2(); btree_io.c\n  bcachefs: bch2_dev_get_ioref2(); backpointers.c\n  bcachefs: bch2_dev_get_ioref2(); alloc_background.c\n  bcachefs: for_each_bset() declares loop iter\n  bcachefs: Move BCACHEFS_STATFS_MAGIC value to UAPI magic.h\n  bcachefs: Improve sysfs internal/btree_cache\n  ..."
+        }
+      ],
+      "rc2": [
+        {
+          "hash": "ff9bce3d06fbdd12bcc74657516757b66aca9e43",
+          "date": "2024-05-31",
+          "rc": "rc2",
+          "subject": "Merge tag 'bcachefs-2024-05-30' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-05-30",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-05-30' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-05-30' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Assorted odds and ends...\n\n   - two downgrade fixes\n\n   - a couple snapshot deletion and repair fixes, thanks to noradtux for\n     finding these and providing the image to debug them\n\n   - a couple assert fixes\n\n   - convert to folio helper, from Matthew\n\n   - some improved error messages\n\n   - bit of code reorganization (just moving things around); doing this\n     while things are quiet so I'm not rebasing fixes past reorgs\n\n   - don't return -EROFS on inconsistency error in recovery, this\n     confuses util-linux and has it retry the mount\n\n   - fix failure to return error on misaligned dio write; reported as an\n     issue with coreutils shred\"\n\n* tag 'bcachefs-2024-05-30' of https://evilpiepirate.org/git/bcachefs: (21 commits)\n  bcachefs: Fix failure to return error on misaligned dio write\n  bcachefs: Don't return -EROFS from mount on inconsistency error\n  bcachefs: Fix uninitialized var warning\n  bcachefs: Split out sb-errors_format.h\n  bcachefs: Split out journal_seq_blacklist_format.h\n  bcachefs: Split out replicas_format.h\n  bcachefs: Split out disk_groups_format.h\n  bcachefs: split out sb-downgrade_format.h\n  bcachefs: split out sb-members_format.h\n  bcachefs: Better fsck error message for key version\n  bcachefs: btree_gc can now handle unknown btrees\n  bcachefs: add missing MODULE_DESCRIPTION()\n  bcachefs: Fix setting of downgrade recovery passes/errors\n  bcachefs: Run check_key_has_snapshot in snapshot_delete_keys()\n  bcachefs: Refactor delete_dead_snapshots()\n  bcachefs: Fix locking assert\n  bcachefs: Fix lookup_first_inode() when inode_generations are present\n  bcachefs: Plumb bkey into __btree_err()\n  bcachefs: Use copy_folio_from_iter_atomic()\n  bcachefs: Fix sb-downgrade validation\n  ..."
+        }
+      ],
+      "rc3": [
+        {
+          "hash": "e20b269d738b388e24f81fdf537cb4db7c693131",
+          "date": "2024-06-05",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2024-06-05' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-06-05",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-06-05' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-06-05' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Just a few small fixes\"\n\n* tag 'bcachefs-2024-06-05' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix trans->locked assert\n  bcachefs: Rereplicate now moves data off of durability=0 devices\n  bcachefs: Fix GFP_KERNEL allocation in break_cycle()"
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "0b4989ebe8a608c68d5ec54d61078aba47baed22",
+          "date": "2024-06-12",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2024-06-12' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-06-12",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-06-12' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-06-12' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - fix kworker explosion, due to calling submit_bio() (which can block)\n   from a multithreaded workqueue\n\n - fix error handling in btree node scan\n\n - forward compat fix: kill an old debug assert\n\n - key cache shrinker fixes\n\n   This is a partial fix for stalls doing multithreaded creates - there\n   were various O(n^2) issues the key cache shrinker was hitting [1].\n\n   There's more work coming here; I'm working on a patch to delete the\n   key cache lock, which initial testing shows to be a pretty drastic\n   performance improvement\n\n - assorted syzbot fixes\n\nLink: https://lore.kernel.org/linux-bcachefs/CAGudoHGenxzk0ZqPXXi1_QDbfqQhGHu+wUwzyS6WmfkUZ1HiXA@mail.gmail.com/ [1]\n\n* tag 'bcachefs-2024-06-12' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix rcu_read_lock() leak in drop_extra_replicas\n  bcachefs: Add missing bch_inode_info.ei_flags init\n  bcachefs: Add missing synchronize_srcu_expedited() call when shutting down\n  bcachefs: Check for invalid bucket from bucket_gen(), gc_bucket()\n  bcachefs: Replace bucket_valid() asserts in bucket lookup with proper checks\n  bcachefs: Fix snapshot_create_lock lock ordering\n  bcachefs: Fix refcount leak in check_fix_ptrs()\n  bcachefs: Leave a buffer in the btree key cache to avoid lock thrashing\n  bcachefs: Fix reporting of freed objects from key cache shrinker\n  bcachefs: set sb->s_shrinker->seeks = 0\n  bcachefs: increase key cache shrinker batch size\n  bcachefs: Enable automatic shrinking for rhashtables\n  bcachefs: fix the display format for show-super\n  bcachefs: fix stack frame size in fsck.c\n  bcachefs: Delete incorrect BTREE_ID_NR assertion\n  bcachefs: Fix incorrect error handling found_btree_node_is_readable()\n  bcachefs: Split out btree_write_submit_wq"
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "c3de9b572fc2063fb62e53df50cc55156d6bfb45",
+          "date": "2024-06-22",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2024-06-22' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-06-22",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-06-22' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-06-22' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Lots of (mostly boring) fixes for syzbot bugs and rare(r) CI bugs.\n\n  The LRU_TIME_BITS fix was slightly more involved; we only have 48 bits\n  for the LRU position (we would prefer 64), so wraparound is possible\n  for the cached data LRUs on a filesystem that has done sufficient\n  (petabytes) reads; this is now handled.\n\n  One notable user reported bugfix, where we were forgetting to\n  correctly set the bucket data type, which should have been\n  BCH_DATA_need_gc_gens instead of BCH_DATA_free; this was causing us to\n  go emergency read-only on a filesystem that had seen heavy enough use\n  to see bucket gen wraparoud.\n\n  We're now starting to fix simple (safe) errors without requiring user\n  intervention - i.e. a small incremental step towards full self\n  healing.\n\n  This is currently limited to just certain allocation information\n  counters, and the error is still logged in the superblock; see that\n  patch for more information. (\"bcachefs: Fix safe errors by default\")\"\n\n* tag 'bcachefs-2024-06-22' of https://evilpiepirate.org/git/bcachefs: (22 commits)\n  bcachefs: Move the ei_flags setting to after initialization\n  bcachefs: Fix a UAF after write_super()\n  bcachefs: Use bch2_print_string_as_lines for long err\n  bcachefs: Fix I_NEW warning in race path in bch2_inode_insert()\n  bcachefs: Replace bare EEXIST with private error codes\n  bcachefs: Fix missing alloc_data_type_set()\n  closures: Change BUG_ON() to WARN_ON()\n  bcachefs: fix alignment of VMA for memory mapped files on THP\n  bcachefs: Fix safe errors by default\n  bcachefs: Fix bch2_trans_put()\n  bcachefs: set_worker_desc() for delete_dead_snapshots\n  bcachefs: Fix bch2_sb_downgrade_update()\n  bcachefs: Handle cached data LRU wraparound\n  bcachefs: Guard against overflowing LRU_TIME_BITS\n  bcachefs: delete_dead_snapshots() doesn't need to go RW\n  bcachefs: Fix early init error path in journal code\n  bcachefs: Check for invalid btree IDs\n  bcachefs: Fix btree ID bitmasks\n  bcachefs: Fix shift overflow in read_one_super()\n  bcachefs: Fix a locking bug in the do_discard_fast() path\n  ..."
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "cd63a278acedc375603820abff11a5414af53769",
+          "date": "2024-06-28",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2024-06-28' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-06-28",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-06-28' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-06-28' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Simple stuff:\n\n   - NULL ptr/err ptr deref fixes\n\n   - fix for getting wedged on shutdown after journal error\n\n   - fix missing recalc_capacity() call, capacity now changes correctly\n     after a device goes read only\n\n     however: our capacity calculation still doesn't take into account\n     when we have mixed ro/rw devices and the ro devices have data on\n     them, that's going to be a more involved fix to separate accounting\n     for \"capacity used on ro devices\" and \"capacity used on rw devices\"\n\n   - boring syzbot stuff\n\n  Slightly more involved:\n\n   - discard, invalidate workers are now per device\n\n     this has the effect of simplifying how we take device refs in these\n     paths, and the device ref cleanup fixes a longstanding race between\n     the device removal path and the discard path\n\n   - fixes for how the debugfs code takes refs on btree_trans objects we\n     have debugfs code that prints in use btree_trans objects.\n\n     It uses closure_get() on trans->ref, which is mainly for the cycle\n     detector, but the debugfs code was using it on a closure that may\n     have hit 0, which is not allowed; for performance reasons we cannot\n     avoid having not-in-use transactions on the global list.\n\n     Introduce some new primitives to fix this and make the\n     synchronization here a whole lot saner\"\n\n* tag 'bcachefs-2024-06-28' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix kmalloc bug in __snapshot_t_mut\n  bcachefs: Discard, invalidate workers are now per device\n  bcachefs: Fix shift-out-of-bounds in bch2_blacklist_entries_gc\n  bcachefs: slab-use-after-free Read in bch2_sb_errors_from_cpu\n  bcachefs: Add missing bch2_journal_do_writes() call\n  bcachefs: Fix null ptr deref in journal_pins_to_text()\n  bcachefs: Add missing recalc_capacity() call\n  bcachefs: Fix btree_trans list ordering\n  bcachefs: Fix race between trans_put() and btree_transactions_read()\n  closures: closure_get_not_zero(), closure_return_sync()\n  bcachefs: Make btree_deadlock_to_text() clearer\n  bcachefs: fix seqmutex_relock()\n  bcachefs: Fix freeing of error pointers"
+        }
+      ],
+      "final": [
+        {
+          "hash": "5d4c85134b0f76f72f975029bfa149e566ac968f",
+          "date": "2024-07-12",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2024-07-12' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-07-12",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-07-12' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-07-12' of https://evilpiepirate.org/git/bcachefs\n\nPull more bcachefs fixes from Kent Overstreet:\n\n - revert the SLAB_ACCOUNT patch, something crazy is going on in memcg\n   and someone forgot to test\n\n - minor fixes: missing rcu_read_lock(), scheduling while atomic (in an\n   emergency shutdown path)\n\n - two lockdep fixes; these could have gone earlier, but were left to\n   bake awhile\n\n* tag 'bcachefs-2024-07-12' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: bch2_gc_btree() should not use btree_root_lock\n  bcachefs: Set PF_MEMALLOC_NOFS when trans->locked\n  bcachefs; Use trans_unlock_long() when waiting on allocator\n  Revert \"bcachefs: Mark bch_inode_info as SLAB_ACCOUNT\"\n  bcachefs: fix scheduling while atomic in break_cycle()\n  bcachefs: Fix RCU splat"
+        },
+        {
+          "hash": "f6963ab4b01cd92b9bf2eed0060907e35cc1440f",
+          "date": "2024-07-10",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2024-07-10' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-07-10",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-07-10' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-07-10' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - Switch some asserts to WARN()\n\n - Fix a few \"transaction not locked\" asserts in the data read retry\n   paths and backpointers gc\n\n - Fix a race that would cause the journal to get stuck on a flush\n   commit\n\n - Add missing fsck checks for the fragmentation LRU\n\n - The usual assorted ssorted syzbot fixes\n\n* tag 'bcachefs-2024-07-10' of https://evilpiepirate.org/git/bcachefs: (22 commits)\n  bcachefs: Add missing bch2_trans_begin()\n  bcachefs: Fix missing error check in journal_entry_btree_keys_validate()\n  bcachefs: Warn on attempting a move with no replicas\n  bcachefs: bch2_data_update_to_text()\n  bcachefs: Log mount failure error code\n  bcachefs: Fix undefined behaviour in eytzinger1_first()\n  bcachefs: Mark bch_inode_info as SLAB_ACCOUNT\n  bcachefs: Fix bch2_inode_insert() race path for tmpfiles\n  closures: fix closure_sync + closure debugging\n  bcachefs: Fix journal getting stuck on a flush commit\n  bcachefs: io clock: run timer fns under clock lock\n  bcachefs: Repair fragmentation_lru in alloc_write_key()\n  bcachefs: add check for missing fragmentation in check_alloc_to_lru_ref()\n  bcachefs: bch2_btree_write_buffer_maybe_flush()\n  bcachefs: Add missing printbuf_tabstops_reset() calls\n  bcachefs: Fix loop restart in bch2_btree_transactions_read()\n  bcachefs: Fix bch2_read_retry_nodecode()\n  bcachefs: Don't use the new_fs() bucket alloc path on an initialized fs\n  bcachefs: Fix shift greater than integer size\n  bcachefs: Change bch2_fs_journal_stop() BUG_ON() to warning\n  ..."
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.11",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "dd018c238b8489b6dd8c06f6b962ea75d79115ff",
+          "date": "2024-07-22",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-07-22' of https://evilpiepirate.org/git/bcachefs",
+          "source_tag": "bcachefs-2024-07-22",
+          "source_repo": "https://evilpiepirate.org/git/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-07-22' of https://evilpiepirate.org/git/bcachefs\n\nMerge tag 'bcachefs-2024-07-22' of https://evilpiepirate.org/git/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - another fix for fsck getting stuck, from marcin\n\n - small syzbot fix\n\n - another undefined shift fix\n\n* tag 'bcachefs-2024-07-22' of https://evilpiepirate.org/git/bcachefs:\n  bcachefs: Fix printbuf usage while atomic\n  bcachefs: More informative error message in reattach_inode()\n  bcachefs: kill btree_trans_too_many_iters() in bch2_bucket_alloc_freelist()\n  bcachefs: mean_and_variance: Avoid too-large shift amounts"
+        }
+      ],
+      "rc3": [
+        {
+          "hash": "31b244460634c74430745a74e56f5c88c43f079b",
+          "date": "2024-08-10",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2024-08-10' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-08-10",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-08-10' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-08-10' of git://evilpiepirate.org/bcachefs\n\nPull more bcachefs fixes from Kent Overstreet:\n \"A couple last minute fixes for the new disk accounting\n\n   - fix a bug that was causing ACLs to seemingly \"disappear\"\n\n   - new on disk format version, bcachefs_metadata_version_disk_accounting_v3\n\n     bcachefs_metadata_version_disk_accounting_v2 accidentally included\n     padding in disk_accounting_key; fortunately, 6.11 isn't out yet so\n     we can fix this with another version bump\"\n\n* tag 'bcachefs-2024-08-10' of git://evilpiepirate.org/bcachefs:\n  bcachefs: bcachefs_metadata_version_disk_accounting_v3\n  bcachefs: improve bch2_dev_usage_to_text()\n  bcachefs: bch2_accounting_invalid()\n  bcachefs: Switch to .get_inode_acl()"
+        },
+        {
+          "hash": "b3f5620f76f9a6da024bd243a73fa8e2df520c5a",
+          "date": "2024-08-08",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2024-08-08' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-08-08",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-08-08' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-08-08' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Assorted little stuff:\n\n   - lockdep fixup for lockdep_set_notrack_class()\n\n   - we can now remove a device when using erasure coding without\n     deadlocking, though we still hit other issues\n\n   - the 'allocator stuck' timeout is now configurable, and messages are\n     ratelimited. The default timeout has been increased from 10 seconds\n     to 30\"\n\n* tag 'bcachefs-2024-08-08' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Use bch2_wait_on_allocator() in btree node alloc path\n  bcachefs: Make allocator stuck timeout configurable, ratelimit messages\n  bcachefs: Add missing path_traverse() to btree_iter_next_node()\n  bcachefs: ec should not allocate from ro devs\n  bcachefs: Improved allocator debugging for ec\n  bcachefs: Add missing bch2_trans_begin() call\n  bcachefs: Add a comment for bucket helper types\n  bcachefs: Don't rely on implicit unsigned -> signed integer conversion\n  lockdep: Fix lockdep_set_notrack_class() for CONFIG_LOCK_STAT\n  bcachefs: Fix double free of ca->buckets_nouse"
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "b71817585383d96ddc51ebd126f6253fdb9a8568",
+          "date": "2024-08-17",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2024-08-16' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-08-16",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-08-16' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-08-16' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent OverstreetL\n\n - New on disk format version, bcachefs_metadata_version_disk_accounting_inum\n\n   This adds one more disk accounting counter, which counts disk usage\n   and number of extents per inode number. This lets us track\n   fragmentation, for implementing defragmentation later, and it also\n   counts disk usage per inode in all snapshots, which will be a useful\n   thing to expose to users.\n\n - One performance issue we've observed is threads spinning when they\n   should be waiting for dirty keys in the key cache to be flushed by\n   journal reclaim, so we now have hysteresis for the waiting thread, as\n   well as improving the tracepoint and a new time_stat, for tracking\n   time blocked waiting on key cache flushing.\n\n... and various assorted smaller fixes.\n\n* tag 'bcachefs-2024-08-16' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix locking in __bch2_trans_mark_dev_sb()\n  bcachefs: fix incorrect i_state usage\n  bcachefs: avoid overflowing LRU_TIME_BITS for cached data lru\n  bcachefs: Fix forgetting to pass trans to fsck_err()\n  bcachefs: Increase size of cuckoo hash table on too many rehashes\n  bcachefs: bcachefs_metadata_version_disk_accounting_inum\n  bcachefs: Kill __bch2_accounting_mem_mod()\n  bcachefs: Make bkey_fsck_err() a wrapper around fsck_err()\n  bcachefs: Fix warning in __bch2_fsck_err() for trans not passed in\n  bcachefs: Add a time_stat for blocked on key cache flush\n  bcachefs: Improve trans_blocked_journal_reclaim tracepoint\n  bcachefs: Add hysteresis to waiting on btree key cache flush\n  lib/generic-radix-tree.c: Fix rare race in __genradix_ptr_alloc()\n  bcachefs: Convert for_each_btree_node() to lockrestart_do()\n  bcachefs: Add missing downgrade table entry\n  bcachefs: disk accounting: ignore unknown types\n  bcachefs: bch2_accounting_invalid() fixup\n  bcachefs: Fix bch2_trigger_alloc when upgrading from old versions\n  bcachefs: delete faulty fastpath in bch2_btree_path_traverse_cached()"
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "72bea05cb1ad486b1a850f584cc93b651579ad2f",
+          "date": "2024-08-25",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2024-08-24' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-08-24",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-08-24' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-08-24' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - assorted syzbot fixes\n\n - some upgrade fixes for old (pre 1.0) filesystems\n\n - fix for moving data off a device that was switched to durability=0\n   after data had been written to it.\n\n - nocow deadlock fix\n\n - fix for new rebalance_work accounting\n\n* tag 'bcachefs-2024-08-24' of git://evilpiepirate.org/bcachefs: (28 commits)\n  bcachefs: Fix rebalance_work accounting\n  bcachefs: Fix failure to flush moves before sleeping in copygc\n  bcachefs: don't use rht_bucket() in btree_key_cache_scan()\n  bcachefs: add missing inode_walker_exit()\n  bcachefs: clear path->should_be_locked in bch2_btree_key_cache_drop()\n  bcachefs: Fix double assignment in check_dirent_to_subvol()\n  bcachefs: Fix refcounting in discard path\n  bcachefs: Fix compat issue with old alloc_v4 keys\n  bcachefs: Fix warning in bch2_fs_journal_stop()\n  fs/super.c: improve get_tree() error message\n  bcachefs: Fix missing validation in bch2_sb_journal_v2_validate()\n  bcachefs: Fix replay_now_at() assert\n  bcachefs: Fix locking in bch2_ioc_setlabel()\n  bcachefs: fix failure to relock in btree_node_fill()\n  bcachefs: fix failure to relock in bch2_btree_node_mem_alloc()\n  bcachefs: unlock_long() before resort in journal replay\n  bcachefs: fix missing bch2_err_str()\n  bcachefs: fix time_stats_to_text()\n  bcachefs: Fix bch2_bucket_gens_init()\n  bcachefs: Fix bch2_trigger_alloc assert\n  ..."
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "a4c763129fbcc7da5d3134ea95f9577f25bc637d",
+          "date": "2024-09-01",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2024-08-21' of https://github.com/koverstreet/bcachefs",
+          "source_tag": "bcachefs-2024-08-21",
+          "source_repo": "https://github.com/koverstreet/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-08-21' of https://github.com/koverstreet/bcachefs\n\nMerge tag 'bcachefs-2024-08-21' of https://github.com/koverstreet/bcachefs\n\nPush bcachefs fixes from Kent Overstreet:\n \"The data corruption in the buffered write path is troubling; inode\n  lock should not have been able to cause that...\n\n   - Fix a rare data corruption in the rebalance path, caught as a nonce\n     inconsistency on encrypted filesystems\n\n   - Revert lockless buffered write path\n\n   - Mark more errors as autofix\"\n\n* tag 'bcachefs-2024-08-21' of https://github.com/koverstreet/bcachefs:\n  bcachefs: Mark more errors as autofix\n  bcachefs: Revert lockless buffered IO path\n  bcachefs: Fix bch2_extents_match() false positive\n  bcachefs: Fix failure to return error in data_update_index_update()"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "c763c43396883456ef57e5e78b64d3c259c4babc",
+          "date": "2024-09-04",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2024-09-04' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-09-04",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-09-04' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-09-04' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - Fix a typo in the rebalance accounting changes\n\n - BCH_SB_MEMBER_INVALID: small on disk format feature which will be\n   needed for full erasure coding support; this is only the minimum so\n   that 6.11 can handle future versions without barfing.\n\n* tag 'bcachefs-2024-09-04' of git://evilpiepirate.org/bcachefs:\n  bcachefs: BCH_SB_MEMBER_INVALID\n  bcachefs: fix rebalance accounting"
+        }
+      ],
+      "final": [
+        {
+          "hash": "bc83b4d1f08695e85e85d36f7b803da58010161d",
+          "date": "2024-09-09",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2024-09-09' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-09-09",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-09-09' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-09-09' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - fix ca->io_ref usage; analagous to previous patch doing that for main\n   discard path\n\n - cond_resched() in __journal_keys_sort(), cutting down on \"hung task\"\n   warnings when journal is big\n\n - rest of basic BCH_SB_MEMBER_INVALID support\n\n - and the critical one: don't delete open files in online fsck, this\n   was causing the \"dirent points to inode that doesn't point back\"\n   inconsistencies some users were seeing\n\n* tag 'bcachefs-2024-09-09' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Don't delete open files in online fsck\n  bcachefs: fix btree_key_cache sysfs knob\n  bcachefs: More BCH_SB_MEMBER_INVALID support\n  bcachefs: Simplify bch2_bkey_drop_ptrs()\n  bcachefs: Add a cond_resched() to __journal_keys_sort()\n  bcachefs: Fix ca->io_ref usage"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.12",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "9f9a53472452b83d44d5e1d77b6dea6eaa043204",
+          "date": "2024-09-29",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-09-28' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-09-28",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-09-28' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-09-28' of git://evilpiepirate.org/bcachefs\n\nPull more bcachefs updates from Kent Overstreet:\n \"Assorted minor syzbot fixes, and for bigger stuff:\n\n  Fix two disk accounting rewrite bugs:\n\n   - Disk accounting keys use the version field of bkey so that journal\n     replay can tell which updates have been applied to the btree.\n\n     This is set in the transaction commit path, after we've gotten our\n     journal reservation (and our time ordering), but the\n     BCH_TRANS_COMMIT_skip_accounting_apply flag that journal replay\n     uses was incorrectly skipping this for new updates generated prior\n     to journal replay.\n\n     This fixes the underlying cause of an assertion pop in\n     disk_accounting_read.\n\n   - A couple of fixes for disk accounting + device removal.\n\n     Checking if acocunting replicas entries were marked in the\n     superblock was being done at the wrong point, when deltas in the\n     journal could still zero them out, and then additionally we'd try\n     to add a missing replicas entry to the superblock without checking\n     if it referred to an invalid (removed) device.\n\n  A whole slew of repair fixes:\n\n   - fix infinite loop in propagate_key_to_snapshot_leaves(), this fixes\n     an infinite loop when repairing a filesystem with many snapshots\n\n   - fix incorrect transaction restart handling leading to occasional\n     \"fsck counted ...\" warnings\n\n   - fix warning in __bch2_fsck_err() for bkey fsck errors\n\n   - check_inode() in fsck now correctly checks if the filesystem was\n     clean\n\n   - there shouldn't be pending logged ops if the fs was clean, we now\n     check for this\n\n   - remove_backpointer() doesn't remove a dirent that doesn't actually\n     point to the inode\n\n   - many more fsck errors are AUTOFIX\"\n\n* tag 'bcachefs-2024-09-28' of git://evilpiepirate.org/bcachefs: (35 commits)\n  bcachefs: check_subvol_path() now prints subvol root inode\n  bcachefs: remove_backpointer() now checks if dirent points to inode\n  bcachefs: dirent_points_to_inode() now warns on mismatch\n  bcachefs: Fix lost wake up\n  bcachefs: Check for logged ops when clean\n  bcachefs: BCH_FS_clean_recovery\n  bcachefs: Convert disk accounting BUG_ON() to WARN_ON()\n  bcachefs: Fix BCH_TRANS_COMMIT_skip_accounting_apply\n  bcachefs: Check for accounting keys with bversion=0\n  bcachefs: rename version -> bversion\n  bcachefs: Don't delete unlinked inodes before logged op resume\n  bcachefs: Fix BCH_SB_ERRS() so we can reorder\n  bcachefs: Fix fsck warnings from bkey validation\n  bcachefs: Move transaction commit path validation to as late as possible\n  bcachefs: Fix disk accounting attempting to mark invalid replicas entry\n  bcachefs: Fix unlocked access to c->disk_sb.sb in bch2_replicas_entry_validate()\n  bcachefs: Fix accounting read + device removal\n  bcachefs: bch_accounting_mode\n  bcachefs: fix transaction restart handling in check_extents(), check_dirents()\n  bcachefs: kill inode_walker_entry.seen_this_pos\n  ..."
+        },
+        {
+          "hash": "b3f391fddf3cfaadda59ec8da8fd17f4520bbf42",
+          "date": "2024-09-23",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2024-09-21' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-09-21",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-09-21' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-09-21' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs updates from Kent Overstreet:\n\n - rcu_pending, btree key cache rework: this solves lock contenting in\n   the key cache, eliminating the biggest source of the srcu lock hold\n   time warnings, and drastically improving performance on some metadata\n   heavy workloads - on multithreaded creates we're now 3-4x faster than\n   xfs.\n\n - We're now using an rhashtable instead of the system inode hash table;\n   this is another significant performance improvement on multithreaded\n   metadata workloads, eliminating more lock contention.\n\n - for_each_btree_key_in_subvolume_upto(): new helper for iterating over\n   keys within a specific subvolume, eliminating a lot of open coded\n   \"subvolume_get_snapshot()\" and also fixing another source of srcu\n   lock time warnings, by running each loop iteration in its own\n   transaction (as the existing for_each_btree_key() does).\n\n - More work on btree_trans locking asserts; we now assert that we don't\n   hold btree node locks when trans->locked is false, which is important\n   because we don't use lockdep for tracking individual btree node\n   locks.\n\n - Some cleanups and improvements in the bset.c btree node lookup code,\n   from Alan.\n\n - Rework of btree node pinning, which we use in backpointers fsck. The\n   old hacky implementation, where the shrinker just skipped over nodes\n   in the pinned range, was causing OOMs; instead we now use another\n   shrinker with a much higher seeks number for pinned nodes.\n\n - Rebalance now uses BCH_WRITE_ONLY_SPECIFIED_DEVS; this fixes an issue\n   where rebalance would sometimes fall back to allocating from the full\n   filesystem, which is not what we want when it's trying to move data\n   to a specific target.\n\n - Use __GFP_ACCOUNT, GFP_RECLAIMABLE for btree node, key cache\n   allocations.\n\n - Idmap mounts are now supported (Hongbo Li)\n\n - Rename whiteouts are now supported (Hongbo Li)\n\n - Erasure coding can now handle devices being marked as failed, or\n   forcibly removed. We still need the evacuate path for erasure coding,\n   but it's getting very close to ready for people to start using.\n\n* tag 'bcachefs-2024-09-21' of git://evilpiepirate.org/bcachefs: (99 commits)\n  bcachefs: return err ptr instead of null in read sb clean\n  bcachefs: Remove duplicated include in backpointers.c\n  bcachefs: Don't drop devices with stripe pointers\n  bcachefs: bch2_ec_stripe_head_get() now checks for change in rw devices\n  bcachefs: bch_fs.rw_devs_change_count\n  bcachefs: bch2_dev_remove_stripes()\n  bcachefs: bch2_trigger_ptr() calculates sectors even when no device\n  bcachefs: improve error messages in bch2_ec_read_extent()\n  bcachefs: improve error message on too few devices for ec\n  bcachefs: improve bch2_new_stripe_to_text()\n  bcachefs: ec_stripe_head.nr_created\n  bcachefs: bch_stripe.disk_label\n  bcachefs: stripe_to_mem()\n  bcachefs: EIO errcode cleanup\n  bcachefs: Rework btree node pinning\n  bcachefs: split up btree cache counters for live, freeable\n  bcachefs: btree cache counters should be size_t\n  bcachefs: Don't count \"skipped access bit\" as touched in btree cache scan\n  bcachefs: Failed devices no longer require mounting in degraded mode\n  bcachefs: bch2_dev_rcu_noerror()\n  ..."
+        }
+      ],
+      "rc2": [
+        {
+          "hash": "8f602276d3902642fdc3429b548d73c745446601",
+          "date": "2024-10-05",
+          "rc": "rc2",
+          "subject": "Merge tag 'bcachefs-2024-10-05' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-10-05",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-10-05' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-10-05' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"A lot of little fixes, bigger ones include:\n\n   - bcachefs's __wait_on_freeing_inode() was broken in rc1 due to vfs\n     changes, now fixed along with another lost wakeup\n\n   - fragmentation LRU fixes; fsck now repairs successfully (this is the\n     data structure copygc uses); along with some nice simplification.\n\n   - Rework logged op error handling, so that if logged op replay errors\n     (due to another filesystem error) we delete the logged op instead\n     of going into an infinite loop)\n\n   - Various small filesystem connectivitity repair fixes\"\n\n* tag 'bcachefs-2024-10-05' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Rework logged op error handling\n  bcachefs: Add warn param to subvol_get_snapshot, peek_inode\n  bcachefs: Kill snapshot arg to fsck_write_inode()\n  bcachefs: Check for unlinked, non-empty dirs in check_inode()\n  bcachefs: Check for unlinked inodes with dirents\n  bcachefs: Check for directories with no backpointers\n  bcachefs: Kill alloc_v4.fragmentation_lru\n  bcachefs: minor lru fsck fixes\n  bcachefs: Mark more errors AUTOFIX\n  bcachefs: Make sure we print error that causes fsck to bail out\n  bcachefs: bkey errors are only AUTOFIX during read\n  bcachefs: Create lost+found in correct snapshot\n  bcachefs: Fix reattach_inode()\n  bcachefs: Add missing wakeup to bch2_inode_hash_remove()\n  bcachefs: Fix trans_commit disk accounting revert\n  bcachefs: Fix bch2_inode_is_open() check\n  bcachefs: Fix return type of dirent_points_to_inode_nowarn()\n  bcachefs: Fix bad shift in bch2_read_flag_list()"
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "bdc72765122356796aa72f6e99142cdf24254ce5",
+          "date": "2024-10-15",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2024-10-14' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-10-14",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-10-14' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-10-14' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - New metadata version inode_has_child_snapshots\n\n   This fixes bugs with handling of unlinked inodes + snapshots, in\n   particular when an inode is reattached after taking a snapshot;\n   deleted inodes now get correctly cleaned up across snapshots.\n\n - Disk accounting rewrite fixes\n     - validation fixes for when a device has been removed\n     - fix journal replay failing with \"journal_reclaim_would_deadlock\"\n\n - Some more small fixes for erasure coding + device removal\n\n - Assorted small syzbot fixes\n\n* tag 'bcachefs-2024-10-14' of git://evilpiepirate.org/bcachefs: (27 commits)\n  bcachefs: Fix sysfs warning in fstests generic/730,731\n  bcachefs: Handle race between stripe reuse, invalidate_stripe_to_dev\n  bcachefs: Fix kasan splat in new_stripe_alloc_buckets()\n  bcachefs: Add missing validation for bch_stripe.csum_granularity_bits\n  bcachefs: Fix missing bounds checks in bch2_alloc_read()\n  bcachefs: fix uaf in bch2_dio_write_done()\n  bcachefs: Improve check_snapshot_exists()\n  bcachefs: Fix bkey_nocow_lock()\n  bcachefs: Fix accounting replay flags\n  bcachefs: Fix invalid shift in member_to_text()\n  bcachefs: Fix bch2_have_enough_devs() for BCH_SB_MEMBER_INVALID\n  bcachefs: __wait_for_freeing_inode: Switch to wait_bit_queue_entry\n  bcachefs: Check if stuck in journal_res_get()\n  closures: Add closure_wait_event_timeout()\n  bcachefs: Fix state lock involved deadlock\n  bcachefs: Fix NULL pointer dereference in bch2_opt_to_text\n  bcachefs: Release transaction before wake up\n  bcachefs: add check for btree id against max in try read node\n  bcachefs: Disk accounting device validation fixes\n  bcachefs: bch2_inode_or_descendents_is_open()\n  ..."
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "c1e822754cc7f28b98c6897d62e8b47b4001e422",
+          "date": "2024-10-24",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2024-10-22' of https://github.com/koverstreet/bcachefs",
+          "source_tag": "bcachefs-2024-10-22",
+          "source_repo": "https://github.com/koverstreet/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-10-22' of https://github.com/koverstreet/bcachefs\n\nMerge tag 'bcachefs-2024-10-22' of https://github.com/koverstreet/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Lots of hotfixes:\n\n   - transaction restart injection has been shaking out a few things\n\n   - fix a data corruption in the buffered write path on -ENOSPC, found\n     by xfstests generic/299\n\n   - Some small show_options fixes\n\n   - Repair mismatches in inode hash type, seed: different snapshot\n     versions of an inode must have the same hash/type seed, used for\n     directory entries and xattrs. We were checking the hash seed, but\n     not the type, and a user contributed a filesystem where the hash\n     type on one inode had somehow been flipped; these fixes allow his\n     filesystem to repair.\n\n     Additionally, the hash type flip made some directory entries\n     invisible, which were then recreated by userspace; so the hash\n     check code now checks for duplicate non dangling dirents, and\n     renames one of them if necessary.\n\n   - Don't use wait_event_interruptible() in recovery: this fixes some\n     filesystems failing to mount with -ERESTARTSYS\n\n   - Workaround for kvmalloc not supporting > INT_MAX allocations,\n     causing an -ENOMEM when allocating the sorted array of journal\n     keys: this allows a 75 TB filesystem to mount\n\n   - Make sure bch_inode_unpacked.bi_snapshot is set in the old inode\n     compat path: this alllows Marcin's filesystem (in use since before\n     6.7) to repair and mount\"\n\n* tag 'bcachefs-2024-10-22' of https://github.com/koverstreet/bcachefs: (26 commits)\n  bcachefs: Set bch_inode_unpacked.bi_snapshot in old inode path\n  bcachefs: Mark more errors as AUTOFIX\n  bcachefs: Workaround for kvmalloc() not supporting > INT_MAX allocations\n  bcachefs: Don't use wait_event_interruptible() in recovery\n  bcachefs: Fix __bch2_fsck_err() warning\n  bcachefs: fsck: Improve hash_check_key()\n  bcachefs: bch2_hash_set_or_get_in_snapshot()\n  bcachefs: Repair mismatches in inode hash seed, type\n  bcachefs: Add hash seed, type to inode_to_text()\n  bcachefs: INODE_STR_HASH() for bch_inode_unpacked\n  bcachefs: Run in-kernel offline fsck without ratelimit errors\n  bcachefs: skip mount option handle for empty string.\n  bcachefs: fix incorrect show_options results\n  bcachefs: Fix data corruption on -ENOSPC in buffered write path\n  bcachefs: bch2_folio_reservation_get_partial() is now better behaved\n  bcachefs: fix disk reservation accounting in bch2_folio_reservation_get()\n  bcachefS: ec: fix data type on stripe deletion\n  bcachefs: Don't use commit_do() unnecessarily\n  bcachefs: handle restarts in bch2_bucket_io_time_reset()\n  bcachefs: fix restart handling in __bch2_resume_logged_op_finsert()\n  ..."
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "7b83601da470cfdb0a66eb9335fb6ec34d3dd876",
+          "date": "2024-11-01",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2024-10-31' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-10-31",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-10-31' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-10-31' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Various syzbot fixes, and the more notable ones:\n\n   - Fix for pointers in an extent overflowing the max (16) on a\n     filesystem with many devices: we were creating too many cached\n     copies when moving data around. Now, we only create at most one\n     cached copy if there's a promote target set.\n\n     Caching will be a bit broken for reflinked data until 6.13: I have\n     larger series queued up which significantly improves the plumbing\n     for data options down into the extent (bch_extent_rebalance) to fix\n     this.\n\n   - Fix for deadlock on -ENOSPC on tiny filesystems\n\n     Allocation from the partial open_bucket list wasn't correctly\n     accounting partial open_buckets as free: this fixes the main cause\n     of tests timing out in the automated tests\"\n\n* tag 'bcachefs-2024-10-31' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix NULL ptr dereference in btree_node_iter_and_journal_peek\n  bcachefs: fix possible null-ptr-deref in __bch2_ec_stripe_head_get()\n  bcachefs: Fix deadlock on -ENOSPC w.r.t. partial open buckets\n  bcachefs: Don't filter partial list buckets in open_buckets_to_text()\n  bcachefs: Don't keep tons of cached pointers around\n  bcachefs: init freespace inited bits to 0 in bch2_fs_initialize\n  bcachefs: Fix unhandled transaction restart in fallocate\n  bcachefs: Fix UAF in bch2_reconstruct_alloc()\n  bcachefs: fix null-ptr-deref in have_stripes()\n  bcachefs: fix shift oob in alloc_lru_idx_fragmentation\n  bcachefs: Fix invalid shift in validate_sb_layout()"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "b5f1b488000068107869ab2553ab16b568f487b1",
+          "date": "2024-11-08",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2024-11-07' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-11-07",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-11-07' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-11-07' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Some trivial syzbot fixes, two more serious btree fixes found by\n  looping single_devices.ktest small_nodes:\n\n   - Topology error on split after merge, where we accidentaly picked\n     the node being deleted for the pivot, resulting in an assertion pop\n\n   - New nodes being preallocated were left on the freedlist, unlocked,\n     resulting in them sometimes being accidentally freed: this dated\n     from pre-cycle detector, when we could leave them locked. This\n     should have resulted in more explosions and fireworks, but turned\n     out to be surprisingly hard to hit because the preallocated nodes\n     were being used right away.\n\n     The fix for this is bigger than we'd like - reworking btree list\n     handling was a bit invasive - but we've now got more assertions and\n     it's well tested.\n\n   - Also another mishandled transaction restart fix (in\n     btree_node_prefetch) - we're almost done with those\"\n\n* tag 'bcachefs-2024-11-07' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix UAF in __promote_alloc() error path\n  bcachefs: Change OPT_STR max to be 1 less than the size of choices array\n  bcachefs: btree_cache.freeable list fixes\n  bcachefs: check the invalid parameter for perf test\n  bcachefs: add check NULL return of bio_kmalloc in journal_read_bucket\n  bcachefs: Ensure BCH_FS_may_go_rw is set before exiting recovery\n  bcachefs: Fix topology errors on split after merge\n  bcachefs: Ancient versions with bad bkey_formats are no longer supported\n  bcachefs: Fix error handling in bch2_btree_node_prefetch()\n  bcachefs: Fix null ptr deref in bucket_gen_get()"
+        }
+      ],
+      "final": [
+        {
+          "hash": "4abcd80f23357808b0444d261ed08e5a77dbaa9a",
+          "date": "2024-11-14",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2024-11-13' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2024-11-13",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2024-11-13' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2024-11-13' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"This fixes one minor regression from the btree cache fixes (in the\n  scan_for_btree_nodes repair path) - and the shutdown path fix is the\n  big one here, in terms of bugs closed:\n\n   - Assorted tiny syzbot fixes\n\n   - Shutdown path fix: \"bch2_btree_write_buffer_flush_going_ro()\"\n\n     The shutdown path wasn't flushing the btree write buffer, leading\n     to shutting down while we still had operations in flight. This\n     fixes a whole slew of syzbot bugs, and undoubtedly other strange\n     heisenbugs.\n\n* tag 'bcachefs-2024-11-13' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix assertion pop in bch2_ptr_swab()\n  bcachefs: Fix journal_entry_dev_usage_to_text() overrun\n  bcachefs: Allow for unknown key types in backpointers fsck\n  bcachefs: Fix assertion pop in topology repair\n  bcachefs: Fix hidden btree errors when reading roots\n  bcachefs: Fix validate_bset() repair path\n  bcachefs: Fix missing validation for bch_backpointer.level\n  bcachefs: Fix bch_member.btree_bitmap_shift validation\n  bcachefs: bch2_btree_write_buffer_flush_going_ro()"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.14",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "8080ff5ac656b9ca6c282e4044be19d2b8a837df",
+          "date": "2025-01-30",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2025-01-29' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-01-29",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-01-29' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-01-29' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - second half of a fix for a bug that'd been causing oopses on\n   filesystems using snapshots with memory pressure (key cache fills for\n   snaphots btrees are tricky)\n\n - build fix for strange compiler configurations that double stack frame\n   size\n\n - \"journal stuck timeout\" now takes into account device latency: this\n   fixes some spurious warnings, and the main remaining source of SRCU\n   lock hold time warnings (I'm no longer seeing this in my CI, so any\n   users still seeing this should definitely ping me)\n\n - fix for slow/hanging unmounts (\" Improve journal pin flushing\")\n\n - some more tracepoint fixes/improvements, to chase down the \"rebalance\n   isn't making progress\" issues\n\n* tag 'bcachefs-2025-01-29' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Improve trace_move_extent_finish\n  bcachefs: Fix trace_copygc\n  bcachefs: Journal writes are now IOPRIO_CLASS_RT\n  bcachefs: Improve journal pin flushing\n  bcachefs: fix bch2_btree_node_flags\n  bcachefs: rebalance, copygc enabled are runtime opts\n  bcachefs: Improve decompression error messages\n  bcachefs: bset_blacklisted_journal_seq is now AUTOFIX\n  bcachefs: \"Journal stuck\" timeout now takes into account device latency\n  bcachefs: Reduce stack frame size of __bch2_str_hash_check_key()\n  bcachefs: Fix btree_trans_peek_key_cache()"
+        }
+      ],
+      "rc3": [
+        {
+          "hash": "1854c7f79dcaaba9f1c0b131445ace03f9fd532d",
+          "date": "2025-02-13",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2025-02-12' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-02-12",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-02-12' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-02-12' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Just small stuff.\n\n  As a general announcement, on disk format is now frozen in my master\n  branch - future on disk format changes will be optional, not required.\n\n   - More fixes for going read-only: the previous fix was insufficient,\n     but with more work on ordering journal reclaim flushing (and a\n     btree node accounting fix so we don't split until we have to) the\n     tiering_replication test now consistently goes read-only in less\n     than a second.\n\n   - fix for fsck when we have reflink pointers to missing indirect\n     extents\n\n   - some transaction restart handling fixes from Alan; the \"Pass\n     _orig_restart_count to trans_was_restarted\" likely fixes some rare\n     undefined behaviour heisenbugs\"\n\n* tag 'bcachefs-2025-02-12' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Reuse transaction\n  bcachefs: Pass _orig_restart_count to trans_was_restarted\n  bcachefs: CONFIG_BCACHEFS_INJECT_TRANSACTION_RESTARTS\n  bcachefs: Fix want_new_bset() so we write until the end of the btree node\n  bcachefs: Split out journal pins by btree level\n  bcachefs: Fix use after free\n  bcachefs: Fix marking reflink pointers to missing indirect extents"
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "bf0e5ed0082ef0dbaa43c0296b045d6d9832082e",
+          "date": "2025-02-20",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2025-02-20' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-02-20",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-02-20' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-02-20' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Small stuff:\n\n   - The fsck code for Hongbo's directory i_size patch was wrong, caught\n     by transaction restart injection: we now have the CI running\n     another test variant with restart injection enabled\n\n   - Another fixup for reflink pointers to missing indirect extents:\n     previous fix was for fsck code, this fixes the normal runtime paths\n\n   - Another small srcu lock hold time fix, reported by jpsollie\"\n\n* tag 'bcachefs-2025-02-20' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix srcu lock warning in btree_update_nodes_written()\n  bcachefs: Fix bch2_indirect_extent_missing_error()\n  bcachefs: Fix fsck directory i_size checking"
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "dd83757f6e686a2188997cb58b5975f744bb7786",
+          "date": "2025-02-26",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2025-02-26' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-02-26",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-02-26' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-02-26' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"A couple small ones, the main user visible changes/fixes are:\n\n   - Fix a bug where truncate would rarely fail and return 1\n\n   - Revert the directory i_size code: this turned out to have a number\n     of issues that weren't noticed because the fsck code wasn't\n     correctly reporting errors (ouch), and we're late enough in the\n     cycle that it can just wait until 6.15\"\n\n* tag 'bcachefs-2025-02-26' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix truncate sometimes failing and returning 1\n  bcachefs: Fix deadlock\n  bcachefs: Check for -BCH_ERR_open_buckets_empty in journal resize\n  bcachefs: Revert directory i_size\n  bcachefs: fix bch2_extent_ptr_eq()\n  bcachefs: Fix memmove when move keys down\n  bcachefs: print op->nonce on data update inconsistency"
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "0f52fd4f67c67f7f2ea3063c627e466255f027fd",
+          "date": "2025-03-06",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2025-03-06' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-03-06",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-03-06' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-03-06' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - Fix a compatibility issue: we shouldn't be setting incompat feature\n   bits unless explicitly requested\n\n - Fix another bug where the journal alloc/resize path could spuriously\n   fail with -BCH_ERR_open_buckets_empty\n\n - Copygc shouldn't run on read-only devices: fragmentation isn't an\n   issue if we're not currently writing to a given device, and it may\n   not have anywhere to move the data to\n\n* tag 'bcachefs-2025-03-06' of git://evilpiepirate.org/bcachefs:\n  bcachefs: copygc now skips non-rw devices\n  bcachefs: Fix bch2_dev_journal_alloc() spuriously failing\n  bcachefs: Don't set BCH_FEATURE_incompat_version_field unless requested"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "912ad8b317fafbb5a08fc0d9c23cf46af39ec2a7",
+          "date": "2025-03-14",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2025-03-14' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-03-14",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-03-14' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-03-14' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs hotfix from Kent Overstreet:\n \"This one is high priority: a user hit an assertion in the upgrade to\n  6.14, and we don't have a reproducer, so this changes the assertion to\n  an emergency read-only with more info so we can debug it\"\n\n* tag 'bcachefs-2025-03-14' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Change btree wb assert to runtime error"
+        },
+        {
+          "hash": "131c040bbb0f561ef68ad2ba6fcd28c97fa6d4cf",
+          "date": "2025-03-13",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2025-03-13' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-03-13",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-03-13' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-03-13' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Roxana caught an unitialized value that might explain some of the\n  rebalance weirdness we're still tracking down - cool.\n\n  Otherwise pretty minor\"\n\n* tag 'bcachefs-2025-03-13' of git://evilpiepirate.org/bcachefs:\n  bcachefs: bch2_get_random_u64_below()\n  bcachefs: target_congested -> get_random_u32_below()\n  bcachefs: fix tiny leak in bch2_dev_add()\n  bcachefs: Make sure trans is unlocked when submitting read IO\n  bcachefs: Initialize from_inode members for bch_io_opts\n  bcachefs: Fix b->written overflow"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.15",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "56770e24f678a84a21f21bcc1ae9cbc1364677bd",
+          "date": "2025-04-03",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2025-04-03' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-04-03",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-04-03' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-04-03' of git://evilpiepirate.org/bcachefs\n\nPull more bcachefs updates from Kent Overstreet:\n \"More notable fixes:\n\n   - Fix for striping behaviour on tiering filesystems where replicas\n     exceeds durability on destination target\n\n   - Fix a race in device removal where deleting alloc info races with\n     the discard worker\n\n   - Some small stack usage improvements: this is just enough for KMSAN\n     builds to not blow the stack, more is queued up for 6.16\"\n\n* tag 'bcachefs-2025-04-03' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix \"journal stuck\" during recovery\n  bcachefs: backpointer_get_key: check for null from peek_slot()\n  bcachefs: Fix null ptr deref in invalidate_one_bucket()\n  bcachefs: Fix check_snapshot_exists() restart handling\n  bcachefs: use nonblocking variant of print_string_as_lines in error path\n  bcachefs: Fix scheduling while atomic from logging changes\n  bcachefs: Add error handling for zlib_deflateInit2()\n  bcachefs: add missing selection of XARRAY_MULTI\n  bcachefs: bch_dev_usage_full\n  bcachefs: Kill btree_iter.trans\n  bcachefs: do_trace_key_cache_fill()\n  bcachefs: Split up bch_dev.io_ref\n  bcachefs: fix ref leak in btree_node_read_all_replicas\n  bcachefs: Fix null ptr deref in bch2_write_endio()\n  bcachefs: Fix field spanning write warning\n  bcachefs: Fix striping behaviour"
+        },
+        {
+          "hash": "98fb679d19a17aec624d53b016953a3fcd272e8d",
+          "date": "2025-03-31",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2025-03-31' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-03-31",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-03-31' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-03-31' of git://evilpiepirate.org/bcachefs\n\nPull more bcachefs updates from Kent Overstreet:\n \"All bugfixes and logging improvements\"\n\n* tag 'bcachefs-2025-03-31' of git://evilpiepirate.org/bcachefs: (35 commits)\n  bcachefs: fix bch2_write_point_to_text() units\n  bcachefs: Log original key being moved in data updates\n  bcachefs: BCH_JSET_ENTRY_log_bkey\n  bcachefs: Reorder error messages that include journal debug\n  bcachefs: Don't use designated initializers for disk_accounting_pos\n  bcachefs: Silence errors after emergency shutdown\n  bcachefs: fix units in rebalance_status\n  bcachefs: bch2_ioctl_subvolume_destroy() fixes\n  bcachefs: Clear fs_path_parent on subvolume unlink\n  bcachefs: Change btree_insert_node() assertion to error\n  bcachefs: Better printing of inconsistency errors\n  bcachefs: bch2_count_fsck_err()\n  bcachefs: Better helpers for inconsistency errors\n  bcachefs: Consistent indentation of multiline fsck errors\n  bcachefs: Add an \"ignore unknown\" option to bch2_parse_mount_opts()\n  bcachefs: bch2_time_stats_init_no_pcpu()\n  bcachefs: Fix bch2_fs_get_tree() error path\n  bcachefs: fix logging in journal_entry_err_msg()\n  bcachefs: add missing newline in bch2_trans_updates_to_text()\n  bcachefs: print_string_as_lines: fix extra newline\n  ..."
+        },
+        {
+          "hash": "4a4b30ea80d8cb5e8c4c62bb86201f4ea0d9b030",
+          "date": "2025-03-27",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2025-03-24' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-03-24",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-03-24' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-03-24' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs updates from Kent Overstreet:\n \"On disk format is now soft frozen: no more required/automatic are\n  anticipated before taking off the experimental label.\n\n  Major changes/features since 6.14:\n\n   - Scrub\n\n   - Blocksize greater than page size support\n\n   - A number of \"rebalance spinning and doing no work\" issues have been\n     fixed; we now check if the write allocation will succeed in\n     bch2_data_update_init(), before kicking off the read.\n\n     There's still more work to do in this area. Later we may want to\n     add another bitset btree, like rebalance_work, to track \"extents\n     that rebalance was requested to move but couldn't\", e.g. due to\n     destination target having insufficient online devices.\n\n   - We can now support scaling well into the petabyte range: latest\n     bcachefs-tools will pick an appropriate bucket size at format time\n     to ensure fsck can run in available memory (e.g. a server with\n     256GB of ram and 100PB of storage would want 16MB buckets).\n\n  On disk format changes:\n\n   - 1.21: cached backpointers (scalability improvement)\n\n     Cached replicas now get backpointers, which means we no longer rely\n     on incrementing bucket generation numbers to invalidate cached\n     data: this lets us get rid of the bucket generation number garbage\n     collection, which had to periodically rescan all extents to\n     recompute bucket oldest_gen.\n\n     Bucket generation numbers are now only used as a consistency check,\n     but they're quite useful for that.\n\n   - 1.22: stripe backpointers\n\n     Stripes now have backpointers: erasure coded stripes have their own\n     checksums, separate from the checksums for the extents they contain\n     (and stripe checksums also cover the parity blocks). This is\n     required for implementing scrub for stripes.\n\n   - 1.23: stripe lru (scalability improvement)\n\n     Persistent lru for stripes, ordered by \"number of empty blocks\".\n     This is used by the stripe creation path, which depending on free\n     space may create a new stripe out of a partially empty existing\n     stripe instead of starting a brand new stripe.\n\n     This replaces an in-memory heap, and means we no longer have to\n     read in the stripes btree at startup.\n\n   - 1.24: casefolding\n\n     Case insensitive directory support, courtesy of Valve.\n\n     This is an incompatible feature, to enable mount with\n       -o version_upgrade=incompatible\n\n   - 1.25: extent_flags\n\n     Another incompatible feature requiring explicit opt-in to enable.\n\n     This adds a flags entry to extents, and a flag bit that marks\n     extents as poisoned.\n\n     A poisoned extent is an extent that was unreadable due to checksum\n     errors. We can't move such extents without giving them a new\n     checksum, and we may have to move them (for e.g. copygc or device\n     evacuate). We also don't want to delete them: in the future we'll\n     have an API that lets userspace ignore checksum errors and attempt\n     to deal with simple bitrot itself. Marking them as poisoned lets us\n     continue to return the correct error to userspace on normal read\n     calls.\n\n  Other changes/features:\n\n   - BCH_IOCTL_QUERY_COUNTERS: this is used by the new 'bcachefs fs top'\n     command, which shows a live view of all internal filesystem\n     counters.\n\n   - Improved journal pipelining: we can now have 16 journal writes in\n     flight concurrently, up from 4. We're logging significantly more to\n     the journal than we used to with all the recent disk accounting\n     changes and additions, so some users should see a performance\n     increase on some workloads.\n\n   - BCH_MEMBER_STATE_failed: previously, we would do no IO at all to\n     devices marked as failed. Now we will attempt to read from them,\n     but only if we have no better options.\n\n   - New option, write_error_timeout: devices will be kicked out of the\n     filesystem if all writes have been failing for x number of seconds.\n\n     We now also kick devices out when notified by blk_holder_ops that\n     they've gone offline.\n\n   - Device option handling improvements: the discard option should now\n     be working as expected (additionally, in -tools, all device options\n     that can be set at format time can now be set at device add time,\n     i.e. data_allowed, state).\n\n   - We now try harder to read data after a checksum error: we'll do\n     additional retries if necessary to a device after after it gave us\n     data with a checksum error.\n\n   - More self healing work: the full inode <-> dirent consistency\n     checks that are currently run by fsck are now also run every time\n     we do a lookup, meaning we'll be able to correct errors at runtime.\n     Runtime self healing will be flipped on after the new changes have\n     seen more testing, currently they're just checking for consistency.\n\n   - KMSAN fixes: our KMSAN builds should be nearly clean now, which\n     will put a massive dent in the syzbot dashboard\"\n\n* tag 'bcachefs-2025-03-24' of git://evilpiepirate.org/bcachefs: (180 commits)\n  bcachefs: Kill unnecessary bch2_dev_usage_read()\n  bcachefs: btree node write errors now print btree node\n  bcachefs: Fix race in print_chain()\n  bcachefs: btree_trans_restart_foreign_task()\n  bcachefs: bch2_disk_accounting_mod2()\n  bcachefs: zero init journal bios\n  bcachefs: Eliminate padding in move_bucket_key\n  bcachefs: Fix a KMSAN splat in btree_update_nodes_written()\n  bcachefs: kmsan asserts\n  bcachefs: Fix kmsan warnings in bch2_extent_crc_pack()\n  bcachefs: Disable asm memcpys when kmsan enabled\n  bcachefs: Handle backpointers with unknown data types\n  bcachefs: Count BCH_DATA_parity backpointers correctly\n  bcachefs: Run bch2_check_dirent_target() at lookup time\n  bcachefs: Refactor bch2_check_dirent_target()\n  bcachefs: Move bch2_check_dirent_target() to namei.c\n  bcachefs: fs-common.c -> namei.c\n  bcachefs: EIO cleanup\n  bcachefs: bch2_write_prep_encoded_data() now returns errcode\n  bcachefs: Simplify bch2_write_op_error()\n  ..."
+        }
+      ],
+      "rc2": [
+        {
+          "hash": "ef7785882672e73847fb80f6c39e76998d4db57b",
+          "date": "2025-04-10",
+          "rc": "rc2",
+          "subject": "Merge tag 'bcachefs-2025-04-10' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-04-10",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-04-10' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-04-10' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Mostly minor fixes.\n\n  Eric Biggers' crypto API conversion is included because of long\n  standing sporadic crashes - mostly, but not entirely syzbot - in the\n  crypto API code when calling poly1305, which have been nigh impossible\n  to reproduce and debug.\n\n  His rework deletes the code where we've seen the crashes, so either\n  it'll be a fix or we'll end up with backtraces we can debug. (Thanks\n  Eric!)\"\n\n* tag 'bcachefs-2025-04-10' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Use sort_nonatomic() instead of sort()\n  bcachefs: Remove unnecessary softdep on xxhash\n  bcachefs: use library APIs for ChaCha20 and Poly1305\n  bcachefs: Fix duplicate \"ro,read_only\" in opts at startup\n  bcachefs: Fix UAF in bchfs_read()\n  bcachefs: Use cpu_to_le16 for dirent lengths\n  bcachefs: Fix type for parameter in journal_advance_devs_to_next_bucket\n  bcachefs: Fix escape sequence in prt_printf"
+        }
+      ],
+      "rc3": [
+        {
+          "hash": "9e99c1accb1df0b07e409ce21f15fa4e8ddca28f",
+          "date": "2025-04-17",
+          "rc": "rc3",
+          "subject": "Merge tag 'bcachefs-2025-04-17' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-04-17",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-04-17' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-04-17' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Usual set of small fixes/logging improvements.\n\n  One bigger user reported fix, for inode <-> dirent inconsistencies\n  reported in fsck, after moving a subvolume that had been snapshotted\"\n\n* tag 'bcachefs-2025-04-17' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix snapshotting a subvolume, then renaming it\n  bcachefs: Add missing READ_ONCE() for metadata replicas\n  bcachefs: snapshot_node_missing is now autofix\n  bcachefs: Log message when incompat version requested but not enabled\n  bcachefs: Print version_incompat_allowed on startup\n  bcachefs: Silence extent_poisoned error messages\n  bcachefs: btree_root_unreadable_and_scan_found_nothing now AUTOFIX\n  bcachefs: fix bch2_dev_usage_full_read_fast()\n  bcachefs: Don't print data read retry success on non-errors\n  bcachefs: Add missing error handling\n  bcachefs: Prevent granting write refs when filesystem is read-only"
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "eef0dc0bd432885b2bd4fc7f410ed039bf028e37",
+          "date": "2025-04-25",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2025-04-24' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-04-24",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-04-24' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-04-24' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - Case insensitive directories now work\n\n - Ciemap now correctly reports on unwritten pagecache data\n\n - bcachefs tools 1.25.1 was incorrectly picking unaligned bucket sizes;\n   fix journal and write path bugs this uncovered\n\nAnd assorted smaller fixes...\n\n* tag 'bcachefs-2025-04-24' of git://evilpiepirate.org/bcachefs: (24 commits)\n  bcachefs: Rework fiemap transaction restart handling\n  bcachefs: add fiemap delalloc extent detection\n  bcachefs: refactor fiemap processing into extent helper and struct\n  bcachefs: track current fiemap offset in start variable\n  bcachefs: drop duplicate fiemap sync flag\n  bcachefs: Fix btree_iter_peek_prev() at end of inode\n  bcachefs: Make btree_iter_peek_prev() assert more precise\n  bcachefs: Unit test fixes\n  bcachefs: Print mount opts earlier\n  bcachefs: unlink: casefold d_invalidate\n  bcachefs: Fix casefold lookups\n  bcachefs: Casefold is now a regular opts.h option\n  bcachefs: Implement fileattr_(get|set)\n  bcachefs: Allocator now copes with unaligned buckets\n  bcachefs: Start copygc, rebalance threads earlier\n  bcachefs: Refactor bch2_run_recovery_passes()\n  bcachefs: bch2_copygc_wakeup()\n  bcachefs: Fix ref leak in write_super()\n  bcachefs: Change __journal_entry_close() assert to ERO\n  bcachefs: Ensure journal space is block size aligned\n  ..."
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "2bfcee565c3a36f2781152a767d34c9dc5432f95",
+          "date": "2025-05-02",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2025-05-01' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-05-01",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-05-01' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-05-01' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Lots of assorted small fixes...\n\n   - Some repair path fixes, a fix for -ENOMEM when reconstructing lots\n     of alloc info on large filesystems, upgrade for ancient 0.14\n     filesystems, etc.\n\n   - Various assert tweaks; assert -> ERO, ERO -> log the error in the\n     superblock and continue\n\n   - casefolding now uses d_ops like on other casefolding filesystems\n\n   - fix device label create on device add, fix bucket array resize on\n     filesystem resize\n\n   - fix xattrs with FORTIFY_SOURCE builds with gcc-15/clang\"\n\n* tag 'bcachefs-2025-05-01' of git://evilpiepirate.org/bcachefs: (22 commits)\n  bcachefs: Remove incorrect __counted_by annotation\n  bcachefs: add missing sched_annotate_sleep()\n  bcachefs: Fix __bch2_dev_group_set()\n  bcachefs: Kill ERO for i_blocks check in truncate\n  bcachefs: check for inode.bi_sectors underflow\n  bcachefs: Kill ERO in __bch2_i_sectors_acct()\n  bcachefs: readdir fixes\n  bcachefs: improve missing journal write device error message\n  bcachefs: Topology error after insert is now an ERO\n  bcachefs: Use bch2_kvmalloc() for journal keys array\n  bcachefs: More informative error message when shutting down due to error\n  bcachefs: btree_root_unreadable_and_scan_found_nothing autofix for non data btrees\n  bcachefs: btree_node_data_missing is now autofix\n  bcachefs: Don't generate alloc updates to invalid buckets\n  bcachefs: Improve bch2_dev_bucket_missing()\n  bcachefs: fix bch2_dev_buckets_resize()\n  bcachefs: Add upgrade table entry from 0.14\n  bcachefs: Run BCH_RECOVERY_PASS_reconstruct_snapshots on missing subvol -> snapshot\n  bcachefs: Add missing utf8_unload()\n  bcachefs: Emit unicode version message on startup\n  ..."
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "9c69f88849045499e8ad114e5e13dbb3c85f4443",
+          "date": "2025-05-08",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2025-05-08' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-05-08",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-05-08' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-05-08' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - Some fixes to help with filesystem analysis: ensure superblock\n   error count gets written if we go ERO, don't discard the journal\n   aggressively (so it's available for list_journal -a)\n\n - Fix lost wakeup on arm causing us to get stuck when reading btree\n   nodes\n\n - Fix fsck failing to exit on ctrl-c\n\n - An additional fix for filesystems with misaligned bucket sizes: we\n   now ensure that allocations are properly aligned\n\n - Setting background target but not promote target will now leave that\n   data cached on the foreground target, as it used to\n\n - Revert a change to when we allocate the VFS superblock, this was done\n   for implementing blk_holder_ops but ended up not being needed, and\n   allocating a superblock and not setting SB_BORN while we do recovery\n   caused sync() calls and other things to hang\n\n - Assorted fixes for harmless error messages that caused concern to\n   users\n\n* tag 'bcachefs-2025-05-08' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Don't aggressively discard the journal\n  bcachefs: Ensure superblock gets written when we go ERO\n  bcachefs: Filter out harmless EROFS error messages\n  bcachefs: journal_shutdown is EROFS, not EIO\n  bcachefs: Call bch2_fs_start before getting vfs superblock\n  bcachefs: fix hung task timeout in journal read\n  bcachefs: Add missing barriers before wake_up_bit()\n  bcachefs: Ensure proper write alignment\n  bcachefs: Improve want_cached_ptr()\n  bcachefs: thread_with_stdio: fix spinning instead of exiting"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "fee3e843b309444f48157e2188efa6818bae85cf",
+          "date": "2025-05-15",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2025-05-15' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-05-15",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-05-15' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-05-15' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"The main user reported ones are:\n\n   - Fix a btree iterator locking inconsistency that's been causing us\n     to go emergency read-only in evacuate: \"Fix broken btree_path lock\n     invariants in next_node()\"\n\n   - Minor btree node cache reclaim tweak that should help with OOMs:\n     don't set btree nodes as accessed on fill\n\n   - Fix a bch2_bkey_clear_rebalance() issue that was causing rebalance\n     to do needless work\"\n\n* tag 'bcachefs-2025-05-15' of git://evilpiepirate.org/bcachefs:\n  bcachefs: fix wrong arg to fsck_err()\n  bcachefs: Fix missing commit in backpointer to missing target\n  bcachefs: Fix accidental O(n^2) in fiemap\n  bcachefs: Fix set_should_be_locked() call in peek_slot()\n  bcachefs: Fix self deadlock\n  bcachefs: Don't set btree nodes as accessed on fill\n  bcachefs: Fix livelock in journal_entry_open()\n  bcachefs: Fix broken btree_path lock invariants in next_node()\n  bcachefs: Don't strip rebalance_opts from indirect extents"
+        }
+      ],
+      "final": [
+        {
+          "hash": "040c0f6a187162f082578b431b5919856c3df820",
+          "date": "2025-05-22",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2025-05-22' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-05-22",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-05-22' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-05-22' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"Small stuff, main ones users will be interested in:\n\n   - Couple more casefolding fixes; we can now detect and repair\n     casefolded dirents in non-casefolded dir and vice versa\n\n   - Fix for massive write inflation with mmapped io, which hit certain\n     databases\"\n\n* tag 'bcachefs-2025-05-22' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Check for casefolded dirents in non casefolded dirs\n  bcachefs: Fix bch2_dirent_create_snapshot() for casefolding\n  bcachefs: Fix casefold opt via xattr interface\n  bcachefs: mkwrite() now only dirties one page\n  bcachefs: fix extent_has_stripe_ptr()\n  bcachefs: Fix bch2_btree_path_traverse_cached() when paths realloced"
+        }
+      ]
+    }
+  },
+  {
+    "kernel_version": "6.16",
+    "merges": {
+      "rc1": [
+        {
+          "hash": "ff0905bbf991f4337b5ebc19c0d43525ebb0d96b",
+          "date": "2025-06-04",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2025-06-04' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-06-04",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-06-04' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-06-04' of git://evilpiepirate.org/bcachefs\n\nPull more bcachefs updates from Kent Overstreet:\n \"More bcachefs updates:\n\n   - More stack usage improvements (~600 bytes)\n\n   - Define CLASS()es for some commonly used types, and convert most\n     rcu_read_lock() uses to the new lock guards\n\n   - New introspection:\n       - Superblock error counters are now available in sysfs:\n         previously, they were only visible with 'show-super', which\n         doesn't provide a live view\n       - New tracepoint, error_throw(), which is called any time we\n         return an error and start to unwind\n\n   - Repair\n       - check_fix_ptrs() can now repair btree node roots\n       - We can now repair when we've somehow ended up with the journal\n         using a superblock bucket\n\n   - Revert some leftovers from the aborted directory i_size feature,\n     and add repair code: some userspace programs (e.g. sshfs) were\n     getting confused\n\n  It seems in 6.15 there's a bug where i_nlink on the vfs inode has been\n  getting incorrectly set to 0, with some unfortunate results;\n  list_journal analysis showed bch2_inode_rm() being called (by\n  bch2_evict_inode()) when it clearly should not have been.\n\n   - bch2_inode_rm() now runs \"should we be deleting this inode?\" checks\n     that were previously only run when deleting unlinked inodes in\n     recovery\n\n   - check_subvol() was treating a dangling subvol (pointing to a\n     missing root inode) like a dangling dirent, and deleting it. This\n     was the really unfortunate one: check_subvol() will now recreate\n     the root inode if necessary\n\n  This took longer to debug than it should have, and we lost several\n  filesystems unnecessarily, because users have been ignoring the\n  release notes and blindly running 'fsck -y'. Debugging required\n  reconstructing what happened through analyzing the journal, when\n  ideally someone would have noticed 'hey, fsck is asking me if I want\n  to repair this: it usually doesn't, maybe I should run this in dry run\n  mode and check what's going on?'\n\n  As a reminder, fsck errors are being marked as autofix once we've\n  verified, in real world usage, that they're working correctly; blindly\n  running 'fsck -y' on an experimental filesystem is playing with fire\n\n  Up to this incident we've had an excellent track record of not losing\n  data, so let's try to learn from this one\n\n  This is a community effort, I wouldn't be able to get this done\n  without the help of all the people QAing and providing excellent bug\n  reports and feedback based on real world usage. But please don't\n  ignore advice and expect me to pick up the pieces\n\n  If an error isn't marked as autofix, and it /is/ happening in the\n  wild, that's also something I need to know about so we can check it\n  out and add it to the autofix list if repair looks good. I haven't\n  been getting those reports, and I should be; since we don't have any\n  sort of telemetry yet I am absolutely dependent on user reports\n\n  Now I'll be spending the weekend working on new repair code to see if\n  I can get a filesystem back for a user who didn't have backups\"\n\n* tag 'bcachefs-2025-06-04' of git://evilpiepirate.org/bcachefs: (69 commits)\n  bcachefs: add cond_resched() to handle_overwrites()\n  bcachefs: Make journal read log message a bit quieter\n  bcachefs: Fix subvol to missing root repair\n  bcachefs: Run may_delete_deleted_inode() checks in bch2_inode_rm()\n  bcachefs: delete dead code from may_delete_deleted_inode()\n  bcachefs: Add flags to subvolume_to_text()\n  bcachefs: Fix oops in btree_node_seq_matches()\n  bcachefs: Fix dirent_casefold_mismatch repair\n  bcachefs: Fix bch2_fsck_rename_dirent() for casefold\n  bcachefs: Redo bch2_dirent_init_name()\n  bcachefs: Fix -Wc23-extensions in bch2_check_dirents()\n  bcachefs: Run check_dirents second time if required\n  bcachefs: Run snapshot deletion out of system_long_wq\n  bcachefs: Make check_key_has_snapshot safer\n  bcachefs: BCH_RECOVERY_PASS_NO_RATELIMIT\n  bcachefs: bch2_require_recovery_pass()\n  bcachefs: bch_err_throw()\n  bcachefs: Repair code for directory i_size\n  bcachefs: Kill un-reverted directory i_size code\n  bcachefs: Delete redundant fsck_err()\n  ..."
+        },
+        {
+          "hash": "522544fc71c27b4b432386c7919f71ecc79a3bfb",
+          "date": "2025-05-26",
+          "rc": "rc1",
+          "subject": "Merge tag 'bcachefs-2025-05-24' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-05-24",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-05-24' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-05-24' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs updates from Kent Overstreet:\n\n - Poisoned extents can now be moved: this lets us handle bitrotted data\n   without deleting it. For now, reading from poisoned extents only\n   returns -EIO: in the future we'll have an API for specifying \"read\n   this data even if there were bitflips\".\n\n - Incompatible features may now be enabled at runtime, via\n   \"opts/version_upgrade\" in sysfs. Toggle it to incompatible, and then\n   toggle it back - option changes via the sysfs interface are\n   persistent.\n\n - Various changes to support deployable disk images:\n\n     - RO mounts now use less memory\n\n     - Images may be stripped of alloc info, particularly useful for\n       slimming them down if they will primarily be mounted RO. Alloc\n       info will be automatically regenerated on first RW mount, and\n       this is quite fast\n\n     - Filesystem images generated with 'bcachefs image' will be\n       automatically resized the first time they're mounted on a larger\n       device\n\n   The images 'bcachefs image' generates with compression enabled have\n   been comparable in size to those generated by squashfs and erofs -\n   but you get a full RW capable filesystem\n\n - Major error message improvements for btree node reads, data reads,\n   and elsewhere. We now build up a single error message that lists all\n   the errors encountered, actions taken to repair, and success/failure\n   of the IO. This extends to other error paths that may kick off other\n   actions, e.g. scheduling recovery passes: actions we took because of\n   an error are included in that error message, with\n   grouping/indentation so we can see what caused what.\n\n - New option, 'rebalance_on_ac_only'. Does exactly what the name\n   suggests, quite handy with background compression.\n\n - Repair/self healing:\n\n     - We can now kick off recovery passes and run them in the\n       background if we detect errors. Currently, this is just used by\n       code that walks backpointers. We now also check for missing\n       backpointers at runtime and run check_extents_to_backpointers if\n       required. The messy 6.14 upgrade left missing backpointers for\n       some users, and this will correct that automatically instead of\n       requiring a manual fsck - some users noticed this as copygc\n       spinning and not making progress.\n\n       In the future, as more recovery passes come online, we'll be able\n       to repair and recover from nearly anything - except for\n       unreadable btree nodes, and that's why you're using replication,\n       of course - without shutting down the filesystem.\n\n     - There's a new recovery pass, for checking the rebalance_work\n       btree, which tracks extents that rebalance will process later.\n\n - Hardening:\n\n     - Close the last known hole in btree iterator/btree locking\n       assertions: path->should_be_locked paths must stay locked until\n       the end of the transaction. This shook out a few bugs, including\n       a performance issue that was causing unnecessary path_upgrade\n       transaction restarts.\n\n - Performance:\n\n     - Faster snapshot deletion: this is an incompatible feature, as it\n       requires new sentinal values, for safety. Snapshot deletion no\n       longer has to do a full metadata scan, it now just scans the\n       inodes btree: if an extent/dirent/xattr is present for a given\n       snapshot ID, we already require that an inode be present with\n       that same snapshot ID.\n\n       If/when users hit scalability limits again (ridiculously huge\n       filesystems with lots of inodes, and many sparse snapshots), let\n       me know - the next step will be to add an index from snapshot ID\n       -> inode number, which won't be too hard.\n\n     - Faster device removal: the \"scan for pointers to this device\" no\n       longer does a full metadata scan, instead it walks backpointers.\n       Like fast snapshot deletion this is another incompat feature: it\n       also requires a new sentinal value, because we don't want to\n       reuse these device IDs until after a fsck.\n\n     - We're now coalescing redundant accounting updates prior to\n       transaction commit, taking some pressure off the journal. Shortly\n       we'll also be doing multiple extent updates in a transaction in\n       the main write path, which combined with the previous should\n       drastically cut down on the amount of metadata updates we have to\n       journal.\n\n - Stack usage improvements: All allocator state has been moved off the\n   stack\n\n - Debug improvements:\n\n     - enumerated refcounts: The debug code previously used for\n       filesystem write refs is now a small library, and used for other\n       heavily used refcounts. Different users of a refcount are\n       enumerated, making it much easier to debug refcount issues.\n\n     - Async object debugging: There's a new kconfig option that makes\n       various async objects (different types of bios, data updates,\n       write ops, etc.) visible in debugfs, and it should be fast enough\n       to leave on in production.\n\n     - Various sets of assertions no longer require\n       CONFIG_BCACHEFS_DEBUG, instead they're controlled by module\n       parameters and static keys, meaning users won't need to compile\n       custom kernels as often to help debug issues.\n\n     - bch2_trans_kmalloc() calls can be tracked (there's a new kconfig\n       option). With it on you can check the btree_transaction_stats in\n       debugfs to see the bch2_trans_kmalloc() calls a transaction did\n       when it used the most memory.\n\n* tag 'bcachefs-2025-05-24' of git://evilpiepirate.org/bcachefs: (218 commits)\n  bcachefs: Don't mount bs > ps without TRANSPARENT_HUGEPAGE\n  bcachefs: Fix btree_iter_next_node() for new locking asserts\n  bcachefs: Ensure we don't use a blacklisted journal seq\n  bcachefs: Small check_fix_ptr fixes\n  bcachefs: Fix opts.recovery_pass_last\n  bcachefs: Fix allocate -> self healing path\n  bcachefs: Fix endianness in casefold check/repair\n  bcachefs: Path must be locked if trans->locked && should_be_locked\n  bcachefs: Simplify bch2_path_put()\n  bcachefs: Plumb btree_trans for more locking asserts\n  bcachefs: Clear trans->locked before unlock\n  bcachefs: Clear should_be_locked before unlock in key_cache_drop()\n  bcachefs: bch2_path_get() reuses paths if upgrade_fails & !should_be_locked\n  bcachefs: Give out new path if upgrade fails\n  bcachefs: Fix btree_path_get_locks when not doing trans restart\n  bcachefs: btree_node_locked_type_nowrite()\n  bcachefs: Kill bch2_path_put_nokeep()\n  bcachefs: bch2_journal_write_checksum()\n  bcachefs: Reduce stack usage in data_update_index_update()\n  bcachefs: bch2_trans_log_str()\n  ..."
+        }
+      ],
+      "rc2": [
+        {
+          "hash": "36df6f734a7ad69880c5262543165c47cb57169f",
+          "date": "2025-06-13",
+          "rc": "rc2",
+          "subject": "Merge tag 'bcachefs-2025-06-12' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-06-12",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-06-12' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-06-12' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"As usual, highlighting the ones users have been noticing:\n\n   - Fix a small issue with has_case_insensitive not being propagated on\n     snapshot creation; this led to fsck errors, which we're harmless\n     because we're not using this flag yet (it's for overlayfs +\n     casefolding).\n\n   - Log the error being corrected in the journal when we're doing fsck\n     repair: this was one of the \"lessons learned\" from the i_nlink 0 ->\n     subvolume deletion bug, where reconstructing what had happened by\n     analyzing the journal was a bit more difficult than it needed to\n     be.\n\n   - Don't schedule btree node scan to run in the superblock: this fixes\n     a regression from the 6.16 recovery passes rework, and let to it\n     running unnecessarily.\n\n     The real issue here is that we don't have online, \"self healing\"\n     style topology repair yet: topology repair currently has to run\n     before we go RW, which means that we may schedule it unnecessarily\n     after a transient error. This will be fixed in the future.\n\n   - We now track, in btree node flags, the reason it was scheduled to\n     be rewritten. We discovered a deadlock in recovery when many btree\n     nodes need to be rewritten because they're degraded: fully fixing\n     this will take some work but it's now easier to see what's going\n     on.\n\n     For the bug report where this came up, a device had been kicked RO\n     due to transient errors: manually setting it back to RW was\n     sufficient to allow recovery to succeed.\n\n   - Mark a few more fsck errors as autofix: as a reminder to users,\n     please do keep reporting cases where something needs to be repaired\n     and is not repaired automatically (i.e. cases where -o fix_errors\n     or fsck -y is required).\n\n   - rcu_pending.c now works with PREEMPT_RT\n\n   - 'bcachefs device add', then umount, then remount wasn't working -\n     we now emit a uevent so that the new device's new superblock is\n     correctly picked up\n\n   - Assorted repair fixes: btree node scan will no longer incorrectly\n     update sb->version_min,\n\n   - Assorted syzbot fixes\"\n\n* tag 'bcachefs-2025-06-12' of git://evilpiepirate.org/bcachefs: (23 commits)\n  bcachefs: Don't trace should_be_locked unless changing\n  bcachefs: Ensure that snapshot creation propagates has_case_insensitive\n  bcachefs: Print devices we're mounting on multi device filesystems\n  bcachefs: Don't trust sb->nr_devices in members_to_text()\n  bcachefs: Fix version checks in validate_bset()\n  bcachefs: ioctl: avoid stack overflow warning\n  bcachefs: Don't pass trans to fsck_err() in gc_accounting_done\n  bcachefs: Fix leak in bch2_fs_recovery() error path\n  bcachefs: Fix rcu_pending for PREEMPT_RT\n  bcachefs: Fix downgrade_table_extra()\n  bcachefs: Don't put rhashtable on stack\n  bcachefs: Make sure opts.read_only gets propagated back to VFS\n  bcachefs: Fix possible console lock involved deadlock\n  bcachefs: mark more errors autofix\n  bcachefs: Don't persistently run scan_for_btree_nodes\n  bcachefs: Read error message now prints if self healing\n  bcachefs: Only run 'increase_depth' for keys from btree node csan\n  bcachefs: Mark need_discard_freespace_key_bad autofix\n  bcachefs: Update /dev/disk/by-uuid on device add\n  bcachefs: Add more flags to btree nodes for rewrite reason\n  ..."
+        }
+      ],
+      "rc4": [
+        {
+          "hash": "6f2a71a99ebd5dfaa7948a2e9c59eae94b741bd8",
+          "date": "2025-06-26",
+          "rc": "rc4",
+          "subject": "Merge tag 'bcachefs-2025-06-26' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-06-26",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-06-26' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-06-26' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - Lots of small check/repair fixes, primarily in subvol loop and\n   directory structure loop (when involving snapshots).\n\n - Fix a few 6.16 regressions: rare UAF in the foreground allocator path\n   when taking a transaction restart from the transaction bump\n   allocator, and some small fallout from the change to log the error\n   being corrected in the journal when repairing errors, also some\n   fallout from the btree node read error logging improvements.\n\n   (Alan, Bharadwaj)\n\n - New option: journal_rewind\n\n   This lets the entire filesystem be reset to an earlier point in time.\n\n   Note that this is only a disaster recovery tool, and right now there\n   are major caveats to using it (discards should be disabled, in\n   particular), but it successfully restored the filesystem of one of\n   the users who was bit by the subvolume deletion bug and didn't have\n   backups. I'll likely be making some changes to the discard path in\n   the future to make this a reliable recovery tool.\n\n - Some new btree iterator tracepoints, for tracking down some\n   livelock-ish behaviour we've been seeing in the main data write path.\n\n* tag 'bcachefs-2025-06-26' of git://evilpiepirate.org/bcachefs: (51 commits)\n  bcachefs: Plumb correct ip to trans_relock_fail tracepoint\n  bcachefs: Ensure we rewind to run recovery passes\n  bcachefs: Ensure btree node scan runs before checking for scanned nodes\n  bcachefs: btree_root_unreadable_and_scan_found_nothing should not be autofix\n  bcachefs: fix bch2_journal_keys_peek_prev_min() underflow\n  bcachefs: Use wait_on_allocator() when allocating journal\n  bcachefs: Check for bad write buffer key when moving from journal\n  bcachefs: Don't unlock the trans if ret doesn't match BCH_ERR_operation_blocked\n  bcachefs: Fix range in bch2_lookup_indirect_extent() error path\n  bcachefs: fix spurious error_throw\n  bcachefs: Add missing bch2_err_class() to fileattr_set()\n  bcachefs: Add missing key type checks to check_snapshot_exists()\n  bcachefs: Don't log fsck err in the journal if doing repair elsewhere\n  bcachefs: Fix *__bch2_trans_subbuf_alloc() error path\n  bcachefs: Fix missing newlines before ero\n  bcachefs: fix spurious error in read_btree_roots()\n  bcachefs: fsck: Fix oops in key_visible_in_snapshot()\n  bcachefs: fsck: fix unhandled restart in topology repair\n  bcachefs: fsck: Fix check_directory_structure when no check_dirents\n  bcachefs: Fix restart handling in btree_node_scrub_work()\n  ..."
+        }
+      ],
+      "rc5": [
+        {
+          "hash": "482deed9dfa065cf3f68372dadac857541c7d504",
+          "date": "2025-07-04",
+          "rc": "rc5",
+          "subject": "Merge tag 'bcachefs-2025-07-03' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-07-03",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-07-03' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-07-03' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"The 'opts.casefold_disabled' patch is non critical, but would be a\n  6.15 backport; it's to address the casefolding + overlayfs\n  incompatibility that was discovvered late.\n\n  It's late because I was hoping that this would be addressed on the\n  overlayfs side (and will be in 6.17), but user reports keep coming in\n  on this one (lots of people are using docker these days)\"\n\n* tag 'bcachefs-2025-07-03' of git://evilpiepirate.org/bcachefs:\n  bcachefs: opts.casefold_disabled\n  bcachefs: Work around deadlock to btree node rewrites in journal replay\n  bcachefs: Fix incorrect transaction restart handling\n  bcachefs: fix btree_trans_peek_prev_journal()\n  bcachefs: mark invalid_btree_id autofix"
+        }
+      ],
+      "rc6": [
+        {
+          "hash": "4412b8b23de24a94a0b78ac283db043c833a3975",
+          "date": "2025-07-12",
+          "rc": "rc6",
+          "subject": "Merge tag 'bcachefs-2025-07-11' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-07-11",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-07-11' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-07-11' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet.\n\n* tag 'bcachefs-2025-07-11' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Don't set BCH_FS_error on transaction restart\n  bcachefs: Fix additional misalignment in journal space calculations\n  bcachefs: Don't schedule non persistent passes persistently\n  bcachefs: Fix bch2_btree_transactions_read() synchronization\n  bcachefs: btree read retry fixes\n  bcachefs: btree node scan no longer uses btree cache\n  bcachefs: Tweak btree cache helpers for use by btree node scan\n  bcachefs: Fix btree for nonexistent tree depth\n  bcachefs: Fix bch2_io_failures_to_text()\n  bcachefs: bch2_fpunch_snapshot()"
+        }
+      ],
+      "rc7": [
+        {
+          "hash": "d3d16f31d7b305df46080a95f2d254f78e04d588",
+          "date": "2025-07-18",
+          "rc": "rc7",
+          "subject": "Merge tag 'bcachefs-2025-07-17' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-07-17",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-07-17' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-07-17' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n\n - two small syzbot fixes\n\n - fix discard behaviour regression; we no longer wait until the number\n   of buckets needing discard is greater than the number of buckets\n   available before kicking off discards\n\n - fix a fast_list leak when async object debugging is enabled\n\n - fixes for casefolding when CONFIG_UTF8 != y\n\n* tag 'bcachefs-2025-07-17' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Fix bch2_maybe_casefold() when CONFIG_UTF8=n\n  bcachefs: Fix build when CONFIG_UNICODE=n\n  bcachefs: Fix reference to invalid bucket in copygc\n  bcachefs: Don't build aux search tree when still repairing node\n  bcachefs: Tweak threshold for allocator triggering discards\n  bcachefs: Fix triggering of discard by the journal path\n  bcachefs: io_read: remove from async obj list in rbio_done()"
+        }
+      ],
+      "final": [
+        {
+          "hash": "bef3012b2f6814af2b5c5abd6b5f85921dbb8a01",
+          "date": "2025-07-25",
+          "rc": "final",
+          "subject": "Merge tag 'bcachefs-2025-07-24' of git://evilpiepirate.org/bcachefs",
+          "source_tag": "bcachefs-2025-07-24",
+          "source_repo": "git://evilpiepirate.org/bcachefs",
+          "full_commit_message": "Merge tag 'bcachefs-2025-07-24' of git://evilpiepirate.org/bcachefs\n\nMerge tag 'bcachefs-2025-07-24' of git://evilpiepirate.org/bcachefs\n\nPull bcachefs fixes from Kent Overstreet:\n \"User reported fixes:\n\n   - Fix btree node scan on encrypted filesystems by not using btree\n     node header fields encrypted\n\n   - Fix a race in btree write buffer flush; this caused EROs primarily\n     during fsck for some people\"\n\n* tag 'bcachefs-2025-07-24' of git://evilpiepirate.org/bcachefs:\n  bcachefs: Add missing snapshots_seen_add_inorder()\n  bcachefs: Fix write buffer flushing from open journal entry\n  bcachefs: btree_node_scan: don't re-read before initializing found_btree_node"
+        }
+      ]
+    }
+  }
+]

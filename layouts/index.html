@@ -14,6 +14,7 @@
         {{ range first 5 (where .Site.RegularPages "Section" "news") }}
           <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
         {{ end }}
+        <li><a href='{{ relref . "/news/_index.md" }}'>More news…</a></li>
       </ul>
     </article>
     <aside>
@@ -21,4 +22,3 @@
     </aside>
   </div>
 {{ end }}
-

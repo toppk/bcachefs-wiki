@@ -337,6 +337,35 @@ li p {
 
 .feed-links .sep { margin: 0 .35rem; color: #9aa1aa; }
 
+/* Emergency banner */
+.emergency-banner { 
+    border-bottom: 1px solid #e2e8dc; 
+}
+.emergency-banner .container {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem 1rem;
+}
+.emergency-banner .banner-icon { display: flex; align-items: center; }
+.emergency-banner .banner-icon svg { width: 1.1rem; height: 1.1rem; }
+.emergency-banner .banner-content { flex: 1 1 auto; }
+.emergency-banner .banner-dismiss {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,.15);
+    color: inherit;
+    padding: .25rem .5rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.emergency-banner .banner-dismiss:hover,
+.emergency-banner .banner-dismiss:focus { background: rgba(255,255,255,.2); }
+.emergency-banner.hidden { display: none; }
+/* Levels */
+.emergency-banner.level-info    { background: #eef6ff; color: #0b3a6f; }
+.emergency-banner.level-warning { background: #fff8e6; color: #5b3b00; }
+.emergency-banner.level-danger  { background: #ffebee; color: #6f0b1a; }
+
 /* Mobile layout adjustments */
 @media (max-width: 900px) {
   .site-header .nav-inner { flex-wrap: wrap; align-items: center; }

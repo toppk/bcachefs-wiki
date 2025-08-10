@@ -1,0 +1,155 @@
+{{/*
+  Emergency Banner Partial
+  ------------------------
+
+  Purpose
+  - Render a site-wide notice banner under the nav bar.
+  - Dismissible by the user; dismissal is session-only (does not survive browser restart).
+
+  Activation sources (priority order)
+  1) Site config: .Site.Params.emergency
+     - enabled: true|false
+     - id: unique string to identify this notice for dismissal matching
+     - scope: "all" (default) or "home"
+     - level: "info" (default) | "warning" | "danger"
+     - text: plain text content
+     - html: HTML content (wins over text)
+  2) Content page: content/announcement.md (always present in repo)
+     - Content-only model: requires BOTH
+       - banner: true (explicit enable)
+       - non-empty body content (the page body is rendered into the banner)
+     - Optional fields: banner_id, banner_scope, banner_level
+
+  Scope
+  - scope = "all": banner shows on every page (including home).
+  - scope = "home": banner shows on the landing page only.
+
+  Dismissal (session-only)
+  - Uses sessionStorage key "emergencyDismissed" with value = current banner_id.
+  - If the stored id equals the active banner_id, the banner is hidden.
+  - sessionStorage is per-tab and not persisted across browser restarts.
+  - To re-show for everyone during an active session, change the banner_id in
+    config or content so it no longer matches stored value.
+
+  URL controls (for easy testing/debugging)
+  - ?show_announcement=1   -> force show even if dismissed
+  - ?reset_announcement=1  -> clear dismissal for this session
+  - ?reset_announcement=all-> same as above (single key)
+*/}}
+
+{{ $cfg := .Site.Params.emergency }}
+{{ $page := site.GetPage "page" "announcement" }}
+
+{{ $s := newScratch }}
+{{ $s.Set "enabled" false }}
+
+{{/* 1) If config explicitly enables, use it */}}
+{{ if and $cfg $cfg.enabled }}
+  {{ $s.Set "enabled" true }}
+  {{ $s.Set "scope" (or $cfg.scope "all") }}
+  {{ $s.Set "id"    (or $cfg.id "default") }}
+  {{ $s.Set "level" (or $cfg.level "info") }}
+  {{ if $cfg.html }}
+    {{ $s.Set "html" ($cfg.html | safeHTML) }}
+  {{ else if $cfg.text }}
+    {{ $s.Set "text" $cfg.text }}
+  {{ end }}
+{{ else }}
+  {{/* 2) Otherwise, check for content/announcement.md */}}
+  {{ with $page }}
+    {{ $hasFlag := or (.Params.banner) false }}
+    {{ $hasBody := gt (len (plainify .Content)) 0 }}
+    {{ if and $hasFlag $hasBody }}
+      {{ $s.Set "enabled" true }}
+      {{ $s.Set "scope" (or .Params.banner_scope "all") }}
+      {{ $s.Set "id"    (or .Params.banner_id "announcement") }}
+      {{ $s.Set "level" (or .Params.banner_level "info") }}
+      {{ $s.Set "html" (.Content | safeHTML) }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ if $s.Get "enabled" }}
+  {{ $scope := $s.Get "scope" }}
+  {{ if or (eq $scope "all") (and (eq $scope "home") .IsHome) }}
+    {{ $id := $s.Get "id" }}
+    {{ $level := $s.Get "level" }}
+    <div class="emergency-banner level-{{ $level }}" data-emergency-id="{{ $id }}" role="region" aria-label="Site notice">
+      <div class="container">
+        <div class="banner-icon" aria-hidden="true">
+          {{ if eq $level "danger" }}
+            <!-- Danger icon: filled octagon with exclamation -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2z" fill="currentColor"></path>
+              <line x1="12" y1="7" x2="12" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"></line>
+              <circle cx="12" cy="17" r="1.2" fill="#fff"></circle>
+            </svg>
+          {{ else if eq $level "warning" }}
+            <!-- Warning icon: triangle exclamation -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          {{ else }}
+            <!-- Info icon: circle i -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          {{ end }}
+        </div>
+        <div class="banner-content">
+          {{ with ($s.Get "html") }}
+            {{ . }}
+          {{ else }}
+            <p></p>
+          {{ end }}
+        </div>
+        <button class="banner-dismiss" type="button" aria-label="Dismiss notice" title="Dismiss">Dismiss</button>
+      </div>
+    </div>
+    <script>
+      (function() {
+        try {
+          var banner = document.querySelector('.emergency-banner[data-emergency-id="{{ $id }}"]');
+          if (!banner) return;
+          var key = 'emergencyDismissed';
+          var currentId = banner.getAttribute('data-emergency-id');
+          var params = new URLSearchParams(window.location.search || '');
+
+          // Optional controls via URL params:
+          //  - ?show_announcement=1   -> ignore dismissal and show
+          //  - ?reset_announcement=1  -> clear dismissal for this session
+          //  - ?reset_announcement=all-> clear dismissal for this session
+          var reset = params.get('reset_announcement');
+          if (reset === '1') {
+            sessionStorage.removeItem(key);
+          } else if (reset === 'all') {
+            sessionStorage.removeItem(key);
+          }
+
+          var forceShow = params.get('show_announcement') === '1';
+          var dismissedId = sessionStorage.getItem(key);
+          // NOTE: Using sessionStorage ensures dismissal doesn't persist across
+          // a full browser restart. A new session means no stored value.
+          if (dismissedId === currentId && !forceShow) {
+            banner.classList.add('hidden');
+          }
+          var btn = banner.querySelector('.banner-dismiss');
+          if (btn) {
+            btn.addEventListener('click', function() {
+              // Store only the active banner id; a single key is sufficient
+              // because only one announcement is active at a time.
+              sessionStorage.setItem(key, currentId);
+              banner.classList.add('hidden');
+            });
+          }
+        } catch (e) {
+          // If sessionStorage is unavailable, fail open (banner stays visible)
+        }
+      })();
+    </script>
+  {{ end }}
+{{ end }}

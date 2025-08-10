@@ -1,6 +1,7 @@
 +++
 title = "News"
 slug = "news"
+url = "/News/"
 section_footer = "Older posts will be collected into an archive as this section grows."
 +++
 

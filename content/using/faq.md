@@ -30,8 +30,9 @@ Bcachefs currently does not support data deduplication however compression is su
 ## Are there any limitations or known issues with bcachefs?
 
 Information on current bugs within bcachefs and related tooling can be found here:
-[bcachefs bugs](https://github.com/koverstreet/bcachefs/issues)
-[bcachefs-tools bugs](https://github.com/koverstreet/bcachefs-tools/issues)
+
+* [bcachefs bugs](https://github.com/koverstreet/bcachefs/issues)
+* [bcachefs-tools bugs](https://github.com/koverstreet/bcachefs-tools/issues)
 
 Our Todo list can be found here: [Wishlist]({{< relref "developer/wishlist.md" >}})
 
@@ -50,6 +51,7 @@ Bcachefs is primarily for multi-device filesystems.
 ## How do I contribute to the bcachefs project?
 
 Information on contributions can be found here: [Contributing]({{< relref "developer/contributing.md" >}})
+
 Join the [IRC]({{< relref "developer/irc.md" >}}) channel and chat with other contributors
 
 ## Do I have to reformat my bcache drive to use the new bcachefs ?

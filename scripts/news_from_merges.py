@@ -99,34 +99,48 @@ def build_markdown(kernel: str, rec: Dict[str, Any], title: str, date_iso: str) 
         header = rc.upper() if rc.startswith("rc") else rc
         lines.append(f"## {header}")
         lines.append("")
-        def add_merge(m: Dict[str, Any]):
+        def parse_ymd(s: str) -> dt.datetime:
+            try:
+                return dt.datetime.strptime(s, "%Y-%m-%d")
+            except Exception:
+                # Put unknown dates at the end while keeping stable order
+                return dt.datetime.max
+
+        # Sort merges within each RC by date ascending (earliest first)
+        merges_sorted = sorted(merges, key=lambda m: (parse_ymd(m.get("date", "")), m.get("subject", "")))
+
+        # Each merge renders as a bullet with links, plus a collapsible block
+        # attached to the list item containing the full commit message.
+        for idx, m in enumerate(merges_sorted):
             date = m.get("date", "")
             subj = m.get("subject", "")
             h = m.get("hash", "")
             body = (m.get("full_commit_message") or "").rstrip("\n")
+            # Hide the subject line in the details body if it matches the bullet
+            if body:
+                blines = body.splitlines()
+                if blines and blines[0].strip() == subj.strip():
+                    blines = blines[1:]
+                    # Drop a leading blank line if present after removing subject
+                    while blines and not blines[0].strip():
+                        blines = blines[1:]
+                body = "\n".join(blines)
             url = f"https://git.kernel.org/torvalds/c/{h}" if h else ""
-            lines.append(f"- {date}: {subj}{f' ([commit]({url}))' if url else ''}")
+            bullet = f"- **{date}**: {subj}{f' ([commit]({url}))' if url else ''}"
+            lines.append(bullet)
+            # Indent the details block so it is part of the list item
+            # Expand the first merge only for RC1; others start collapsed
+            open_attr = " open" if (rc == "rc1" and idx == 0) else ""
+            lines.append(f"  <details{open_attr}>")
+            lines.append("  <summary>Show full message</summary>")
             if body:
                 lines.append("")
-                lines.append("```text")
-                lines.extend(body.splitlines())
-                lines.append("```")
-                lines.append("")
-
-        if rc == "rc1":
-            # rc1 is the headline; show in full including full body
-            for m in merges:
-                add_merge(m)
-        else:
-            # Later RCs are collapsed by default to avoid flooding the page
-            count = len(merges)
-            lines.append(f"<details>")
-            lines.append(f"<summary>Show merges ({count})</summary>")
-            lines.append("")
-            for m in merges:
-                add_merge(m)
-            lines.append("")
-            lines.append("</details>")
+                lines.append("  ```text")
+                # Do not include any links here; keep as plain text
+                for ln in body.splitlines():
+                    lines.append(f"  {ln}")
+                lines.append("  ```")
+            lines.append("  </details>")
             lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 

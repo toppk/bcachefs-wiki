@@ -8,31 +8,32 @@
 
 {{/* In this section: show only on child pages (not on section landing), and only for real sections */}}
 {{ if and .CurrentSection (not .IsSection) (ne .Section "") }}
-  {{ if eq .Section "news" }}
-    <div class="sectionlist up-link">
-      {{ with .CurrentSection }}
-        <a class="up-link" href="{{ .RelPermalink }}">← {{ .Title }}</a>
-      {{ end }}
-    </div>
-  {{ else }}
-    <div class="sectionlist">
+  <div class="sectionlist">
     {{ with .CurrentSection }}
       {{ $cur := . }}
       <h3>In this section</h3>
       <ul>
-        <li><a href="{{ $cur.RelPermalink }}">← {{ $cur.Title }}</a></li>
-        {{ $children := where .RegularPages "Draft" "ne" true }}
-        {{ range $children.ByWeight }}
-          <li>
-            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-            {{ if eq .RelPermalink $cur.RelPermalink }}
-            {{ end }}
-          </li>
+        <li><a href="{{ $cur.RelPermalink }}">↑ {{ $cur.Title }}</a></li>
+        {{ if eq $.Section "news" }}
+          {{/* For news, list only neighbors (no arrows in labels) */}}
+          {{ $pages := $cur.RegularPages.ByDate }}
+          {{ $earlierPages := where $pages "Date" "lt" $.Date }}
+          {{ $laterPages := where $pages "Date" "gt" $.Date }}
+          {{ range first 1 $laterPages }}
+            <li><a href="{{ .RelPermalink }}">Later: {{ .Title }}</a></li>
+          {{ end }}
+          {{ range last 1 $earlierPages }}
+            <li><a href="{{ .RelPermalink }}">Earlier: {{ .Title }}</a></li>
+          {{ end }}
+        {{ else }}
+          {{ $children := where .RegularPages "Draft" "ne" true }}
+          {{ range $children.ByWeight }}
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+          {{ end }}
         {{ end }}
       </ul>
     {{ end }}
-    </div>
-  {{ end }}
+  </div>
 {{ end }}
 
 {{/* See Also: configurable per page; falls back to section-level */}}

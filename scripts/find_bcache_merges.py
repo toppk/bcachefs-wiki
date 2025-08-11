@@ -29,7 +29,9 @@ def run(*args, cwd=None, check=True) -> subprocess.CompletedProcess:
     )
 
 
-def ensure_repo(repo_dir: Path, url: str):
+def ensure_repo(repo_dir: Path, url: str, offline: bool = False):
+    if offline:
+        return
     if (repo_dir / ".git").is_dir():
         run("git", "fetch", "--all", "--tags", "--prune", cwd=repo_dir)
     else:
@@ -199,9 +201,9 @@ def find_bcachefs_merges(repo_dir: Path) -> List[Dict[str, Any]]:
                 "subject": subject,
                 "source_tag": source_tag,
                 "source_repo": source_repo,
-                "full_commit_message": (
-                    subject + ("\n\n" + body if body.strip() else "")
-                ).rstrip(),
+                # %B already includes the subject line followed by the body;
+                # don't prepend subject again to avoid duplication.
+                "full_commit_message": body.rstrip(),
             }
         )
     return rows
@@ -231,10 +233,15 @@ def main():
         action="store_true",
         help="Also extract the embedded mergetag message from the merge commit.",
     )
+    ap.add_argument(
+        "--offline",
+        action="store_true",
+        help="Do not fetch/clone; use existing local repo only",
+    )
     args = ap.parse_args()
 
     repo_dir = Path(args.dir).resolve()
-    ensure_repo(repo_dir, args.url)
+    ensure_repo(repo_dir, args.url, offline=args.offline)
 
     commits = find_bcachefs_merges(repo_dir)
 

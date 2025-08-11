@@ -337,6 +337,30 @@ li p {
 
 .feed-links .sep { margin: 0 .35rem; color: #9aa1aa; }
 
+/* Code blocks: prevent overflow on narrow screens */
+pre {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; /* smooth horizontal scroll on mobile */
+}
+
+/* Optional: keep code inline blocks from forcing overflow */
+code {
+    word-break: normal;
+}
+
+/* Toggle labels for collapsible merge details */
+details summary .summary-open-label { display: none; }
+details[open] summary .summary-open-label { display: inline; }
+details[open] summary .summary-closed-label { display: none; }
+
+/* Keep native disclosure marker visible and make summary tappable */
+details > summary { cursor: pointer; list-style: disclosure-closed; }
+details[open] > summary { list-style: disclosure-open; }
+details > summary::-webkit-details-marker { display: inline-block; }
+
 /* Emergency banner */
 .emergency-banner { 
     border-bottom: 1px solid #e2e8dc; 
@@ -398,3 +422,8 @@ li p {
 }
 
 .feed-links .sep { margin: 0 .35rem; color: #9aa1aa; }
+/* Reduce list indent inside news articles only */
+.section-news .layout article ul {
+    margin-left: 0;
+    padding-left: 1rem; /* minimal to show bullet nicely */
+}

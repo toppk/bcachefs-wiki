@@ -9,7 +9,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-05-26**: Merge tag 'bcachefs-2025-05-24' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/522544fc71c27b4b432386c7919f71ecc79a3bfb))
   <details open>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs updates from Kent Overstreet:
@@ -158,7 +158,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-06-04**: Merge tag 'bcachefs-2025-06-04' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/ff0905bbf991f4337b5ebc19c0d43525ebb0d96b))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull more bcachefs updates from Kent Overstreet:
@@ -257,7 +257,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-06-13**: Merge tag 'bcachefs-2025-06-12' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/36df6f734a7ad69880c5262543165c47cb57169f))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs fixes from Kent Overstreet:
@@ -338,7 +338,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-06-26**: Merge tag 'bcachefs-2025-06-26' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/6f2a71a99ebd5dfaa7948a2e9c59eae94b741bd8))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs fixes from Kent Overstreet:
@@ -397,7 +397,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-07-04**: Merge tag 'bcachefs-2025-07-03' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/482deed9dfa065cf3f68372dadac857541c7d504))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs fixes from Kent Overstreet:
@@ -422,7 +422,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-07-12**: Merge tag 'bcachefs-2025-07-11' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/4412b8b23de24a94a0b78ac283db043c833a3975))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs fixes from Kent Overstreet.
@@ -445,7 +445,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-07-18**: Merge tag 'bcachefs-2025-07-17' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/d3d16f31d7b305df46080a95f2d254f78e04d588))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs fixes from Kent Overstreet:
@@ -475,7 +475,7 @@ This post summarizes bcachefs merges that landed in Linux 6.16.
 
 - **2025-07-25**: Merge tag 'bcachefs-2025-07-24' of git://evilpiepirate.org/bcachefs ([commit](https://git.kernel.org/torvalds/c/bef3012b2f6814af2b5c5abd6b5f85921dbb8a01))
   <details>
-  <summary>Show full message</summary>
+  <summary><span class="summary-closed-label">Show pull request</span><span class="summary-open-label">Hide pull request</span></summary>
 
   ```text
   Pull bcachefs fixes from Kent Overstreet:

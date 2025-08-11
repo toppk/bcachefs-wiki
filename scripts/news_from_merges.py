@@ -109,8 +109,8 @@ def build_markdown(kernel: str, rec: Dict[str, Any], title: str, date_iso: str) 
         # Sort merges within each RC by date ascending (earliest first)
         merges_sorted = sorted(merges, key=lambda m: (parse_ymd(m.get("date", "")), m.get("subject", "")))
 
-        # Each merge renders as a bullet with links, plus a collapsible block
-        # attached to the list item containing the full commit message.
+        # Each merge renders as a markdown bullet with links, plus a collapsible
+        # block attached to the list item containing the full commit message.
         for idx, m in enumerate(merges_sorted):
             date = m.get("date", "")
             subj = m.get("subject", "")
@@ -128,11 +128,10 @@ def build_markdown(kernel: str, rec: Dict[str, Any], title: str, date_iso: str) 
             url = f"https://git.kernel.org/torvalds/c/{h}" if h else ""
             bullet = f"- **{date}**: {subj}{f' ([commit]({url}))' if url else ''}"
             lines.append(bullet)
-            # Indent the details block so it is part of the list item
             # Expand the first merge only for RC1; others start collapsed
             open_attr = " open" if (rc == "rc1" and idx == 0) else ""
             lines.append(f"  <details{open_attr}>")
-            lines.append("  <summary>Show full message</summary>")
+            lines.append("  <summary><span class=\"summary-closed-label\">Show pull request</span><span class=\"summary-open-label\">Hide pull request</span></summary>")
             if body:
                 lines.append("")
                 lines.append("  ```text")

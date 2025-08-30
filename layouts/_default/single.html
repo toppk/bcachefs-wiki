@@ -1,5 +1,17 @@
 {{ define "main" }}
+{{ if .CurrentSection }}
+  <header class="section-intro">
+    <h2 class="section-title">{{ .CurrentSection.Title }}</h2>
+    {{ with .CurrentSection.Summary }}
+      <div class="section-summary">{{ . | safeHTML }}</div>
+    {{ end }}
+  </header>
+{{ end }}
+
 <div class="layout">
+  <aside class="left">
+    {{ partial "sidebar-left.html" . }}
+  </aside>
   <article>
     {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
     {{ $raw := .Content }}
@@ -17,8 +29,8 @@
     <h1>{{ .Title }}</h1>
     {{ $content | safeHTML }}
   </article>
-  <aside>
-    {{ partial "sidebar.html" . }}
+  <aside class="right">
+    {{ partial "sidebar-right.html" . }}
   </aside>
 </div>
 {{ end }}

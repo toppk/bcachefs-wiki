@@ -4,14 +4,13 @@
   <div class="container">
     <a href="/">Home</a>
     {{ with .CurrentSection }}
-      <span class="sep">›</span>
+      <span class="sep">/</span>
       <a href="{{ .RelPermalink }}">{{ .Title }}</a>
     {{ end }}
     {{ if not .IsSection }}
-      <span class="sep">›</span>
+      <span class="sep">/</span>
       <span class="current">{{ .Title }}</span>
     {{ end }}
   </div>
   </nav>
 {{ end }}
-

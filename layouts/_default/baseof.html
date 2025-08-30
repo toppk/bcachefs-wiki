@@ -21,11 +21,11 @@
 <body class="{{ if .IsHome }}home{{ end }}{{ if and (not .IsHome) .Section }} section-{{ .Section }}{{ end }}">
   <header class="site-header">
     <div class="container nav-inner">
-      <h1>
+      <h1 class="brand">
         {{ if .IsHome }}
-        <span class="brand">bcachefs</span>
+          <span class="brand-label">bcachefs</span>
         {{ else }}
-        <a href="/">bcachefs</a>
+          <a class="brand-label" href="/">bcachefs</a>
         {{ end }}
       </h1>
       <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation" />
@@ -60,6 +60,8 @@
         {{ end }}
       </nav>
       <div class="nav-right">
+        <a class="aux-link" href='{{ relref . "using/support.md" }}'>Support</a>
+        <a class="aux-link" href='{{ relref . "using/getting_started.md" }}'>Getting Started</a>
         <a class="patreon-bubble" href="https://www.patreon.com/bcachefs" target="_blank" rel="noopener noreferrer"
           aria-label="Support bcachefs on Patreon">Patreon</a>
       </div>

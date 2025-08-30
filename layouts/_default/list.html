@@ -1,4 +1,15 @@
 {{ define "main" }}
+{{/* Auto-jump to first child for regular sections (not news) */}}
+{{ if and .IsSection (ne .Section "news") }}
+  {{ $first := index (first 1 (.Pages.ByWeight)) 0 }}
+  {{ if $first }}
+    <meta http-equiv="refresh" content="0; url={{ $first.RelPermalink }}">
+    <link rel="canonical" href="{{ $first.Permalink }}">
+    <p>If you are not redirected, <a href="{{ $first.RelPermalink }}">continue to {{ $first.Title }}</a>.</p>
+  {{ else }}
+    <p>No pages in this section yet.</p>
+  {{ end }}
+{{ else }}
 <div class="layout">
   <article>
     <h1>{{ .Title }}</h1>
@@ -65,8 +76,9 @@
       </div>
     {{ end }}
   </article>
-  <aside>
-    {{ partial "sidebar.html" . }}
+  <aside class="right">
+    {{ partial "sidebar-right.html" . }}
   </aside>
 </div>
+{{ end }}
 {{ end }}

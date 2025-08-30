@@ -1,0 +1,38 @@
+{{/* Right sidebar: On this page (ToC) + optional See also */}}
+<div class="sidenav sidenav-right">
+  {{ $toc := .TableOfContents }}
+  {{ if and (not .IsHome) (in $toc "<li>") }}
+    <div class="toc">
+      <h3>On this page</h3>
+      {{ $toc }}
+    </div>
+  {{ end }}
+
+  {{/* See Also: page-level first, else section-level */}}
+  {{ $see := .Params.see_also }}
+  {{ if not $see }}
+    {{ with .CurrentSection }}
+      {{ $see = .Params.see_also }}
+    {{ end }}
+  {{ end }}
+  {{ with $see }}
+    <div class="seealso">
+      <h3>See also</h3>
+      <ul>
+        {{ range . }}
+          {{ $item := . }}
+          {{ with $item.ref }}
+            <li><a href='{{ relref $ . }}'>{{ or $item.title (path.Base .) }}</a></li>
+          {{ else }}
+            {{ with $item.url }}
+              <li><a href='{{ . }}' rel='noopener'>{{ or $item.title . }}</a></li>
+            {{ else }}
+              <li><a href='{{ relref $ $item }}'>{{ $item }}</a></li>
+            {{ end }}
+          {{ end }}
+        {{ end }}
+      </ul>
+    </div>
+  {{ end }}
+</div>
+

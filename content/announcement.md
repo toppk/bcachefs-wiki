@@ -14,7 +14,7 @@ banner: true
 # (Content-only) No frontmatter text/html is used; body below is rendered.
 banner_scope: all   # all | home
 banner_level: warning  # info | warning | danger
-banner_id: demo-announce-5
+banner_id: demo-announce-6
 
 # Prevent generating a public /announcement/ page while keeping the
 # page available to templates (requires Hugo build options support)
@@ -32,4 +32,4 @@ To activate the site-wide banner:
 Dismissal persists per browser session only. To re-show for everyone,
 change banner_id to a new unique value.
 -->
-Hi there, this not the real site, go to [bcachefs.org](https://bcachefs.org/) for the current site.
+Hi there, this not the real site, go to [bcachefs.org](https://bcachefs.org/) for the current site, or give us [feedback](https://github.com/toppk/bcachefs-wiki/issues) on this test site.

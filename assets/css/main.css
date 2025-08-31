@@ -74,6 +74,10 @@ a:focus {
     color: var(--c-link-hover)
 }
 
+/* Underline content links on hover (but not nav/sidebars/ToC) */
+.layout article a:hover,
+.layout article a:focus { text-decoration: underline; }
+
 #content {
     margin: 1em 2em
 }
@@ -171,13 +175,17 @@ aside.home-news { flex: 0 0 300px; position: static; align-self: flex-start; mar
 .home-news .home-news-list li { margin: .35rem 0; }
 .home-news .home-news-list .date { color: var(--c-muted); font-size: .9em; margin-right: .4rem; }
 .home-news .more { margin: 0; }
+/* Underline links in the homepage news card on hover */
+.home-news .news-box a:hover,
+.home-news .news-box a:focus { text-decoration: underline; }
 
 /* News single header pager */
 .news-header { margin: 0 0 1.5rem; }
 .news-pager { display: flex; align-items: center; font-size: .95em; }
 .news-pager .spacer { flex: 1 1 auto; }
 .news-pager a { color: var(--c-link); max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.news-pager a:hover { color: var(--c-link-hover); }
+.news-pager a:hover,
+.news-pager a:focus { color: var(--c-link-hover); text-decoration: underline; }
 
 .sidenav h3 { margin-top: 0; }
 .sidenav ul { margin: .25rem 0 0; padding-left: 1.1rem; }
@@ -410,9 +418,13 @@ aside.home-news { flex: 0 0 300px; position: static; align-self: flex-start; mar
 .breadcrumbs .sep { margin: 0 .22rem; color: #6b7280 }
 
 /* Breadcrumb home icon alignment */
-.breadcrumbs .home-icon { width: 1em; height: 1em; vertical-align: -0.125em; }
+.breadcrumbs .home-icon { font-size: 1em; line-height: inherit; vertical-align: baseline; }
 
 .breadcrumbs .current { color: var(--c-text) }
+
+/* Underline breadcrumb links on hover/focus */
+.breadcrumbs a:hover,
+.breadcrumbs a:focus { text-decoration: underline; }
 
 ul {
     margin: .5rem 0 .5rem 1.25rem
@@ -517,12 +529,25 @@ details > summary::-webkit-details-marker { display: inline-block; }
     cursor: pointer;
 }
 .emergency-banner .banner-dismiss:hover,
-.emergency-banner .banner-dismiss:focus { background: rgba(255,255,255,.2); }
+.emergency-banner .banner-dismiss:focus {
+    background: rgba(0,0,0,.06);
+    border-color: rgba(0,0,0,.25);
+}
+/* Tint hover/focus by level for a stronger cue */
+.emergency-banner.level-info .banner-dismiss:hover,
+.emergency-banner.level-info .banner-dismiss:focus { background: rgba(11,58,111,.12); border-color: rgba(11,58,111,.35); color: #0b3a6f; }
+.emergency-banner.level-warning .banner-dismiss:hover,
+.emergency-banner.level-warning .banner-dismiss:focus { background: rgba(91,59,0,.12); border-color: rgba(91,59,0,.35); color: #5b3b00; }
+.emergency-banner.level-danger .banner-dismiss:hover,
+.emergency-banner.level-danger .banner-dismiss:focus { background: rgba(111,11,26,.12); border-color: rgba(111,11,26,.35); color: #6f0b1a; }
 .emergency-banner.hidden { display: none; }
 /* Levels */
 .emergency-banner.level-info    { background: #eef6ff; color: #0b3a6f; }
 .emergency-banner.level-warning { background: #fff8e6; color: #5b3b00; }
 .emergency-banner.level-danger  { background: #ffebee; color: #6f0b1a; }
+/* Underline links inside the announcement banner on hover/focus */
+.emergency-banner a:hover,
+.emergency-banner a:focus { text-decoration: underline; }
 
 /* Mobile layout adjustments (collapse sooner to avoid crowding) */
 @media (max-width: 1100px) {

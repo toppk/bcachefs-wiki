@@ -28,3 +28,9 @@ Join us in the bcache [IRC]({{< relref "developer/irc.md" >}}) channel: #bcache 
 Mailing list: <https://lore.kernel.org/linux-bcachefs/>, or <linux-bcachefs@vger.kernel.org>.
 
 Bug trackers: [bcachefs](https://github.com/koverstreet/bcachefs/issues), [bcachefs-tools](https://github.com/koverstreet/bcachefs-tools/issues)
+
+## Website Details
+
+- Source: <https://evilpiepirate.org/git/bcachefs-wiki.git/>
+- Generator: This site is built with Hugo.
+- Design: Designed by Rachel Rossi — <https://github.com/rachelxrossi>

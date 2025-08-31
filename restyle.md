@@ -140,12 +140,25 @@ Stage 1 Refresh — Complete
 - Colors: centralized tokens; switched site to provided palette; added variables for Royal/Royal‑Blue/Navy/Light‑Green/Better‑White.
 - Misc spacing: fixed top margin on first article heading, alignment, and jitter from hover underlines.
 
-Stage 2 — TODOs / Open Work
+Stage 2 Refresh
 
-- Root section: finalize homepage/header content, hero spacing, and any news rail or quick links.
-- News section: confirm card design, metadata, and article styling; double‑check RSS placement and pagination spacing.
-- ToC style: update right‑sidebar ToC visual (link sizes, bullets/indents, sticky behavior), plus See‑Also box treatment.
-- Responsive: polish breakpoints for header and dual sidebars; decide mobile behavior (collapse left nav; ToC jump link; sticky header interactions); ensure no overflow or clipping.
-- Site design page: add a reference page documenting the tokens, components, and layout rules with examples; link it from Developers.
-- Accessibility: focus states on nav/sidebars, aria labels for burger/sidebars, color contrast re‑check after palette changes.
-- Performance/cleanup: verify minified CSS via Hugo Pipes; remove legacy wiki styles once migration stabilizes.
+- What’s been added since Stage 1:
+  - Header/nav polish: left/right alignment, earlier burger breakpoint, consistent hover/active states, fixed right clipping.
+  - Breadcrumbs: icon for Home, symmetric “/” spacing.
+  - Section structure: left sidenav (section links) + right sidenav (ToC) with sticky behavior; section intro header below breadcrumbs.
+  - ToC: Docusaurus‑style (no heading, no bullets, left rail, nested indent), scrollspy highlighting current section.
+  - “See also”: removed from right; rendered in left as normal entries with icons (PDF + link).
+  - Homepage: right rail News box with compact list.
+  - News: landing without right TOC; article pages show full‑width pager (newer/older with titles) above content; right TOC restored.
+  - Content fixes: normalized a heading level in Using/Introduction; added “Website Details” to Support.
+
+- Remaining focus (primary): Mobile reactivity
+  - Header: refine collapse, stacked menus, and right‑side links behavior.
+  - Sidebars: choose patterns (hide/accordion/drawer), add a “Jump to ToC” on mobile, and ensure no overlap with content.
+  - Spacing: tighten margins/paddings across breakpoints; avoid horizontal scroll.
+  - Performance: keep the scrollspy lightweight on mobile or disable if needed.
+
+- Nice to have (optional polish):
+  - Site design reference page with tokens/components.
+  - A11y pass for focus order and keyboard navigation in sidebars.
+  - Remove any remaining legacy styles once mobile is finalized.

@@ -2,6 +2,7 @@
 title = "The Programmer's Guide to bcache"
 slug = "Architecture"
 url = "/Architecture/Guide/"
+weight = -100
 +++
 
 This document is intended to cover the design and core concepts of bcache, and

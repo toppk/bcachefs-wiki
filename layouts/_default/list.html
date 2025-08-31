@@ -76,9 +76,11 @@
       </div>
     {{ end }}
   </article>
-  <aside class="right">
-    {{ partial "sidebar-right.html" . }}
-  </aside>
+  {{ if ne .Section "news" }}
+    <aside class="right">
+      {{ partial "sidebar-right.html" . }}
+    </aside>
+  {{ end }}
 </div>
 {{ end }}
 {{ end }}

@@ -74,6 +74,39 @@
       {{ block "main" . }}{{ end }}
     </div>
   </main>
+  {{/* Scrollspy for ToC: highlights current section and keeps sidebars informative */}}
+  <script>
+  (function(){
+    const toc = document.querySelector('.sidenav-right .toc');
+    if (!toc) return;
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    if (!links.length) return;
+    const byId = new Map(links.map(a => [decodeURIComponent(a.getAttribute('href').slice(1)), a]));
+    const heads = Array.from(document.querySelectorAll('article h1, article h2, article h3'))
+      .filter(h => byId.has(h.id));
+    let activeId = null;
+    const setActive = (id) => {
+      if (activeId === id) return;
+      links.forEach(a => a.classList.remove('active'));
+      const el = byId.get(id);
+      if (el) el.classList.add('active');
+      activeId = id;
+    };
+    const obs = new IntersectionObserver((entries)=>{
+      // pick the entry nearest to top that's intersecting
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a,b)=> a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length) setActive(visible[0].target.id);
+    }, { rootMargin: '0px 0px -70% 0px', threshold: [0, 1] });
+    heads.forEach(h => obs.observe(h));
+    // Fallback: on hashchange, ensure link is marked
+    window.addEventListener('hashchange', ()=>{
+      const id = decodeURIComponent(location.hash.replace('#',''));
+      if (id) setActive(id);
+    });
+  })();
+  </script>
 </body>
 
 </html>

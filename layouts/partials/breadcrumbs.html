@@ -2,7 +2,9 @@
 {{ if not .IsHome }}
 <nav class="breadcrumbs">
   <div class="container">
-    <a href="/">Home</a>
+    <a href="/" aria-label="Home">
+      <svg class="home-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 3.172 3.172 12H6v7h5v-5h2v5h5v-7h2.828L12 3.172z"/></svg>
+    </a>
     {{ with .CurrentSection }}
       <span class="sep">/</span>
       <a href="{{ .RelPermalink }}">{{ .Title }}</a>

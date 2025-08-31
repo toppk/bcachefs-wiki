@@ -28,6 +28,7 @@
     --nav-current-bg: var(--Royal);        /* active section */
     --nav-current-text: var(--Better-White);
     --brand-color: var(--Light-Green);
+    --sticky-top: 12px; /* header not sticky; keep sidebars near top */
 }
 
 .title {
@@ -130,7 +131,7 @@ body {
   }
 }
 
-nav a {
+.site-header nav a {
     margin-right: .75rem
 }
 
@@ -151,12 +152,32 @@ nav a {
 .layout aside {
     flex: 0 0 260px;
     padding-top: 0; /* top align with article */
+    position: sticky;
+    top: var(--sticky-top);
+    align-self: flex-start;
+    height: fit-content;
 }
 
 /* Two-side nav structure */
 .layout .left { order: 0; }
 .layout article { order: 1; }
 .layout .right { order: 2; }
+
+/* Homepage news aside (non-sticky) */
+aside.home-news { flex: 0 0 300px; position: static; align-self: flex-start; margin-top: 5rem; }
+.layout aside.home-news { order: 2; }
+.home-news .news-box { background: var(--c-surface-alt); border-radius: 8px; padding: .75rem .9rem; }
+.home-news .home-news-list { list-style: none; padding-left: 0; margin: .25rem 0 .5rem; }
+.home-news .home-news-list li { margin: .35rem 0; }
+.home-news .home-news-list .date { color: var(--c-muted); font-size: .9em; margin-right: .4rem; }
+.home-news .more { margin: 0; }
+
+/* News single header pager */
+.news-header { margin: 0 0 1.5rem; }
+.news-pager { display: flex; align-items: center; font-size: .95em; }
+.news-pager .spacer { flex: 1 1 auto; }
+.news-pager a { color: var(--c-link); max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.news-pager a:hover { color: var(--c-link-hover); }
 
 .sidenav h3 { margin-top: 0; }
 .sidenav ul { margin: .25rem 0 0; padding-left: 1.1rem; }
@@ -178,6 +199,23 @@ nav a {
     border-radius: 6px; /* patreon-style box */
     text-decoration: none;
 }
+.sidenav-left a.pdf-link { position: relative; padding-left: 2rem; }
+.sidenav-left a.pdf-link::before {
+    content: "";
+    position: absolute; left: .6rem; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 16px;
+    background: currentColor;
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"%23fff\" d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm1 7V3.5L18.5 9H15Z"/></svg>') no-repeat center / contain;
+            mask: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"%23fff\" d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm1 7V3.5L18.5 9H15Z"/></svg>') no-repeat center / contain;
+}
+
+/* Generic link resource icon (chain link, not external arrow) */
+.sidenav-left a.link-link { position: relative; padding-left: 2rem; }
+.sidenav-left a.link-link::before {
+    content: "🔗";
+    position: absolute; left: .6rem; top: 50%; transform: translateY(-50%);
+    font-size: 1rem; line-height: 1; opacity: .9;
+}
 .sidenav-left a { color: var(--Navy); background: transparent; }
 .sidenav-left a:hover,
 .sidenav-left a:focus { background: var(--Royal-Blue); color: var(--Better-White); }
@@ -196,10 +234,18 @@ nav a {
     margin: .25rem 0
 }
 
-.toc nav {
-    border-left: none;
-    padding-left: 0
-}
+/* ToC restyle (Docusaurus-like) */
+.sidenav-right .toc { border-left: 2px solid var(--c-border); padding-left: .75rem; }
+.sidenav-right .toc nav { border-left: none; padding-left: 0; }
+.sidenav-right .toc ul { list-style: none; margin: 0; padding-left: 0; }
+/* Indent nested headings */
+.sidenav-right .toc ul ul { padding-left: .75rem; }
+.sidenav-right .toc li { margin: .25rem 0; }
+.sidenav-right .toc a,
+.sidenav-right .toc a:visited { color: #000; text-decoration: none; }
+.sidenav-right .toc a:hover,
+.sidenav-right .toc a:focus { color: var(--Light-Green); }
+.sidenav-right .toc a.active { color: var(--c-link); }
 
 .toc ul {
     margin: .25rem 0 0;
@@ -361,10 +407,10 @@ nav a {
     padding: .5rem 1rem
 }
 
-.breadcrumbs .sep {
-    margin: 0 .35rem;
-    color: #6b7280
-}
+.breadcrumbs .sep { margin: 0 .22rem; color: #6b7280 }
+
+/* Breadcrumb home icon alignment */
+.breadcrumbs .home-icon { width: 1em; height: 1em; vertical-align: -0.125em; }
 
 .breadcrumbs .current { color: var(--c-text) }
 

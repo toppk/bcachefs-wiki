@@ -1,24 +1,30 @@
 {{ define "main" }}
-  <div class="layout">
-    <article>
-      {{/* Render homepage content with wikilink support */}}
-      {{ $raw := .Content }}
-      {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
-      {{ $content := replaceRE $withText (printf "[$1](/$2/)") $raw }}
-      {{ $simple := `\[\[([^\]|#]+)\]\]` }}
-      {{ $content = replaceRE $simple (printf "[$1](/$1/)") $content }}
-      {{ $content | safeHTML }}
+<div class="layout">
+  <article>
+    <br>
+    <h1>{{ .Title }}</h1>
 
-      <h2>News</h2>
-      <ul>
-        {{ range first 5 (where .Site.RegularPages "Section" "news") }}
-          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-        {{ end }}
-        <li><a href='{{ relref . "/news/_index.md" }}'>More news…</a></li>
+    {{/* Render homepage content with wikilink support */}}
+    {{ $raw := .Content }}
+    {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
+    {{ $content := replaceRE $withText (printf "[$1](/$2/)") $raw }}
+    {{ $simple := `\[\[([^\]|#]+)\]\]` }}
+    {{ $content = replaceRE $simple (printf "[$1](/$1/)") $content }}
+    {{ $content | safeHTML }}
+  </article>
+  <aside class="home-news">
+    <div class="news-box">
+      <h3>News</h3>
+      <ul class="home-news-list">
+      {{ range first 5 (where .Site.RegularPages "Section" "news") }}
+        <li>
+          <span class="date">{{ .Date.Format "2006-01-02" }}</span>
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </li>
+      {{ end }}
       </ul>
-    </article>
-    <aside>
-      {{ partial "sidebar.html" . }}
-    </aside>
-  </div>
+      <p class="more"><a href='{{ relref . "/news/_index.md" }}'>More news…</a></p>
+    </div>
+  </aside>
+</div>
 {{ end }}

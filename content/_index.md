@@ -1,9 +1,5 @@
 +++
-title = "bcachefs filesystem"
-see_also = [
-  { title = "Support", ref = "using/support.md" },
-  { title = "Getting Started", ref = "using/getting_started.md" }
-]
+title = "Bcachefs"
 +++
 
 ## "The COW filesystem for Linux that won't eat your data"

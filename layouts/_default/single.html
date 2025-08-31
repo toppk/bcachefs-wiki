@@ -1,36 +1,78 @@
 {{ define "main" }}
-{{ if .CurrentSection }}
-  <header class="section-intro">
-    <h2 class="section-title">{{ .CurrentSection.Title }}</h2>
-    {{ with .CurrentSection.Summary }}
-      <div class="section-summary">{{ . | safeHTML }}</div>
-    {{ end }}
-  </header>
-{{ end }}
+{{ if eq .Section "news" }}
+  {{ $sec := .CurrentSection }}
+  {{ if $sec }}
+    {{ $pages := $sec.RegularPages.ByDate }}
+    {{ $earlier := where $pages "Date" "lt" .Date }}
+    {{ $later := where $pages "Date" "gt" .Date }}
+    <header class="news-header">
+      <nav class="news-pager" aria-label="Post navigation">
+        {{ range first 1 $later }}
+          <a class="newer" href="{{ .RelPermalink }}">← Newer: {{ .Title }}</a>
+        {{ end }}
+        <span class="spacer" aria-hidden="true"></span>
+        {{ range last 1 $earlier }}
+          <a class="older" href="{{ .RelPermalink }}">Older: {{ .Title }} →</a>
+        {{ end }}
+      </nav>
+    </header>
+  {{ end }}
+  <div class="layout">
+    <article class="news-article">
+      {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
+      {{ $raw := .Content }}
+      {{ $content := replaceRE `\[\[![^\]]*\]\]` "" $raw }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|(https?://[^\]]+)\]\]` `<a href="$2">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[(https?://[^\]]+)\]\]` `<a href="$1">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\]\]` `<a href="mailto:$2">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|(mailto:[^\]]+)\]\]` `<a href="$2">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|([^\]]+\.(?i:pdf))\]\]` `<a href="/$2">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]]+\.(?i:pdf))\]\]` `<a href="/$1">$1<\ /a>` $content }}
+      {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
+      {{ $content = replaceRE $withText `<a href="/$2/">$1<\ /a>` $content }}
+      {{ $simple := `\[\[([^\]|#]+)\]\]` }}
+      {{ $content = replaceRE $simple `<a href="/$1/">$1<\ /a>` $content }}
+      <h1>{{ .Title }}</h1>
+      {{ $content | safeHTML }}
+    </article>
+    <aside class="right">
+      {{ partial "sidebar-right.html" . }}
+    </aside>
+  </div>
+{{ else }}
+  {{ if .CurrentSection }}
+    <header class="section-intro">
+      <h2 class="section-title">{{ .CurrentSection.Title }}</h2>
+      {{ with .CurrentSection.Summary }}
+        <div class="section-summary">{{ . | safeHTML }}</div>
+      {{ end }}
+    </header>
+  {{ end }}
 
-<div class="layout">
-  <aside class="left">
-    {{ partial "sidebar-left.html" . }}
-  </aside>
-  <article>
-    {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
-    {{ $raw := .Content }}
-    {{ $content := replaceRE `\[\[![^\]]*\]\]` "" $raw }}
-    {{ $content = replaceRE `\[\[([^\]|#]+)\|(https?://[^\]]+)\]\]` `<a href="$2">$1<\ /a>` $content }}
-    {{ $content = replaceRE `\[\[(https?://[^\]]+)\]\]` `<a href="$1">$1<\ /a>` $content }}
-    {{ $content = replaceRE `\[\[([^\]|#]+)\|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\]\]` `<a href="mailto:$2">$1<\ /a>` $content }}
-    {{ $content = replaceRE `\[\[([^\]|#]+)\|(mailto:[^\]]+)\]\]` `<a href="$2">$1<\ /a>` $content }}
-    {{ $content = replaceRE `\[\[([^\]|#]+)\|([^\]]+\.(?i:pdf))\]\]` `<a href="/$2">$1<\ /a>` $content }}
-    {{ $content = replaceRE `\[\[([^\]]+\.(?i:pdf))\]\]` `<a href="/$1">$1<\ /a>` $content }}
-    {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
-    {{ $content = replaceRE $withText `<a href="/$2/">$1<\ /a>` $content }}
-    {{ $simple := `\[\[([^\]|#]+)\]\]` }}
-    {{ $content = replaceRE $simple `<a href="/$1/">$1<\ /a>` $content }}
-    <h1>{{ .Title }}</h1>
-    {{ $content | safeHTML }}
-  </article>
-  <aside class="right">
-    {{ partial "sidebar-right.html" . }}
-  </aside>
-</div>
+  <div class="layout">
+    <aside class="left">
+      {{ partial "sidebar-left.html" . }}
+    </aside>
+    <article>
+      {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
+      {{ $raw := .Content }}
+      {{ $content := replaceRE `\[\[![^\]]*\]\]` "" $raw }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|(https?://[^\]]+)\]\]` `<a href=\"$2\">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[(https?://[^\]]+)\]\]` `<a href=\"$1\">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\]\]` `<a href=\"mailto:$2\">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|(mailto:[^\]]+)\]\]` `<a href=\"$2\">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]|#]+)\|([^\]]+\.(?i:pdf))\]\]` `<a href=\"/$2\">$1<\ /a>` $content }}
+      {{ $content = replaceRE `\[\[([^\]]+\.(?i:pdf))\]\]` `<a href=\"/$1\">$1<\ /a>` $content }}
+      {{ $withText := `\[\[([^\]|#]+)\|([^\]]+)\]\]` }}
+      {{ $content = replaceRE $withText `<a href=\"/$2/\">$1<\ /a>` $content }}
+      {{ $simple := `\[\[([^\]|#]+)\]\]` }}
+      {{ $content = replaceRE $simple `<a href=\"/$1/\">$1<\ /a>` $content }}
+      <h1>{{ .Title }}</h1>
+      {{ $content | safeHTML }}
+    </article>
+    <aside class="right">
+      {{ partial "sidebar-right.html" . }}
+    </aside>
+  </div>
+{{ end }}
 {{ end }}

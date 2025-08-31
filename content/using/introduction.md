@@ -4,7 +4,7 @@ slug = "Introduction"
 url = "/Using/Introduction/"
 weight = -100
 +++
-## About
+### About
 
 There are two main themes or ideas that make up bcachefs: copy on write, and filesystem-as-database. These are the two primary tools for achieving reliability: a filesystem that won't corrupt or lose your data, and that can always be repaired even when things go horribly wrong.
 

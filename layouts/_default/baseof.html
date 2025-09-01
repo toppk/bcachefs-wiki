@@ -79,13 +79,15 @@
   {{/* Scrollspy for ToC: highlights current section and keeps sidebars informative */}}
   <script>
   (function(){
-    const toc = document.querySelector('.sidenav-right .toc');
-    if (!toc) return;
-    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    // Collect ToC links from desktop sidebar and mobile dropdown content
+    const tocContainers = Array.from(document.querySelectorAll('.sidenav-right .toc, .toc-mobile .toc-content'));
+    if (!tocContainers.length) return;
+    const links = tocContainers.flatMap(c => Array.from(c.querySelectorAll('a[href^="#"]')));
     if (!links.length) return;
     const byId = new Map(links.map(a => [decodeURIComponent(a.getAttribute('href').slice(1)), a]));
     const heads = Array.from(document.querySelectorAll('article h1, article h2, article h3'))
       .filter(h => byId.has(h.id));
+
     let activeId = null;
     const setActive = (id) => {
       if (activeId === id) return;

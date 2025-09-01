@@ -19,6 +19,18 @@
   {{ end }}
   <div class="layout">
     <article class="news-article">
+      {{/* Mobile ToC dropdown (collapsible, CSS-only like Docusaurus) */}}
+      {{ $toc := .TableOfContents }}
+      {{ if and (not .IsHome) (in $toc "<li>") }}
+        <div class="toc-mobile" aria-label="On this page">
+          <details class="toc-collapse">
+            <summary>On this page</summary>
+            <div class="toc-content">
+              {{ $toc }}
+            </div>
+          </details>
+        </div>
+      {{ end }}
       {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
       {{ $raw := .Content }}
       {{ $content := replaceRE `\[\[![^\]]*\]\]` "" $raw }}
@@ -54,6 +66,61 @@
       {{ partial "sidebar-left.html" . }}
     </aside>
     <article>
+      {{/* Section nav dropdown (mobile only, CSS collapsible) */}}
+      {{ if and .CurrentSection (ne .Section "") }}
+        <div class="section-mobile" aria-label="In this section">
+          <details class="section-collapse">
+            <summary>In this section</summary>
+            <div class="section-content">
+              {{ with .CurrentSection }}
+                <ul>
+                  {{ $children := where .RegularPages "Draft" "ne" true }}
+                  {{ range $children.ByWeight }}
+                    <li>{{ if eq $.RelPermalink .RelPermalink }}<span class="current">{{ .Title }}</span>{{ else }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</li>
+                  {{ end }}
+                  {{ $see := .Params.see_also }}
+                  {{ with $see }}
+                    {{ range . }}
+                      {{ $item := . }}
+                      {{ $href := "" }}
+                      {{ $title := "" }}
+                      {{ with $item.ref }}
+                        {{ $href = relref $ . }}
+                        {{ $title = (or $item.title (path.Base .)) }}
+                      {{ else }}
+                        {{ with $item.url }}
+                          {{ $href = . }}
+                          {{ $title = (or $item.title .) }}
+                        {{ else }}
+                          {{ $href = relref $ $item }}
+                          {{ $title = $item }}
+                        {{ end }}
+                      {{ end }}
+                      {{ $isPdf := (findRE `(?i)\\.pdf$` $href) }}
+                      <li>
+                        <a class="{{ if $isPdf }}pdf-link{{ else }}link-link{{ end }}" href="{{ $href }}">{{ $title }}</a>
+                      </li>
+                    {{ end }}
+                  {{ end }}
+                </ul>
+              {{ end }}
+            </div>
+          </details>
+        </div>
+      {{ end }}
+
+      {{/* Mobile ToC dropdown (collapsible, CSS-only like Docusaurus) */}}
+      {{ $toc := .TableOfContents }}
+      {{ if and (not .IsHome) (in $toc "<li>") }}
+        <div class="toc-mobile" aria-label="On this page">
+          <details class="toc-collapse">
+            <summary>On this page</summary>
+            <div class="toc-content">
+              {{ $toc }}
+            </div>
+          </details>
+        </div>
+      {{ end }}
       {{/* Wikilinks: [[Text|Page]] and [[Page]]; keep minimal conversion */}}
       {{ $raw := .Content }}
       {{ $content := replaceRE `\[\[![^\]]*\]\]` "" $raw }}
